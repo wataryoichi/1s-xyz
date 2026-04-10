@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第13章. LoRA / QLoRA / Adapter - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 微調整系の頻出語を整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-13.html">
+  <meta property="og:title" content="第13章. LoRA / QLoRA / Adapter - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 微調整系の頻出語を整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-13.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第13章. LoRA / QLoRA / Adapter - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 微調整系の頻出語を整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">13 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第7部: 学習と微調整</li><li aria-current="page">第13章. LoRA / QLoRA / Adapter</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第13章-lora-qlora-adapter">第13章. LoRA / QLoRA / Adapter</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>大規模言語モデル（LLM）の微調整（Fine-tuning）において、効率的な学習を実現するための主要な技術であるLoRA、QLoRA、そしてAdapterについて深く理解することを目的とします。これらの技術は、限られた計算資源でLLMを特定のタスクやデータセットに適応させるために不可欠です。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>LoRAの基本的な仕組みと、なぜそれが効率的なのか。</li>
+<li>QLoRAがLoRAをどのように進化させ、さらにメモリ効率を高めているか。</li>
+<li>Adapterの概念とLoRAとの関係性。</li>
+<li><code>merge</code>、<code>rank</code>、<code>target modules</code>といった関連用語の意味。</li>
+<li>LoRA、QLoRA、そして他の学習手法や量子化手法との違い。</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>大規模言語モデル（LLM）は、その名の通り膨大なパラメータを持つため、一から学習させたり、既存のモデル全体を微調整（Full Fine-tuning）したりするには、莫大な計算資源と時間が必要です。しかし、特定のタスクやドメインにモデルを適応させたい場合、毎回ゼロから学習するのは現実的ではありません。</p>
+<p>そこで登場するのが、<strong>Parameter-Efficient Fine-tuning (PEFT)</strong> と呼ばれる技術群です。PEFTは、モデルの全パラメータを更新するのではなく、ごく一部のパラメータのみを学習することで、計算コストとメモリ使用量を大幅に削減しつつ、高い性能を維持することを目指します。本章で扱うLoRA、QLoRA、Adapterは、このPEFTの代表的な手法であり、今日のLLM微調整において最も広く利用されています。</p>
+<p>これらの技術を理解することは、限られたリソースでLLMをカスタマイズし、実用的なアプリケーションを開発するために不可欠です。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="lora-low-rank-adaptation">LoRA (Low-Rank Adaptation)</h3>
+<p>ひとことで言うと: 大規模モデルの全パラメータを更新する代わりに、ごく少数の追加パラメータ（アダプター）を学習することで、効率的にモデルを微調整する手法。
+何のカテゴリか: Parameter-Efficient Fine-tuning (PEFT) 手法の一つ。
+何に使うのか: 大規模言語モデルを特定のタスクやデータセットに効率的に適応させる。
+代表例: Stable DiffusionやLLaMAなどのモデルの微調整。
+よく混同される用語: full fine-tuning, continued pretraining, fine-tuning
+初心者向け注意点: LoRAはモデルの「重み」そのものを変更するのではなく、既存の重みに行列の「差分」を適用するイメージです。学習するのはこの差分部分だけです。</p>
+<p>LoRAは、既存の事前学習済みモデルの重み行列 $W_0 \in \mathbb{R}^{d \times k}$ に対して、低ランク分解された2つの小さな行列 $A \in \mathbb{R}^{d \times r}$ と $B \in \mathbb{R}^{r \times k}$ を導入し、その積 $BA$ を元の重み行列に加算することで微調整を行います。ここで、$r$ は「ランク（rank）」と呼ばれ、$d, k$ に比べて非常に小さい値（通常は数〜数十）が設定されます。</p>
+<p>$$ W = W_0 + BA $$
+この式は、元の重み行列 $W_0$ に、低ランク行列 $B$ と $A$ の積 $BA$ を加算することで、新しい重み行列 $W$ を生成することを示しています。学習時には $W_0$ は固定され、$A$ と $B$ のみが更新されます。</p>
+<p>学習時には、$W_0$ は固定され、$A$ と $B$ のパラメータのみが更新されます。これにより、学習対象のパラメータ数を $d \times k$ から $d \times r + r \times k$ に大幅に削減できます。例えば、$d=k=1024$、 $r=8$ の場合、元のパラメータ数は約100万ですが、LoRAでは約1万6千となり、約1/60に削減されます。</p>
+<h4 id="rank">rank</h4>
+<p>ひとことで言うと: LoRAにおいて、追加する低ランク行列の次元数を決定するハイパーパラメータ。
+何のカテゴリか: LoRAのハイパーパラメータ。
+何に使うのか: LoRAアダプターの表現能力とパラメータ数を調整する。
+代表例: LoRAの学習設定で <code>r=8</code> や <code>r=16</code> などと指定する。
+よく混同される用語: なし
+初心者向け注意点: <code>rank</code> の値が大きいほど表現能力は高まりますが、学習パラメータ数とメモリ使用量も増加します。小さすぎるとモデルの性能が十分に向上しない可能性があります。</p>
+<h4 id="target-modules">target modules</h4>
+<p>ひとことで言うと: LoRAを適用する対象となる、モデル内の特定の層（モジュール）。
+何のカテゴリか: LoRAの学習設定。
+何に使うのか: LoRAを適用する層を限定することで、学習効率を高め、不要な層への変更を避ける。
+代表例: LLMのAttention層（例: <code>q_proj</code>, <code>k_proj</code>, <code>v_proj</code>, <code>o_proj</code>）やFeed-forward層。
+よく混同される用語: なし
+初心者向け注意点: どのモジュールにLoRAを適用するかは、モデルのアーキテクチャとタスクによって最適なものが異なります。一般的には、Attention層の線形変換層が効果的とされています。</p>
+<h3 id="qlora-quantized-lora">QLoRA (Quantized LoRA)</h3>
+<p>ひとことで言うと: LoRAをさらに進化させ、事前学習済みモデルの重みを4ビット量子化することで、メモリ使用量を劇的に削減しつつ、LoRAによる微調整を可能にする手法。
+何のカテゴリか: Parameter-Efficient Fine-tuning (PEFT) 手法の一つ、かつ量子化技術の応用。
+何に使うのか: 非常に大きなLLMを、限られたGPUメモリ（例: 8GBや12GBのGPU）で微調整する。
+代表例: LLaMA 2 70Bのような巨大モデルを、消費者向けGPUで微調整する。
+よく混同される用語: GGUF quantization
+初心者向け注意点: QLoRAは、元のモデルを量子化してメモリを節約しつつ、LoRAアダプターは通常の精度で学習します。これにより、量子化されたモデルでも高い性能を維持できます。</p>
+<p>QLoRAは、LoRAの効率性をさらに一歩進めます。具体的には、以下の技術を組み合わせることで、メモリ使用量を大幅に削減します。</p>
+<ol>
+<li><strong>4-bit NormalFloat (NF4) 量子化</strong>: 事前学習済みモデルの重みを4ビット精度に量子化します。これは、従来の浮動小数点数よりもはるかに少ないメモリでモデルを表現できることを意味します。</li>
+<li><strong>二重量子化 (Double Quantization)</strong>: 量子化定数（量子化のスケールを決定する値）自体も量子化することで、さらにわずかながらメモリを節約します。</li>
+<li><strong>Paged Optimizers</strong>: GPUメモリが不足した場合に、CPUメモリに一時的にデータを退避させることで、大規模なモデルでも安定して学習できるようにします。</li>
+</ol>
+<p>これらの技術により、例えば65Bパラメータのモデルを、わずか48GBのGPUメモリで微調整することが可能になります。学習時には、4ビット量子化された重みを動的に逆量子化（dequantize）して計算に使用し、勾配はLoRAアダプターにのみ適用されます。</p>
+<h3 id="adapter">Adapter</h3>
+<p>ひとことで言うと: 事前学習済みモデルの各層に、タスク固有の小さなニューラルネットワーク（アダプターモジュール）を挿入し、そのアダプターのみを学習させることでモデルを微調整する手法。
+何のカテゴリか: Parameter-Efficient Fine-tuning (PEFT) 手法の一つ。
+何に使うのか: 複数のタスクに対応するモデルを効率的に作成する。
+代表例: BERTなどのTransformerモデルの微調整。
+よく混同される用語: LoRA
+初心者向け注意点: AdapterはLoRAよりも歴史が古く、LoRAはAdapterの一種と見なされることもあります。LoRAはAdapterの特定の形式（低ランク分解）を採用することで、より効率的な学習を実現しています。</p>
+<p>Adapterは、Transformerモデルの各層（例えば、Attention層やFeed-forward層の間）に、小さなボトルネック構造を持つニューラルネットワークを挿入します。このアダプターモジュールは、入力次元を一度小さな次元に圧縮し、その後元の次元に戻すという構造を持ちます。</p>
+<p>$$ x \rightarrow W_{down} \rightarrow \text{ReLU} \rightarrow W_{up} \rightarrow x&#39; $$
+この式は、Adapterモジュールの内部構造を示しています。入力 $x$ がまずダウンサンプリング行列 $W_{down}$ で次元削減され、ReLU活性化関数を適用した後、アップサンプリング行列 $W_{up}$ で元の次元に戻され、出力 $x&#39;$ を生成します。</p>
+<p>学習時には、事前学習済みモデルの重みは固定され、このアダプターモジュール内のパラメータのみが更新されます。これにより、タスクごとに異なるアダプターを学習し、必要に応じて切り替えることで、複数のタスクに対応するモデルを効率的に管理できます。</p>
+<h3 id="merge">merge</h3>
+<p>ひとことで言うと: LoRAアダプターの重みを、元の事前学習済みモデルの重みに統合（結合）する操作。
+何のカテゴリか: LoRAの運用フェーズにおける操作。
+何に使うのか: LoRAアダプターを適用せずに、微調整済みモデルとして単体で推論できるようにする。
+代表例: 学習済みのLoRAアダプターとベースモデルを結合して、新しいモデルファイル（例: <code>safetensors</code>）を作成する。
+よく混同される用語: なし
+初心者向け注意点: <code>merge</code> されたモデルは、LoRAアダプターなしで推論できるため、デプロイが容易になります。ただし、一度マージすると、LoRAアダプターの分離はできません。</p>
+<p>LoRAで学習されたアダプターは、通常、元のモデルとは別のファイルとして保存されます。推論時には、ベースモデルとLoRAアダプターの両方をロードし、推論時に動的にLoRAの重みを適用する必要があります。<code>merge</code> 操作は、このLoRAアダプターの重み $BA$ を、元のモデルの重み $W_0$ に直接加算し、$W = W_0 + BA$ という新しい重み $W$ を持つモデルを作成します。</p>
+<p>これにより、LoRAアダプターを別途管理する必要がなくなり、通常のモデルと同様に推論エンジンにロードして使用できるようになります。これは、特にモデルをデプロイする際に非常に便利です。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="loraによる微調整のワークフロー">LoRAによる微調整のワークフロー</h3>
+<p>以下は、Hugging Faceの<code>peft</code>ライブラリと<code>transformers</code>ライブラリを使ったLoRA微調整の一般的な流れです。</p>
+<ol>
+<li><p><strong>ベースモデルとトークナイザのロード</strong>:</p>
+<pre><code class="language-python">from transformers import AutoModelForCausalLM, AutoTokenizer
+model_name = "mistralai/Mistral-7B-v0.1"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)</code></pre>
+</li>
+<li><p><strong>LoRA設定の定義</strong>: <code>rank</code> や <code>target_modules</code> を指定します。</p>
+<pre><code class="language-python">from peft import LoraConfig, get_peft_model
+
+lora_config = LoraConfig(
+    r=8,  # rank
+    lora_alpha=16, # LoRAのスケールファクター
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"], # target modules
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM",
+)</code></pre>
+</li>
+<li><p><strong>PEFTモデルの作成</strong>: ベースモデルにLoRAアダプターを適用します。</p>
+<pre><code class="language-python">model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+# 出力例: trainable params: 4,194,304 || all params: 7,247,433,728 || trainable%: 0.05787265814524491</code></pre>
+<p>この出力から、学習対象のパラメータが全体の0.05%程度であることがわかります。</p>
+</li>
+<li><p><strong>データセットの準備と学習</strong>:
+（データセットの準備コードは省略）
+<code>Trainer</code> を使って学習を実行します。</p>
+</li>
+<li><p><strong>LoRAアダプターの保存</strong>:</p>
+<pre><code class="language-python">model.save_pretrained("my_lora_adapter")</code></pre>
+<p>これにより、<code>my_lora_adapter</code> ディレクトリにLoRAアダプターの重み（例: <code>adapter_model.safetensors</code>）と設定ファイルが保存されます。</p>
+</li>
+<li><p><strong>LoRAアダプターのロードとマージ</strong>:</p>
+<pre><code class="language-python">from peft import PeftModel, PeftConfig
+
+# ベースモデルを再度ロード
+base_model = AutoModelForCausalLM.from_pretrained(model_name)
+
+# LoRAアダプターをロード
+peft_model = PeftModel.from_pretrained(base_model, "my_lora_adapter")
+
+# マージ
+merged_model = peft_model.merge_and_unload()
+
+# マージされたモデルを保存
+merged_model.save_pretrained("my_merged_model")
+tokenizer.save_pretrained("my_merged_model")</code></pre>
+<p>これで、<code>my_merged_model</code> ディレクトリには、LoRAアダプターが適用された単一のモデルが保存されます。</p>
+</li>
+</ol>
+<h3 id="qloraによる微調整のワークフロー">QLoRAによる微調整のワークフロー</h3>
+<p>QLoRAは、LoRAの学習設定に加えて、モデルの量子化設定を追加します。</p>
+<ol>
+<li><p><strong>ベースモデルとトークナイザのロード（量子化設定付き）</strong>:</p>
+<pre><code class="language-python">from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+import torch
+
+model_name = "mistralai/Mistral-7B-v0.1"
+
+# 4ビット量子化設定
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4", # 4-bit NormalFloat
+    bnb_4bit_compute_dtype=torch.bfloat16, # 計算時のデータ型
+    bnb_4bit_use_double_quant=True, # 二重量子化
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=bnb_config,
+    device_map="auto"
+)
+tokenizer = AutoTokenizer.from_pretrained(model_name)</code></pre>
+<p><code>load_in_4bit=True</code> と <code>quantization_config</code> を指定することで、モデルが4ビット量子化されてロードされます。</p>
+</li>
+<li><p><strong>LoRA設定の定義とPEFTモデルの作成</strong>:
+LoRAの設定自体はLoRAの場合と同じですが、量子化されたモデルに適用されます。</p>
+<pre><code class="language-python">from peft import LoraConfig, get_peft_model
+
+lora_config = LoraConfig(
+    r=8,
+    lora_alpha=16,
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM",
+)
+
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+# 出力例: trainable params: 4,194,304 || all params: 7,247,433,728 || trainable%: 0.05787265814524491</code></pre>
+<p>学習対象のパラメータ数はLoRAと同じですが、ベースモデルのメモリ使用量が大幅に削減されています。</p>
+</li>
+<li><p><strong>データセットの準備と学習</strong>:
+（データセットの準備コードは省略）
+<code>Trainer</code> を使って学習を実行します。この際、量子化されたモデルでの学習をサポートするために、<code>bitsandbytes</code>ライブラリの<code>AdamW8bit</code>などのオプティマイザを使用することが推奨されます。</p>
+</li>
+<li><p><strong>LoRAアダプターの保存とマージ</strong>:
+LoRAの場合と同様に、アダプターを保存し、必要であればマージします。マージされたモデルは、元の4ビット量子化されたベースモデルとLoRAアダプターが結合されたものになります。</p>
+</li>
+</ol>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<h3 id="lora-vs-full-fine-tuning">LoRA vs full fine-tuning</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">LoRA</th>
+<th align="left">Full Fine-tuning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>学習パラメータ数</strong></td>
+<td align="left">非常に少ない（全体の0.1%以下）</td>
+<td align="left">全てのパラメータ</td>
+</tr>
+<tr>
+<td align="left"><strong>メモリ使用量</strong></td>
+<td align="left">少ない</td>
+<td align="left">非常に多い</td>
+</tr>
+<tr>
+<td align="left"><strong>計算コスト</strong></td>
+<td align="left">少ない</td>
+<td align="left">非常に多い</td>
+</tr>
+<tr>
+<td align="left"><strong>学習時間</strong></td>
+<td align="left">短い</td>
+<td align="left">長い</td>
+</tr>
+<tr>
+<td align="left"><strong>保存ファイルサイズ</strong></td>
+<td align="left">アダプターのみ（小さい）</td>
+<td align="left">モデル全体（大きい）</td>
+</tr>
+<tr>
+<td align="left"><strong>性能</strong></td>
+<td align="left">多くのタスクでFull Fine-tuningに匹敵</td>
+<td align="left">最も高い性能を達成する可能性</td>
+</tr>
+<tr>
+<td align="left"><strong>柔軟性</strong></td>
+<td align="left">複数のタスクアダプターを容易に切り替え</td>
+<td align="left">タスクごとにモデル全体を保存・ロードが必要</td>
+</tr>
+<tr>
+<td align="left"><strong>適用シナリオ</strong></td>
+<td align="left">限られたリソースでの微調整、タスク特化</td>
+<td align="left">最高の性能を追求、ドメイン適応</td>
+</tr>
+</tbody></table></div>
+<h3 id="lora-vs-continued-pretraining">LoRA vs continued pretraining</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">LoRA (Fine-tuning)</th>
+<th align="left">Continued Pretraining (継続事前学習)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">特定のタスクやデータセットへの適応</td>
+<td align="left">新しいドメインや知識の獲得、モデルの汎化能力向上</td>
+</tr>
+<tr>
+<td align="left"><strong>データ</strong></td>
+<td align="left">タスク固有の少量のデータ（指示データなど）</td>
+<td align="left">大規模なドメイン固有のデータセット</td>
+</tr>
+<tr>
+<td align="left"><strong>学習パラメータ</strong></td>
+<td align="left">LoRAアダプターのみ</td>
+<td align="left">モデル全体（または大部分）</td>
+</tr>
+<tr>
+<td align="left"><strong>学習率</strong></td>
+<td align="left">比較的高い</td>
+<td align="left">比較的低い</td>
+</tr>
+<tr>
+<td align="left"><strong>エポック数</strong></td>
+<td align="left">少ない（数エポック）</td>
+<td align="left">多い（数十〜数百エポック）</td>
+</tr>
+<tr>
+<td align="left"><strong>出力</strong></td>
+<td align="left">特定タスクに特化したモデル</td>
+<td align="left">新しいドメイン知識を持つ汎用モデル</td>
+</tr>
+<tr>
+<td align="left"><strong>計算コスト</strong></td>
+<td align="left">少ない</td>
+<td align="left">多い</td>
+</tr>
+</tbody></table></div>
+<h3 id="qlora-vs-gguf-quantization">QLoRA vs GGUF quantization</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">QLoRA</th>
+<th align="left">GGUF Quantization</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left"><strong>微調整</strong>時のメモリ削減と効率化</td>
+<td align="left"><strong>推論</strong>時のメモリ削減と高速化</td>
+</tr>
+<tr>
+<td align="left"><strong>学習の可否</strong></td>
+<td align="left">可能（LoRAアダプターを学習）</td>
+<td align="left">不可能（推論専用の形式）</td>
+</tr>
+<tr>
+<td align="left"><strong>量子化対象</strong></td>
+<td align="left">ベースモデルの重み（4ビットNF4など）</td>
+<td align="left">モデル全体の重み（2, 3, 4, 5, 6, 8ビットなど）</td>
+</tr>
+<tr>
+<td align="left"><strong>量子化手法</strong></td>
+<td align="left">4-bit NormalFloat (NF4)</td>
+<td align="left">k-quant (GGML/GGUF独自の量子化)</td>
+</tr>
+<tr>
+<td align="left"><strong>推論ランタイム</strong></td>
+<td align="left">Hugging Face <code>transformers</code> + <code>bitsandbytes</code></td>
+<td align="left"><code>llama.cpp</code>、Ollama、LM Studioなど</td>
+</tr>
+<tr>
+<td align="left"><strong>メモリ使用量</strong></td>
+<td align="left">微調整時に大幅削減</td>
+<td align="left">推論時に大幅削減</td>
+</tr>
+<tr>
+<td align="left"><strong>性能</strong></td>
+<td align="left">微調整後も高い性能を維持</td>
+<td align="left">量子化レベルに応じて性能劣化の可能性あり</td>
+</tr>
+<tr>
+<td align="left"><strong>ファイル形式</strong></td>
+<td align="left"><code>safetensors</code> (ベースモデル) + <code>safetensors</code> (LoRAアダプター)</td>
+<td align="left"><code>.gguf</code></td>
+</tr>
+<tr>
+<td align="left"><strong>利用シーン</strong></td>
+<td align="left">限られたGPUでLLMを微調整したい場合</td>
+<td align="left">CPUや低スペックGPUでLLMを推論したい場合</td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>LoRAとQLoRAは、今日のLLM開発において、特定のタスクやドメインにモデルを適応させるためのデファクトスタンダードとも言える技術です。</p>
+<ul>
+<li><strong>研究開発</strong>: 新しいタスクやデータセットでのLLMの性能評価において、効率的な微調整手法として利用されます。</li>
+<li><strong>企業での利用</strong>: 企業固有のデータ（社内文書、顧客対応ログなど）を用いてLLMをカスタマイズし、業務効率化や顧客サービス向上に役立てる際に不可欠です。特に、機密性の高いデータをクラウドにアップロードできない場合でも、オンプレミス環境の限られたGPUリソースで微調整を行うことが可能になります。</li>
+<li><strong>個人開発者</strong>: 消費者向けGPU（例: RTX 3090, RTX 4090）でも、数兆パラメータを持つモデルを微調整できるようになり、LLMのカスタマイズがより身近なものになりました。</li>
+<li><strong>モデルの配布</strong>: LoRAアダプターは非常にファイルサイズが小さいため、ベースモデルを共有しつつ、タスク固有のアダプターのみを配布することで、モデルの共有と管理が容易になります。</li>
+</ul>
+<p>これらの技術は、LLMの「民主化」を大きく推進し、より多くの人々がLLMをカスタマイズして活用できる道を拓きました。</p>
+<h3 id="関係性図-mermaid">関係性図 (Mermaid)</h3>
+<pre class="mermaid">graph TD
+    A[事前学習済みLLM] --> B{PEFT手法}
+    B --> C[LoRA]
+    C --> D[QLoRA]
+    B --> E[Adapter]
+    C --> F[学習済みLoRAアダプター]
+    F --> G[ベースモデルにマージ]
+    G --> H[微調整済みモデル]
+    D --> I[4ビット量子化ベースモデル]
+    I --> F
+    subgraph "LoRAの内部構造"
+        J[元の重み W0] --> K[低ランク行列 A]
+        J --> L[低ランク行列 B]
+        K --> M[A * B]
+        L --> M
+        M --> N[W0 + A*B]
+        N --> O[更新された重み W]
+    end
+    subgraph "QLoRAの主要技術"
+        P[元の重み W0] --> Q[4ビットNF4量子化]
+        Q --> R[二重量子化]
+        R --> S[Paged Optimizers]
+        S --> T[LoRAアダプター学習]
+    end</pre>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ol>
+<li><strong>LoRA</strong>は、大規模モデルの全パラメータではなく、ごく少数の追加パラメータ（低ランク行列）のみを学習することで、効率的に微調整を行うPEFT手法です。</li>
+<li><strong>QLoRA</strong>は、LoRAに4ビット量子化を組み合わせることで、ベースモデルのメモリ使用量を劇的に削減し、限られたGPUメモリでの微調整を可能にします。</li>
+<li><strong>Adapter</strong>は、モデルの各層に小さなモジュールを挿入して学習するPEFT手法で、LoRAはその一種であり、特に効率的な低ランク分解を利用します。</li>
+</ol>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>LoRA vs Full Fine-tuning</strong>: LoRAは一部のパラメータのみを学習し、メモリ効率が高い。Full Fine-tuningは全パラメータを学習し、最高の性能を目指すがコストが高い。</li>
+<li><strong>LoRA vs Continued Pretraining</strong>: LoRAはタスク特化の微調整、Continued Pretrainingはドメイン知識獲得のための汎用モデル学習。</li>
+<li><strong>QLoRA vs GGUF Quantization</strong>: QLoRAは微調整時のメモリ削減、GGUF Quantizationは推論時のメモリ削減と高速化が主な目的。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第14章: プロンプトエンジニアリングの基礎</li>
+<li>第15章: RAG (Retrieval-Augmented Generation)</li>
+<li>第16章: エージェントとツール利用</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-12.html" class="nav-prev">← 第12章 事前学習・継続事前学習・SFT</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-14.html" class="nav-next">第14章 学習ツール群 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

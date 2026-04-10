@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1s.xyz — AIで、すばやく形にする</title>
+  <meta name="description" content="LLM、OCR、エージェント、文書生成など、AIを使った実験・教材・ツールを公開していくサイト。">
+  <meta name="generator" content="1s-xyz">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="canonical" href="https://1s.xyz/">
+  <meta property="og:title" content="1s.xyz — AIで、すばやく形にする">
+  <meta property="og:description" content="LLM、OCR、エージェント、文書生成など、AIを使った実験・教材・ツールを公開していくサイト。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://1s.xyz/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="1s.xyz — AIで、すばやく形にする">
+  <meta name="twitter:description" content="LLM、OCR、エージェント、文書生成など、AIを使った実験・教材・ツールを公開していくサイト。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+  (function(){
+    var k="1s-theme",s=localStorage.getItem(k),t;
+    if(s==="light"||s==="dark")t=s;
+    else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+    document.documentElement.setAttribute("data-theme",t);
+  })();
+  </script>
+  <link rel="stylesheet" href="assets/home.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="/" class="site-logo">1s.xyz</a>
+    <nav class="site-nav">
+      <a href="/llm/">LLM</a>
+      <a href="/ocr/">OCR</a>
+      <a href="/agents/">Agents</a>
+      <a href="/tools/">Tools</a>
+    </nav>
+    <span class="header-spacer"></span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替"></button>
+  </header>
+
+  <section class="hero">
+    <h1>AIで、すばやく形にする。</h1>
+    <p>LLM、OCR、エージェント、文書生成。<br>実験・教材・ツールを公開していく AIノート＆プロジェクトサイト。</p>
+    <div class="hero-cta">
+      <a href="/llm/" class="btn-primary">LLM教科書を見る</a>
+      <a href="#projects" class="btn-secondary">プロジェクトを見る</a>
+    </div>
+  </section>
+
+  <section class="featured">
+    <div class="container">
+      <span class="section-label">Featured</span>
+      <div class="featured-card">
+        <h2>LLM周辺用語 教科書</h2>
+        <p>Hugging Face、GGUF、llama.cpp、vLLM、LoRA、量子化など、LLM周辺で頻出する用語を体系的に整理した全25章の教科書。</p>
+        <a href="/llm/" class="btn-primary">教科書を読む</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories">
+    <div class="container">
+      <h2>カテゴリ</h2>
+      <div class="card-grid">
+        <a href="/llm/" class="card">
+          <h3>LLM</h3>
+          <p>用語教科書・ローカルLLM・推論・LoRA・量子化</p>
+        </a>
+        <a href="/ocr/" class="card">
+          <h3>OCR</h3>
+          <p>文書OCR・数式OCR・Markdown変換・図表抽出</p>
+        </a>
+        <a href="/agents/" class="card">
+          <h3>Agents</h3>
+          <p>ツール利用・ワークフロー・MCP・自動処理</p>
+        </a>
+        <a href="/tools/" class="card">
+          <h3>Tools</h3>
+          <p>bookgen・Markdown管理・実験ツール・変換ユーティリティ</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects" id="projects">
+    <div class="container">
+      <h2>プロジェクト</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3>bookgen</h3>
+          <p>LLMを使った教科書自動生成ツール。Markdown から構造化された教材HTMLを出力。</p>
+          <a href="https://github.com/wataryoichi/bookgen" class="card-link">GitHub →</a>
+        </div>
+        <div class="card">
+          <h3>Markdown Hub</h3>
+          <p>Markdown ドキュメントの生成・共有プラットフォーム。</p>
+          <a href="https://md.1s.xyz" class="card-link">Open →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about">
+    <div class="container">
+      <h2>About 1s</h2>
+      <p>1s は、「1秒でサクっと形にする」という発想から付けた名前です。AIを使って、アイデア、知識、文書、教材、ツールをすばやく形にし、実験だけで終わらせず公開できる成果物にしていくことを目指しています。</p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-links">
+        <a href="/">1s.xyz</a>
+        <a href="/llm/">LLM</a>
+        <a href="/ocr/">OCR</a>
+        <a href="/agents/">Agents</a>
+        <a href="/tools/">Tools</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 1s.xyz</p>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    var btn=document.getElementById("theme-toggle");
+    if(!btn)return;
+    btn.addEventListener("click",function(){
+      var cur=document.documentElement.getAttribute("data-theme");
+      var next=cur==="dark"?"light":"dark";
+      document.documentElement.setAttribute("data-theme",next);
+      localStorage.setItem("1s-theme",next);
+    });
+  })();
+  </script>
+</body>
+</html>

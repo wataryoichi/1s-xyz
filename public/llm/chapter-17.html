@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第17章. CPU / GPU / NPU / TPU の違い - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: どのハードが何に向くかを整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-17.html">
+  <meta property="og:title" content="第17章. CPU / GPU / NPU / TPU の違い - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: どのハードが何に向くかを整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-17.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第17章. CPU / GPU / NPU / TPU の違い - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: どのハードが何に向くかを整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">17 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第9部: ハードウェアと実行環境</li><li aria-current="page">第17章. CPU / GPU / NPU / TPU の違い</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第17章-cpu-gpu-npu-tpu-の違い">第17章. CPU / GPU / NPU / TPU の違い</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、LLM（大規模言語モデル）の実行に用いられる主要なハードウェアであるCPU、GPU、NPU、TPUそれぞれの特徴と、どのようなタスクや環境に適しているのかを理解することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>CPU、GPU、NPU、TPUそれぞれの基本的な役割と得意分野</li>
+<li>LLMの推論や学習において、各ハードウェアがどのように活用されるか</li>
+<li>どのハードウェアがどのような用途（ローカル実行、クラウド、エッジデバイスなど）に適しているか</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMの進化は目覚ましく、その性能を最大限に引き出すためには、適切なハードウェアの選択が不可欠です。しかし、CPU、GPU、NPU、TPUといった多様なプロセッサが存在し、それぞれ異なる特性を持っています。これらの違いを理解せずにハードウェアを選定すると、性能が十分に発揮できなかったり、コストが無駄になったりする可能性があります。本章では、これらのプロセッサがどのような計算を得意とし、LLMのどのフェーズ（学習、推論など）で真価を発揮するのかを明確にしていきます。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>LLMの計算は、大量の行列演算と並列処理が中心となります。この特性に最適化されているかどうかが、各プロセッサの性能を大きく左右します。</p>
+<h3 id="cpu-central-processing-unit">CPU (Central Processing Unit)</h3>
+<p>ひとことで言うと: コンピュータのあらゆる処理をこなす汎用プロセッサ。
+何のカテゴリか: 汎用プロセッサ
+何に使うのか: OSの実行、アプリケーションの制御、複雑なロジック処理、シーケンシャルな計算。
+代表例: Intel Core iシリーズ, AMD Ryzenシリーズ
+よく混同される用語: GPU, NPU, TPU (これらは特定の計算に特化している点で異なる)
+初心者向け注意点: LLMの推論も可能だが、大規模モデルでは速度が遅く、電力効率も悪いことが多い。</p>
+<p>CPUは、コンピュータの「脳」として、あらゆる種類の計算を柔軟に処理できるように設計されています。少数の強力なコアを持ち、複雑な命令を高速に、かつ順序立てて実行することに長けています。LLMの推論では、モデルのロードや前処理、後処理など、シーケンシャルなタスクには適していますが、大量の並列行列演算には不向きです。</p>
+<h3 id="gpu-graphics-processing-unit">GPU (Graphics Processing Unit)</h3>
+<p>ひとことで言うと: 大量の並列計算を高速に処理するプロセッサ。
+何のカテゴリか: 並列処理プロセッサ、グラフィックスプロセッサ
+何に使うのか: グラフィックスレンダリング、科学技術計算、機械学習（特にディープラーニングの学習と推論）
+代表例: NVIDIA GeForce/RTX/Quadro/Teslaシリーズ, AMD Radeonシリーズ
+よく混同される用語: CPU (GPUは並列処理に特化), NPU (GPUはより汎用的な並列計算が可能)
+初心者向け注意点: LLMの学習・推論のデファクトスタンダードだが、消費電力や発熱が大きい。</p>
+<p>GPUは、元々グラフィックス処理のために開発されましたが、その並列計算能力がディープラーニングと非常に相性が良いことが発見され、現在ではLLMの学習・推論において最も広く利用されています。数千もの小さなコアを持ち、同時に多数の単純な計算（特に浮動小数点演算）を実行することに特化しています。</p>
+<p>LLMの計算において、特に重要なのが行列乗算です。例えば、入力ベクトル $\mathbf{x}$ と重み行列 $\mathbf{W}$ の積は、以下のように表されます。
+$$ \mathbf{y} = \mathbf{x} \mathbf{W} $$
+この計算は、各要素の積和演算を多数並列に行う必要があり、GPUの持つ多数のコアがこの種の計算を効率的に処理します。</p>
+<h3 id="npu-neural-processing-unit">NPU (Neural Processing Unit)</h3>
+<p>ひとことで言うと: AI処理に特化した専用プロセッサ。
+何のカテゴリか: AIアクセラレータ、特定用途向けプロセッサ (ASIC)
+何に使うのか: エッジデバイスでのAI推論、低消費電力でのAI処理
+代表例: Apple Neural Engine, Qualcomm Hexagon NPU, Intel Core Ultra NPU
+よく混同される用語: GPU (NPUはAIに特化し、より低消費電力), TPU (NPUはエッジ向け、TPUはデータセンター向け)
+初心者向け注意点: 主に推論に特化しており、学習には不向き。特定のモデル形式やフレームワークに最適化されていることが多い。</p>
+<p>NPUは、ニューラルネットワークの計算（特に推論）を効率的に実行するために設計された専用ハードウェアです。GPUよりもさらにAI処理に特化しており、低消費電力で高い推論性能を発揮します。主にスマートフォン、タブレット、PCなどのエッジデバイスに搭載され、オンデバイスでのAI処理を可能にします。</p>
+<h3 id="tpu-tensor-processing-unit">TPU (Tensor Processing Unit)</h3>
+<p>ひとことで言うと: Googleが開発した、テンソル計算に特化した専用プロセッサ。
+何のカテゴリか: AIアクセラレータ、特定用途向けプロセッサ (ASIC)
+何に使うのか: 大規模なディープラーニングモデルの学習と推論（特にGoogle Cloud環境）
+代表例: Google Cloud TPU v2/v3/v4/v5e
+よく混同される用語: GPU (TPUはテンソル計算に特化し、より大規模な学習向け), NPU (TPUはデータセンター向け、NPUはエッジ向け)
+初心者向け注意点: Google Cloudでのみ利用可能。特定のフレームワーク（TensorFlow, JAX）との相性が良い。</p>
+<p>TPUは、Googleが自社のディープラーニングワークロードのために開発したASIC（特定用途向け集積回路）です。特にテンソル計算（行列演算）に最適化されており、大規模なモデルの学習においてGPUを上回る性能と電力効率を発揮します。主にGoogle Cloudのデータセンターで提供され、大規模なLLMの学習に利用されています。</p>
+<p>TPUの核となるのは、行列乗算ユニット (MXU: Matrix Multiply Unit) です。これは、一度に多数の積和演算を実行できる専用のハードウェアです。例えば、TPU v3のMXUは、128x128の行列乗算を1サイクルで実行できます。これにより、大規模なテンソル計算を極めて高速に行うことが可能です。</p>
+<h2 id="具体例">具体例</h2>
+<p>LLMのライフサイクルにおける各プロセッサの活用例を見てみましょう。</p>
+<h3 id="llmの学習-training">LLMの学習 (Training)</h3>
+<p>LLMの学習は、膨大なデータと計算リソースを必要とします。</p>
+<ul>
+<li><strong>GPU</strong>: 現在、LLMの学習におけるデファクトスタンダードです。NVIDIAのA100やH100のような高性能GPUがデータセンターに多数配置され、並列に計算を行うことで、数日から数ヶ月かけてモデルを学習させます。例えば、GPT-3のような大規模モデルは数千台のGPUを使って学習されました。</li>
+<li><strong>TPU</strong>: Googleが開発したTPUは、特に大規模なモデルの学習においてGPUを凌駕する性能を発揮します。GoogleのPaLMやGeminiといったモデルはTPUを使って学習されています。TPUは、行列乗算ユニット（MXU）と呼ばれる専用のハードウェアを多数搭載し、テンソル計算を極めて効率的に行います。</li>
+</ul>
+<h3 id="llmの推論-inference">LLMの推論 (Inference)</h3>
+<p>学習済みのLLMを使ってテキスト生成などのタスクを実行する推論は、学習ほどではないにせよ、依然として高い計算能力を要求します。</p>
+<ul>
+<li><strong>GPU</strong>: 高速な推論が必要な場合、GPUは依然として最良の選択肢の一つです。特に、複数のリクエストを同時に処理するバッチ推論や、リアルタイム性が求められるアプリケーション（チャットボットなど）で威力を発揮します。クラウドサービスで提供されるLLM APIの多くは、バックエンドでGPUを利用しています。</li>
+<li><strong>NPU</strong>: スマートフォンやPCなどのエッジデバイスでLLMを動かす場合、NPUが重要な役割を果たします。例えば、AppleのiPhoneに搭載されているNeural Engineは、デバイス上で画像認識や音声処理などのAIタスクを低消費電力で実行します。将来的には、より小型のLLMがNPU上で動作し、オフラインでのAIアシスタント機能などを提供するようになるでしょう。</li>
+<li><strong>CPU</strong>: 小規模なLLMや、量子化されたモデルであれば、CPUでも推論は可能です。特に、ローカル環境で手軽に試したい場合や、GPUが利用できない環境では、CPUが選択肢となります。例えば、<code>llama.cpp</code>のようなプロジェクトは、CPU上でのLLM推論を最適化しており、一般的なPCでもLLMを動かすことを可能にしています。</li>
+<li><strong>TPU</strong>: クラウド環境での大規模な推論サービスにおいても、TPUは利用されます。特に、GoogleのAIサービスでは、TPUが推論のバックエンドとして活用されています。</li>
+</ul>
+<h3 id="mermaid図による関係性">Mermaid図による関係性</h3>
+<pre class="mermaid">graph TD
+    A[LLMの計算] --> B{計算の種類}
+
+    B -- 大規模学習 --> C["TPU (Google Cloud)"]
+    B -- 大規模学習 --> D["GPU (データセンター)"]
+
+    B -- "高速推論 (クラウド/サーバー)" --> E[GPU]
+    B -- "高速推論 (クラウド/サーバー)" --> F[TPU]
+
+    B -- "エッジ推論 (低消費電力)" --> G[NPU]
+    B -- "エッジ推論 (低リソース環境)" --> H["CPU (量子化モデル)"]
+
+    B -- 汎用的なローカル推論 --> I[CPU]
+    B -- 汎用的なローカル推論 --> J["GPU (ローカルPC)"]
+
+    C -- テンソル計算に特化 --> K[GoogleのLLM学習]
+    D -- 並列浮動小数点演算 --> L[一般的なLLM学習]
+    E -- "バッチ処理/リアルタイム" --> M[LLM APIバックエンド]
+    F -- 高効率なテンソル推論 --> N[GoogleのAIサービス]
+    G -- オンデバイスAI --> O[スマホ/PCのAI機能]
+    H -- 低リソース環境 --> P[llama.cppなど]
+    I -- 手軽に試す --> Q[ローカルPCでの実験]
+    J -- 高速ローカル推論 --> R[ゲーミングPCでの推論]</pre>
+<h3 id="llmの学習推論ワークフローにおけるハードウェアの役割">LLMの学習・推論ワークフローにおけるハードウェアの役割</h3>
+<pre class="mermaid">graph TD
+    subgraph "LLM開発ライフサイクル"
+        A[データ収集・前処理] --> B[モデル学習]
+        B --> C[モデル評価・チューニング]
+        C --> D[モデルデプロイ・推論]
+    end
+
+    subgraph "ハードウェアの役割"
+        A -- "CPU (汎用処理)" --> B
+        B -- "GPU/TPU (並列計算)" --> C
+        C -- "GPU/TPU (並列計算)" --> D
+        D -- "GPU/NPU/CPU (推論)" --> E[ユーザーアプリケーション]
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+    style D fill:#fbb,stroke:#333,stroke-width:2px
+    style E fill:#eee,stroke:#333,stroke-width:2px</pre>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/プロセッサ</th>
+<th align="left">CPU (Central Processing Unit)</th>
+<th align="left">GPU (Graphics Processing Unit)</th>
+<th align="left">NPU (Neural Processing Unit)</th>
+<th align="left">TPU (Tensor Processing Unit)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>得意な計算</strong></td>
+<td align="left">汎用的なシーケンシャル処理、複雑なロジック</td>
+<td align="left">大規模な並列浮動小数点演算、行列演算</td>
+<td align="left">ニューラルネットワークの推論（特に整数演算）</td>
+<td align="left">大規模なテンソル計算、行列乗算</td>
+</tr>
+<tr>
+<td align="left"><strong>コア数</strong></td>
+<td align="left">少数 (数個〜数十個)</td>
+<td align="left">多数 (数百個〜数千個)</td>
+<td align="left">少数〜多数 (設計による)</td>
+<td align="left">多数 (専用の行列乗算ユニット)</td>
+</tr>
+<tr>
+<td align="left"><strong>電力効率</strong></td>
+<td align="left">中程度</td>
+<td align="left">低 (高性能GPUは高消費電力)</td>
+<td align="left">高 (特に推論時)</td>
+<td align="left">高 (大規模学習時)</td>
+</tr>
+<tr>
+<td align="left"><strong>主な用途</strong></td>
+<td align="left">OS/アプリ実行、汎用計算、LLM前処理/後処理</td>
+<td align="left">グラフィックス、科学計算、LLM学習・推論</td>
+<td align="left">エッジAI推論、オンデバイスAI</td>
+<td align="left">大規模LLM学習・推論 (クラウド)</td>
+</tr>
+<tr>
+<td align="left"><strong>LLMとの相性</strong></td>
+<td align="left">小規模モデル推論、前処理/後処理</td>
+<td align="left">大規模モデル学習・推論のデファクトスタンダード</td>
+<td align="left">エッジデバイスでの効率的な推論</td>
+<td align="left">大規模モデル学習に最適化</td>
+</tr>
+<tr>
+<td align="left"><strong>利用形態</strong></td>
+<td align="left">PC、サーバー、組み込み機器</td>
+<td align="left">PC、サーバー、ワークステーション</td>
+<td align="left">スマホ、PC、IoTデバイス</td>
+<td align="left">Google Cloud (データセンター)</td>
+</tr>
+</tbody></table></div>
+<h3 id="llmの利用シーン別ハードウェア選択の比較">LLMの利用シーン別ハードウェア選択の比較</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">利用シーン</th>
+<th align="left">主な目的</th>
+<th align="left">推奨ハードウェア</th>
+<th align="left">特徴/考慮点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>大規模学習</strong></td>
+<td align="left">最新モデルの開発、大規模データ学習</td>
+<td align="left">TPU, GPU</td>
+<td align="left">高い計算能力、大規模並列処理、クラウド利用が一般的</td>
+</tr>
+<tr>
+<td align="left"><strong>クラウド推論</strong></td>
+<td align="left">APIサービス提供、多数ユーザー対応</td>
+<td align="left">GPU, TPU</td>
+<td align="left">高スループット、低レイテンシ、スケーラビリティ</td>
+</tr>
+<tr>
+<td align="left"><strong>ローカル推論</strong></td>
+<td align="left">個人利用、オフライン環境、開発</td>
+<td align="left">GPU (PC), CPU</td>
+<td align="left">コスト、手軽さ、量子化モデルの活用</td>
+</tr>
+<tr>
+<td align="left"><strong>エッジ推論</strong></td>
+<td align="left">スマホ、IoTデバイス、組み込み</td>
+<td align="left">NPU, 低消費電力CPU</td>
+<td align="left">低消費電力、リアルタイム性、プライバシー</td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>LLMを実務で活用する際、どのハードウェアを選択するかは、コスト、性能要件、電力制約、利用環境によって大きく異なります。</p>
+<ul>
+<li><strong>LLMの開発・研究</strong>: 大規模なモデルの学習や、新しいモデルアーキテクチャの実験には、高性能な<strong>GPU</strong>クラスターや<strong>TPU</strong>が不可欠です。これらは主にクラウドサービス（AWS, Azure, GCPなど）を通じて利用されます。</li>
+<li><strong>クラウドでのLLMサービス提供</strong>: 多数のユーザーからのリクエストを処理し、高速な応答を返す必要がある場合、データセンターに設置された高性能<strong>GPU</strong>や<strong>TPU</strong>が利用されます。これらはスケーラビリティとコスト効率のバランスが重要になります。</li>
+<li><strong>ローカル環境でのLLM推論</strong>: 開発者が手元でモデルを試したり、オフライン環境でLLMを利用したりする場合には、自身のPCに搭載された<strong>GPU</strong>（ゲーミングPCなど）や、<strong>CPU</strong>での推論が選択肢となります。特に量子化されたモデルはCPUでも実用的な速度で動作することが増えています。</li>
+<li><strong>エッジデバイスでのLLM活用</strong>: スマートフォン、スマートスピーカー、組み込み機器などでLLMの機能（音声アシスタント、画像認識など）を実装する場合、低消費電力で効率的な推論が可能な<strong>NPU</strong>が重要になります。これにより、クラウドへの依存を減らし、プライバシー保護やリアルタイム性を向上させることができます。</li>
+</ul>
+<p>実務では、これらのプロセッサを単独で使うだけでなく、組み合わせて使うことも一般的です。例えば、クラウドで学習したモデルを、エッジデバイスのNPUで推論するといったワークフローです。</p>
+<h3 id="ハードウェア選択の意思決定フロー">ハードウェア選択の意思決定フロー</h3>
+<pre class="mermaid">graph TD
+    A[LLM利用の目的は？] --> B{大規模学習が必要か？}
+
+    B -- はい --> C{クラウド環境か？}
+    C -- はい --> D[TPU / 高性能GPU]
+    C -- いいえ --> E["高性能GPU (オンプレミス)"]
+
+    B -- いいえ --> F{推論のみか？}
+
+    F -- はい --> G{どこで推論するか？}
+    G -- "クラウド/サーバー" --> H{"高速性/スループットが重要か？"}
+    H -- はい --> I[GPU / TPU]
+    H -- いいえ --> J["CPU (コスト重視)"]
+
+    G -- エッジデバイス --> K{"低消費電力/リアルタイム性か？"}
+    K -- はい --> L[NPU]
+    K -- いいえ --> M[低消費電力CPU]
+
+    G -- ローカルPC --> N{GPU搭載PCか？}
+    N -- はい --> O["GPU (ローカル)"]
+    N -- いいえ --> P["CPU (量子化モデル)"]</pre>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li><strong>CPU</strong>は汎用性が高いが、LLMの並列計算には不向き。小規模モデルのローカル推論や前処理・後処理に。</li>
+<li><strong>GPU</strong>は並列計算に特化し、LLMの学習・推論のデファクトスタンダード。高性能だが高消費電力。</li>
+<li><strong>NPU</strong>はAI推論に特化し、低消費電力でエッジデバイスでのAI処理に最適。</li>
+<li><strong>TPU</strong>はGoogleが開発したテンソル計算特化プロセッサで、大規模LLMの学習・推論をクラウドで高速化。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>GPUとNPU</strong>: どちらもAI計算に利用されますが、GPUはより汎用的な並列計算が可能で、学習から推論まで幅広く利用されます。NPUはAI推論に特化し、低消費電力でエッジデバイス向けです。</li>
+<li><strong>NPUとTPU</strong>: どちらもAI専用プロセッサですが、NPUは主にエッジデバイスでの低消費電力推論を目的とし、TPUはデータセンターでの大規模な学習・推論を目的としています。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第10章: 量子化（Quantization） (CPUやNPUでの効率的な推論に不可欠な技術)</li>
+<li>第15章: KV cache / batching / paged attention (推論効率化のための技術で、ハードウェアの選択にも影響)</li>
+<li>第16章: speculative decoding / EAGLE / DFlash (推論速度向上技術で、ハードウェア性能を最大限に引き出すための知識)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-16.html" class="nav-prev">← 第16章 speculative decoding / EAGLE / DFlash</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-18.html" class="nav-next">第18章 CUDA / ROCm / Metal / DirectML →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

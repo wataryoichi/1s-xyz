@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第16章. speculative decoding / EAGLE / DFlash - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 最近の高速化トピックを体系化する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-16.html">
+  <meta property="og:title" content="第16章. speculative decoding / EAGLE / DFlash - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 最近の高速化トピックを体系化する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-16.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第16章. speculative decoding / EAGLE / DFlash - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 最近の高速化トピックを体系化する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">16 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第8部: 推論高速化</li><li aria-current="page">第16章. speculative decoding / EAGLE / DFlash</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第16章-speculative-decoding-eagle-dflash">第16章. speculative decoding / EAGLE / DFlash</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>本章では、LLMの推論速度を劇的に向上させるための最新技術である「speculative decoding」とその派生技術、さらに「DFlash」について体系的に理解することを目的とします。これらの技術がどのようにLLMの応答速度を高め、ユーザー体験を改善しているのかを学びましょう。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>speculative decodingの基本的な仕組みと、draft model、verifierの役割</li>
+<li>EAGLEがspeculative decodingをどのように進化させたか</li>
+<li>DFlashがKVキャッシュの効率をどのように改善するか</li>
+<li>diffusion draftの概念と、その応用可能性</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>大規模言語モデル（LLM）は、その強力な生成能力で私たちの生活に大きな変化をもたらしました。しかし、その計算コストの高さから、応答速度が課題となることが少なくありません。特に、リアルタイム性が求められるアプリケーションでは、いかに高速に、かつ効率的に推論を行うかが重要になります。</p>
+<p>これまでの章では、量子化（第10章）、KVキャッシュやバッチ処理（第15章）といった推論高速化技術について学びました。本章では、さらに一歩進んで、近年注目されている「speculative decoding」とその関連技術、そして「DFlash」という、より根本的な推論プロセスの改善に焦点を当てます。これらの技術は、LLMの推論を「予測」と「検証」の組み合わせや、キャッシュの最適化によって加速し、よりスムーズな対話体験を実現します。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="speculative-decoding">speculative decoding</h3>
+<p>ひとことで言うと: 小さなモデルで次のトークンを予測し、大きなモデルでまとめて検証することで、推論を高速化する技術。
+何のカテゴリか: LLM推論高速化技術
+何に使うのか: LLMの応答速度向上
+代表例: GoogleのMed-PaLM 2、OpenAIのGPT-4 Turbo
+よく混同される用語: 並列推論、バッチ処理
+初心者向け注意点: 「予測」と「検証」の2段階プロセスを理解することが重要です。</p>
+<p>speculative decoding（投機的デコーディング）は、LLMの推論速度を向上させるための画期的な手法です。従来のLLMの推論は、1トークンずつ生成し、その都度モデル全体で計算を行うため、時間がかかります。speculative decodingは、このプロセスを効率化するために、**「ドラフトモデル（draft model）」<strong>と</strong>「ベリファイア（verifier）」**という2つのモデルを使用します。</p>
+<h4 id="draft-model">draft model</h4>
+<p>ひとことで言うと: 高速だが性能が低い、小型のLLM。
+何のカテゴリか: LLMの一種
+何に使うのか: speculative decodingにおいて、次のトークンシーケンスを高速に「予測」する。
+代表例: 既存の小型LLM、または大型モデルの軽量版。
+初心者向け注意点: このモデルが生成するトークンは「仮説」であり、必ずしも正しいとは限りません。</p>
+<p>ドラフトモデルは、本命の大型LLM（ベリファイア）よりもはるかに小さく、高速に動作するモデルです。このモデルは、現在の入力に基づいて、次の数トークンを「予測」し、仮のシーケンスを生成します。</p>
+<h4 id="verifier">verifier</h4>
+<p>ひとことで言うと: 高精度だが低速な、大型のLLM。
+何のカテゴリか: LLMの一種
+何に使うのか: speculative decodingにおいて、ドラフトモデルが生成したトークンシーケンスを「検証」し、正しいトークンを確定させる。
+代表例: 推論したい本命のLLM（例: Llama 2 70B, GPT-4）。
+初心者向け注意点: ベリファイアは、ドラフトモデルの予測が正しかったかどうかを判断する「審判」のような役割を担います。</p>
+<p>ベリファイアは、実際に推論したい本命の大型LLMです。ドラフトモデルが生成した仮のトークンシーケンスを受け取り、それらを並行して処理し、どのトークンまでが正しいかを検証します。これにより、複数のトークンを一度に確定させることが可能になり、推論速度が向上します。</p>
+<h4 id="speculative-decodingの仕組み-mermaid">speculative decodingの仕組み (Mermaid)</h4>
+<pre class="mermaid">graph TD
+    A[ユーザープロンプト] --> B{ドラフトモデルによる予測}
+    B --> C["仮のトークンシーケンス生成 (t_1, t_2, ..., t_k)"]
+    C --> D{ベリファイアによる並列検証}
+    D -- 正しいトークン --> E[確定したトークンシーケンス]
+    D -- 誤り検出 --> F[誤り箇所から再予測]
+    E --> G[出力]
+    F --> B</pre>
+<p><strong>説明</strong>: ユーザーからのプロンプトを受け取ると、まずドラフトモデルが次の複数のトークンを予測します。この予測されたトークンシーケンスは、本命のベリファイアモデルによって並列して検証されます。検証の結果、正しいと判断されたトークンは出力として確定され、もし途中で誤りが検出された場合は、その誤り箇所から再度ドラフトモデルが予測を開始します。このプロセスを繰り返すことで、1トークンずつ生成するよりも効率的に推論を進めます。</p>
+<h3 id="eagle-efficiently-adapting-a-gated-expert-layer-for-speculative-decoding">EAGLE (Efficiently Adapting a Gated Expert Layer for Speculative Decoding)</h3>
+<p>ひとことで言うと: speculative decodingのドラフトモデルを、既存の大型モデルから効率的に生成する手法。
+何のカテゴリか: speculative decodingの改良技術
+何に使うのか: speculative decodingのドラフトモデルの性能と効率を向上させる。
+代表例: Llama 2 7BをベースにしたEAGLEドラフトモデル。
+よく混同される用語: LoRA、QLoRA (これらはモデルの微調整手法だが、EAGLEはドラフトモデルの生成に特化)
+初心者向け注意点: EAGLEは、ドラフトモデルを「ゼロから作る」のではなく、「既存の大型モデルを賢く利用する」ことで、ドラフトモデルの品質と開発コストを両立させます。</p>
+<p>EAGLEは、speculative decodingにおけるドラフトモデルの性能を向上させるための手法です。従来のspeculative decodingでは、ドラフトモデルとベリファイアモデルは全く異なるモデルであることが多かったため、ドラフトモデルの品質がベリファイアモデルの品質に追いつかず、検証失敗の頻度が高まることがありました。</p>
+<p>EAGLEは、ベリファイアモデルと同じアーキテクチャを持つ小型モデルをドラフトモデルとして使用し、さらに「Gated Expert Layer」というメカニズムを導入します。これにより、ドラフトモデルがベリファイアモデルの知識をより効率的に活用できるようになり、予測精度が向上します。結果として、検証の成功率が高まり、全体としての推論速度がさらに加速します。</p>
+<h4 id="eagleのアーキテクチャ概要-mermaid">EAGLEのアーキテクチャ概要 (Mermaid)</h4>
+<pre class="mermaid">graph TD
+    subgraph "Verifier Model (Large LLM)"
+        V_Input[Input Tokens] --> V_Transformer[Transformer Layers]
+        V_Transformer --> V_Output[Output Logits]
+    end
+
+    subgraph "EAGLE Draft Model (Small LLM)"
+        D_Input[Input Tokens] --> D_Base[Base Transformer Layers]
+        D_Base --> D_GEL[Gated Expert Layer]
+        D_GEL --> D_Output[Draft Logits]
+    end
+
+    V_Input -- Context --> D_Input
+    D_Output -- Predicted Tokens --> V_Input</pre>
+<p><strong>説明</strong>: EAGLEドラフトモデルは、ベリファイアモデルと同じ入力コンテキストを受け取ります。ドラフトモデルは、ベースとなるTransformer層に加えて、Gated Expert Layer (GEL) を持ちます。このGELが、ベリファイアモデルの知識を効率的に活用することで、より精度の高いドラフトトークンを予測します。予測されたドラフトトークンは、ベリファイアモデルに渡され、検証プロセスが実行されます。</p>
+<h3 id="dflash-decoupled-flashattention">DFlash (Decoupled FlashAttention)</h3>
+<p>ひとことで言うと: FlashAttentionの計算を、KVキャッシュの読み書きとAttention計算に分離し、効率を向上させる技術。
+何のカテゴリか: Attentionメカニズムの最適化、KVキャッシュ管理
+何に使うのか: LLMのAttention計算を高速化し、メモリ帯域幅のボトルネックを軽減する。
+代表例: vLLMなどの推論エンジンでの採用。
+よく混同される用語: FlashAttention (DFlashはFlashAttentionの改良版)
+初心者向け注意点: KVキャッシュの「読み書き」と「計算」が別々に行われることで、より柔軟な最適化が可能になる点を理解しましょう。</p>
+<p>DFlashは、第15章で触れたKVキャッシュとAttentionメカニズムの効率をさらに高めるための技術です。特に、FlashAttention（第15章参照）の計算プロセスを、KVキャッシュの読み書きとAttentionの計算（QKV行列の乗算など）に分離（Decouple）することで、メモリ帯域幅のボトルネックを軽減し、GPUの利用効率を向上させます。</p>
+<p>従来のFlashAttentionでは、KVキャッシュの読み書きとAttention計算が密接に結合していました。DFlashはこれを切り離すことで、例えばKVキャッシュの読み書きを非同期に行ったり、Attention計算の途中でKVキャッシュを更新したりといった、より高度な最適化を可能にします。これにより、特に長いシーケンス長や大きなバッチサイズでの推論において、顕著な速度向上が期待できます。</p>
+<h4 id="dflashの処理フロー-mermaid">DFlashの処理フロー (Mermaid)</h4>
+<pre class="mermaid">graph TD
+    A["Input Query (Q), Key (K), Value (V)"] --> B{"KV Cache Read/Write"}
+    B -- K, V --> C{Attention Score Calculation}
+    C -- Scores --> D{Softmax}
+    D -- "Softmax(Scores)" --> E{"Weighted Sum (Output)"}
+    B -- Updated K, V --> F[KV Cache Storage]
+    A --> G["FlashAttention (従来)"]
+    G -- Integrated Process --> E
+    subgraph "DFlash (Decoupled)"
+        B; C; D; E; F
+    end</pre>
+<p><strong>説明</strong>: 従来のFlashAttention (G) は、KVキャッシュの読み書きとAttention計算を統合されたプロセスとして扱います。一方、DFlashは、KVキャッシュの読み書き (B) とAttentionスコア計算 (C)、Softmax (D)、加重和 (E) を分離します。これにより、KVキャッシュの更新 (F) をAttention計算と並行して、または非同期に実行できるため、メモリ帯域幅の利用効率が向上し、全体的な処理速度が向上します。</p>
+<h3 id="diffusion-draft">diffusion draft</h3>
+<p>ひとことで言うと: 拡散モデルの原理を応用して、次のトークンシーケンスを生成するドラフトモデル。
+何のカテゴリか: speculative decodingのドラフトモデル生成手法
+何に使うのか: speculative decodingにおけるドラフトモデルの多様性と品質を向上させる。
+代表例: 研究段階の技術。
+よく混同される用語: 拡散モデル (diffusion draftは拡散モデルをドラフト生成に応用したもの)
+初心者向け注意点: 拡散モデルの「ノイズ除去」の概念が、トークン予測にどのように応用されるかを想像してみましょう。</p>
+<p>diffusion draftは、speculative decodingにおけるドラフトモデルの新しいアプローチです。一般的なドラフトモデルが、次のトークンを直接予測するのに対し、diffusion draftは「拡散モデル」の原理を応用します。拡散モデルは、画像生成などで使われる技術で、ノイズから徐々に画像を生成していくプロセスを特徴とします。</p>
+<p>このアイデアをトークン生成に応用すると、現在の入力から「ノイズの多い」トークンシーケンスを生成し、それを徐々に「ノイズ除去」していくことで、より多様で高品質なドラフトシーケンスを生成できる可能性があります。これにより、ドラフトモデルの予測精度が向上し、結果としてspeculative decoding全体の効率が高まることが期待されます。まだ研究段階の技術ですが、将来のドラフトモデルの方向性を示すものとして注目されています。</p>
+<h4 id="speculative-decodingにおける検証確率">speculative decodingにおける検証確率</h4>
+<p>speculative decodingでは、ドラフトモデルが予測したトークンシーケンスがベリファイアによって検証されます。この検証プロセスにおいて、ドラフトモデルが予測したトークン $t_i$ がベリファイアによって承認される確率は、以下のように表すことができます。</p>
+<p>$$ P(\text{accept } t_i) = \min\left(1, \frac{P_V(t_i | \text{context})}{P_D(t_i | \text{context})}\right) $$</p>
+<p>ここで、$P_V(t_i | \text{context})$ はベリファイアモデルが与えられたコンテキストでトークン $t_i$ を生成する確率、$P_D(t_i | \text{context})$ はドラフトモデルが同じコンテキストでトークン $t_i$ を生成する確率です。この式は、ドラフトモデルの予測がベリファイアの予測とどれだけ一致しているかを示し、一致度が高いほど承認される確率が高まります。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="speculative-decodingの動作例">speculative decodingの動作例</h3>
+<p>ユーザー: 「今日の天気は」</p>
+<ol>
+<li><strong>ドラフトモデル</strong>が予測: 「今日の天気は<strong>晴れで、最高気温は25度</strong>でしょう。」</li>
+<li><strong>ベリファイア</strong>が「晴れで、最高気温は25度」を並列検証。<ul>
+<li>「晴れで」までが正しいと判断。</li>
+<li>「最高気温は25度」は誤り（実際は雨だった）。</li>
+</ul>
+</li>
+<li><strong>ベリファイア</strong>が「晴れで」までを出力し、次のトークンを生成: 「今日の天気は<strong>晴れで、午後は雨</strong>でしょう。」</li>
+<li><strong>ドラフトモデル</strong>が「午後は雨」を予測。</li>
+<li><strong>ベリファイア</strong>が「午後は雨」を並列検証。<ul>
+<li>全て正しいと判断。</li>
+</ul>
+</li>
+<li><strong>ベリファイア</strong>が「午後は雨」を出力。
+最終出力: 「今日の天気は晴れで、午後は雨でしょう。」</li>
+</ol>
+<p>この例では、ドラフトモデルが一度に複数のトークンを提案し、ベリファイアがそれをまとめて検証することで、1トークンずつ生成するよりも少ないステップで最終的な出力を得ています。</p>
+<h3 id="eagleの活用例">EAGLEの活用例</h3>
+<p>Llama 2 70Bモデルをベリファイアとして使用する場合、EAGLEはLlama 2 7Bモデルをベースに、Gated Expert Layerを追加してドラフトモデルを構築します。
+これにより、Llama 2 7BがLlama 2 70Bの知識をある程度「模倣」できるようになり、より精度の高いドラフトシーケンスを生成できるようになります。結果として、70Bモデルが検証する回数が減り、推論速度が向上します。</p>
+<h3 id="dflashの活用例">DFlashの活用例</h3>
+<p>vLLMのような推論エンジンでは、DFlashの技術を内部的に利用して、Attention計算の効率を高めています。
+例えば、GPUメモリ上でKVキャッシュを管理する際に、新しいトークンが生成されるたびにKVキャッシュを更新する必要があります。DFlashは、このKVキャッシュの更新と、Attentionの計算を並行して行うことで、GPUがアイドル状態になる時間を減らし、全体のスループットを向上させます。特に、バッチサイズが大きい場合や、長いシーケンスを処理する場合にその効果が顕著になります。</p>
+<h4 id="attention計算の複雑さ">Attention計算の複雑さ</h4>
+<p>Attentionメカニズムの計算量は、シーケンス長 $L$ に対して二次関数的に増加します。具体的には、QKV行列の乗算とSoftmax計算が主な要因です。
+$$ \text{Complexity} \propto O(L^2 \cdot d) $$
+ここで、$d$ はモデルの次元数です。DFlashは、この計算のボトルネックとなるメモリ帯域幅の利用効率を改善することで、実効的な処理速度を向上させます。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">speculative decoding</th>
+<th align="left">並列推論（一般的な意味）</th>
+<th align="left">バッチ処理（第15章）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">推論速度向上</td>
+<td align="left">推論速度向上</td>
+<td align="left">スループット向上</td>
+</tr>
+<tr>
+<td align="left"><strong>仕組み</strong></td>
+<td align="left">予測と検証の2段階</td>
+<td align="left">複数のリクエストを同時に処理</td>
+<td align="left">複数の入力をまとめて処理</td>
+</tr>
+<tr>
+<td align="left"><strong>モデル数</strong></td>
+<td align="left">2つ（ドラフト、ベリファイア）</td>
+<td align="left">1つまたは複数</td>
+<td align="left">1つ</td>
+</tr>
+<tr>
+<td align="left"><strong>トークン生成</strong></td>
+<td align="left">複数トークンをまとめて検証</td>
+<td align="left">1トークンずつ生成（各リクエスト）</td>
+<td align="left">1トークンずつ生成（各入力）</td>
+</tr>
+<tr>
+<td align="left"><strong>適用範囲</strong></td>
+<td align="left">単一リクエストの応答速度</td>
+<td align="left">複数リクエストの同時処理</td>
+<td align="left">複数リクエストの同時処理</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">FlashAttention (第15章)</th>
+<th align="left">DFlash (Decoupled FlashAttention)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">Attention計算の高速化</td>
+<td align="left">Attention計算のさらなる高速化</td>
+</tr>
+<tr>
+<td align="left"><strong>仕組み</strong></td>
+<td align="left">GPUメモリの効率的な利用</td>
+<td align="left">KVキャッシュの読み書きとAttention計算の分離</td>
+</tr>
+<tr>
+<td align="left"><strong>ボトルネック</strong></td>
+<td align="left">メモリ帯域幅</td>
+<td align="left">メモリ帯域幅のさらなる軽減</td>
+</tr>
+<tr>
+<td align="left"><strong>柔軟性</strong></td>
+<td align="left">比較的低い</td>
+<td align="left">高い（非同期処理など）</td>
+</tr>
+<tr>
+<td align="left"><strong>適用範囲</strong></td>
+<td align="left">全てのAttention計算</td>
+<td align="left">特に長いシーケンス、大きなバッチサイズ</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">speculative decoding</th>
+<th align="left">EAGLE</th>
+<th align="left">diffusion draft</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>カテゴリ</strong></td>
+<td align="left">推論高速化手法</td>
+<td align="left">speculative decodingの改良</td>
+<td align="left">ドラフトモデル生成手法</td>
+</tr>
+<tr>
+<td align="left"><strong>役割</strong></td>
+<td align="left">予測と検証のフレームワーク</td>
+<td align="left">高品質なドラフトモデルの生成</td>
+<td align="left">多様なドラフトシーケンスの生成</td>
+</tr>
+<tr>
+<td align="left"><strong>主要技術</strong></td>
+<td align="left">ドラフトモデル、ベリファイア</td>
+<td align="left">Gated Expert Layer</td>
+<td align="left">拡散モデルの原理</td>
+</tr>
+<tr>
+<td align="left"><strong>成熟度</strong></td>
+<td align="left">実用段階</td>
+<td align="left">実用段階</td>
+<td align="left">研究段階</td>
+</tr>
+<tr>
+<td align="left"><strong>メリット</strong></td>
+<td align="left">推論速度向上</td>
+<td align="left">ドラフトモデルの精度向上、開発コスト削減</td>
+<td align="left">ドラフトの多様性向上、予測精度向上</td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>これらの技術は、LLMを実用的なアプリケーションに組み込む上で非常に重要です。</p>
+<ul>
+<li><strong>リアルタイム対話システム</strong>: チャットボットや音声アシスタントなど、ユーザーの入力に対して即座に反応する必要があるシステムでは、speculative decodingやEAGLEが応答遅延を大幅に削減し、ユーザー体験を向上させます。</li>
+<li><strong>大規模な推論サービス</strong>: 多くのユーザーからのリクエストを同時に処理するLLMサービスでは、DFlashのようなAttention最適化技術が、GPUリソースの効率的な利用とスループットの向上に貢献します。これにより、より多くのリクエストを少ないハードウェアで処理できるようになります。</li>
+<li><strong>コスト削減</strong>: 推論速度の向上は、GPUの利用時間を短縮することに直結するため、クラウドサービス利用時のコスト削減にも繋がります。</li>
+<li><strong>研究開発</strong>: diffusion draftのような新しいアプローチは、将来のLLM推論技術の方向性を示唆しており、さらなる性能向上への道を開きます。</li>
+</ul>
+<p>これらの技術は、LLMの「速さ」と「効率」という、実用化における二大課題を解決するための鍵となります。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>speculative decodingは、小型のドラフトモデルで予測し、大型のベリファイアで検証することで、LLMの推論を高速化する。</li>
+<li>EAGLEは、既存の大型モデルから効率的に高品質なドラフトモデルを生成し、speculative decodingの性能を向上させる。</li>
+<li>DFlashは、FlashAttentionを改良し、KVキャッシュの読み書きとAttention計算を分離することで、GPUの効率を高め、推論をさらに加速する。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>speculative decoding</strong> と <strong>並列推論</strong>: speculative decodingは単一の出力生成を加速するのに対し、並列推論は複数の独立したリクエストを同時に処理する。</li>
+<li><strong>FlashAttention</strong> と <strong>DFlash</strong>: DFlashはFlashAttentionの概念をさらに発展させ、KVキャッシュ管理の柔軟性を高めたもの。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第17章: LLMの評価指標</li>
+<li>第18章: プロンプトエンジニアリングの基礎</li>
+<li>第19章: RAG (Retrieval Augmented Generation)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-15.html" class="nav-prev">← 第15章 KV cache / batching / paged attention</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-17.html" class="nav-next">第17章 CPU / GPU / NPU / TPU の違い →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

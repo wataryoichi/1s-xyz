@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>目次 - LLM周辺用語 教科書</title>
+  <meta name="description" content="全25章のLLM周辺用語 教科書です。">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/index.html">
+  <meta property="og:title" content="目次 - LLM周辺用語 教科書">
+  <meta property="og:description" content="全25章のLLM周辺用語 教科書です。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://1s.xyz/llm/index.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="目次 - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="全25章のLLM周辺用語 教科書です。">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+  </header>
+  
+
+  <div class="layout">
+    
+    <main id="main-content" class="content full-width">
+      <article>
+        <h1>LLM周辺用語 教科書 — モデル・推論・学習の全体像を掴む</h1>
+<p>全25章の教科書です。章を選んで読み始めてください。</p>
+<h2>第1部: 全体像をつかむ</h2>
+<ul>
+<li><a href="chapter-01.html">第1章. LLM周辺の世界地図</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 用語の森に入る前に、全体の地図を持つ</span></li>
+</ul>
+<h2>第2部: モデルとは何か</h2>
+<ul>
+<li><a href="chapter-02.html">第2章. モデル・重み・トークナイザ</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 「モデル」という言葉が何を指すのか曖昧にしない</span></li>
+</ul>
+<h2>第3部: モデルはどこにあるのか</h2>
+<ul>
+<li><a href="chapter-03.html">第3章. Hugging Faceとは何か</a> <span style="opacity:0.6;font-size:0.85em">— 目的: Hugging Face を「ただのサイト」以上のものとして理解する</span></li>
+</ul>
+<h2>第4部: モデル形式と保存形式</h2>
+<ul>
+<li><a href="chapter-04.html">第4章. モデルファイル形式の基本</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 「GGUFって何？ safetensorsって何？」を整理する</span></li>
+<li><a href="chapter-05.html">第5章. GGUFを重点的に理解する</a> <span style="opacity:0.6;font-size:0.85em">— 目的: ローカルLLMで頻出するGGUFを深掘りする</span></li>
+</ul>
+<h2>第5部: どうやってモデルを動かすのか</h2>
+<ul>
+<li><a href="chapter-06.html">第6章. 推論ランタイムとは何か</a> <span style="opacity:0.6;font-size:0.85em">— 目的: llama.cpp や vLLM を「ランタイム」として理解する</span></li>
+<li><a href="chapter-07.html">第7章. llama.cppとは何か</a> <span style="opacity:0.6;font-size:0.85em">— 目的: ローカルLLM界で頻出する llama.cpp の役割を明確にする</span></li>
+<li><a href="chapter-08.html">第8章. Ollama / LM Studio / Open WebUI / Jan など</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 実行エンジンとUIツールの違いを整理する</span></li>
+<li><a href="chapter-09.html">第9章. vLLM / TGI / TensorRT-LLM</a> <span style="opacity:0.6;font-size:0.85em">— 目的: サーバ向け推論基盤を整理する</span></li>
+</ul>
+<h2>第6部: どうやって軽くするのか</h2>
+<ul>
+<li><a href="chapter-10.html">第10章. 量子化（Quantization）</a> <span style="opacity:0.6;font-size:0.85em">— 目的: FP16/BF16/INT8/4bit などの意味を整理する</span></li>
+<li><a href="chapter-11.html">第11章. BitNet / ternary / 1-bit系</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 低ビット化の最先端の見取り図を作る</span></li>
+</ul>
+<h2>第7部: 学習と微調整</h2>
+<ul>
+<li><a href="chapter-12.html">第12章. 事前学習・継続事前学習・SFT</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 学習系の大分類を理解する</span></li>
+<li><a href="chapter-13.html">第13章. LoRA / QLoRA / Adapter</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 微調整系の頻出語を整理する</span></li>
+<li><a href="chapter-14.html">第14章. 学習ツール群</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 学習で出てくるツール名の位置づけを整理する</span></li>
+</ul>
+<h2>第8部: 推論高速化</h2>
+<ul>
+<li><a href="chapter-15.html">第15章. KV cache / batching / paged attention</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 速度まわりの基礎概念を整理する</span></li>
+<li><a href="chapter-16.html">第16章. speculative decoding / EAGLE / DFlash</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 最近の高速化トピックを体系化する</span></li>
+</ul>
+<h2>第9部: ハードウェアと実行環境</h2>
+<ul>
+<li><a href="chapter-17.html">第17章. CPU / GPU / NPU / TPU の違い</a> <span style="opacity:0.6;font-size:0.85em">— 目的: どのハードが何に向くかを整理する</span></li>
+<li><a href="chapter-18.html">第18章. CUDA / ROCm / Metal / DirectML</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 実行バックエンドの違いを理解する</span></li>
+</ul>
+<h2>第10部: データ・検索・周辺システム</h2>
+<ul>
+<li><a href="chapter-19.html">第19章. RAG / embedding / vector DB</a> <span style="opacity:0.6;font-size:0.85em">— 目的: モデル単体ではなく周辺システムまで理解する</span></li>
+<li><a href="chapter-20.html">第20章. エージェント / ツール利用 / MCP</a> <span style="opacity:0.6;font-size:0.85em">— 目的: 最近のAIアプリ文脈の頻出語を整理する</span></li>
+</ul>
+<h2>第11部: 実務で混乱しやすい比較特集</h2>
+<ul>
+<li><a href="chapter-21.html">第21章. よく混同される用語まとめ</a></li>
+</ul>
+<h2>第12部: 付録</h2>
+<ul>
+<li><a href="chapter-22.html">第22章. 最低限これだけ覚えればよい用語30選</a></li>
+<li><a href="chapter-23.html">第23章. ローカルLLMを触る最短ルート</a></li>
+<li><a href="chapter-24.html">第24章. 用語索引</a></li>
+<li><a href="chapter-25.html">第25章. 学習順ガイド</a></li>
+</ul>
+<hr>
+<p><a href="glossary.html">📖 用語集</a></p>
+      </article>
+      <nav class="page-nav">
+<div></div>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-01.html" class="nav-next">第1章 LLM周辺の世界地図 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

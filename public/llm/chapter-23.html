@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第23章. ローカルLLMを触る最短ルート - LLM周辺用語 教科書</title>
+  <meta name="description" content="ローカルLLMを触る最短ルート">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-23.html">
+  <meta property="og:title" content="第23章. ローカルLLMを触る最短ルート - LLM周辺用語 教科書">
+  <meta property="og:description" content="ローカルLLMを触る最短ルート">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-23.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第23章. ローカルLLMを触る最短ルート - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="ローカルLLMを触る最短ルート">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">23 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第12部: 付録</li><li aria-current="page">第23章. ローカルLLMを触る最短ルート</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第23章-ローカルllmを触る最短ルート">第23章. ローカルLLMを触る最短ルート</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、手元のPCでLLMを動かすための最も手軽で迅速な方法を習得します。複雑な設定や専門知識を最小限に抑え、実際にLLMと対話できる状態を目指します。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>ローカルLLM環境構築の最も簡単な選択肢とその手順</li>
+<li>Ollamaを使ったモデルのダウンロードと実行方法</li>
+<li>Open WebUIを使ったチャットインターフェースの利用方法</li>
+<li>ローカルLLMの基本的な使い方と注意点</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>「LLMを自分で動かしてみたいけど、何から始めればいいのか分からない」「難しそうで手が出せない」と感じている方も多いのではないでしょうか。第1章から第22章まで、LLMに関する様々な技術や概念を学んできました。しかし、実際に手を動かしてみるのが一番の近道です。</p>
+<p>この章では、これまでの知識を一旦脇に置き、とにかく「動かす」ことに焦点を当てます。最も手軽で、かつ多くの人が利用しているツールである「Ollama」と「Open WebUI」を組み合わせることで、あなたのPCでLLMが動く感動を体験しましょう。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="ローカルllmとは">ローカルLLMとは</h3>
+<p>ひとことで言うと: 自分のPC上で動作する大規模言語モデル。
+何のカテゴリか: LLMの実行環境。
+何に使うのか: インターネット接続なしでの利用、プライバシー保護、カスタマイズ、開発。
+代表例: llama.cpp、Ollama、LM Studio、vLLMなど。
+よく混同される用語: クラウドLLM（ChatGPT, Geminiなど）。
+初心者向け注意点: ローカルで動かすにはPCのスペック（特にRAMとGPU）が重要です。</p>
+<p>ローカルLLMは、インターネット経由で外部のサーバーに接続することなく、手元のPCの計算資源を使ってLLMを動作させる環境を指します。これにより、データが外部に送信される心配がなく、プライバシーが保護されるという大きなメリットがあります。また、インターネット接続がない場所でも利用できるため、オフライン環境での作業にも適しています。</p>
+<h3 id="ollamaとは">Ollamaとは</h3>
+<p>ひとことで言うと: ローカルLLMを簡単に動かすためのフレームワーク。
+何のカテゴリか: LLM推論ランタイム、モデル管理ツール。
+何に使うのか: モデルのダウンロード、実行、API提供。
+代表例: <code>ollama run llama2</code>、<code>ollama pull mistral</code>。
+よく混同される用語: llama.cpp（Ollamaはllama.cppを内部で利用していることが多い）、LM Studio（同様の機能を持つGUIツール）。
+初心者向け注意点: OllamaはCLI（コマンドラインインターフェース）が基本ですが、Web UIと組み合わせることでより使いやすくなります。</p>
+<p>Ollamaは、ローカルLLMの導入障壁を劇的に下げるツールです。複雑な依存関係の解決やビルド作業なしに、コマンド一つで様々なモデルをダウンロードし、実行できます。内部的には、第7章で解説した<code>llama.cpp</code>などの効率的な推論エンジンを利用しており、GGUF形式のモデルを最適化して実行します。</p>
+<h3 id="open-webuiとは">Open WebUIとは</h3>
+<p>ひとことで言うと: Ollamaで動いているLLMとチャットするためのWebインターフェース。
+何のカテゴリか: LLMチャットUI、フロントエンド。
+何に使うのか: ブラウザ経由でLLMと対話、プロンプト管理、モデル切り替え。
+代表例: ChatGPTのWeb UIのようなもの。
+よく混同される用語: Ollama（Open WebUIはOllamaのフロントエンドとして機能する）。
+初心者向け注意点: Open WebUIはOllamaがインストールされているPC上で動作させるのが一般的です。</p>
+<p>Open WebUIは、Ollamaで起動したLLMと、まるでChatGPTのようにブラウザ上で対話できるユーザーインターフェースです。Ollama単体ではコマンドラインでの対話が主になりますが、Open WebUIを導入することで、より直感的で使いやすいチャット体験が得られます。プロンプトの履歴管理や、複数のモデルを切り替えて利用する機能なども提供されます。</p>
+<h4 id="ローカルllmの利点と課題">ローカルLLMの利点と課題</h4>
+<pre class="mermaid">graph TD
+    subgraph "ローカルLLMの利点"
+        A[プライバシー保護]
+        B[オフライン利用]
+        C[コスト削減]
+        D[カスタマイズ性]
+        E[開発の自由度]
+    end
+
+    subgraph "ローカルLLMの課題"
+        F[PCスペック要求]
+        G[初期設定の手間]
+        H[モデル選択の知識]
+        I[パフォーマンス制約]
+    end
+
+    A --> J(ユーザーメリット)
+    B --> J
+    C --> J
+    D --> J
+    E --> J
+
+    F --> K(導入障壁)
+    G --> K
+    H --> K
+    I --> K
+
+    J -- 解決策 --> L(Ollama + Open WebUI)
+    K -- 軽減策 --> L</pre>
+<p><strong>図23.1: ローカルLLMの利点と課題、およびOllama+Open WebUIの位置づけ</strong>
+この図は、ローカルLLMが提供する主要な利点と、導入・運用における課題を整理しています。OllamaとOpen WebUIの組み合わせは、これらの課題を軽減し、ユーザーがローカルLLMのメリットを享受しやすくするための効果的な解決策として機能します。</p>
+<h2 id="具体例">具体例</h2>
+<p>ここでは、OllamaとOpen WebUIを使ってローカルLLMを動かす具体的な手順を説明します。</p>
+<h3 id="ステップ1-ollamaのインストール">ステップ1: Ollamaのインストール</h3>
+<ol>
+<li><p><strong>Ollamaのダウンロード:</strong>
+Ollamaの公式サイト（<a href="https://ollama.com/">https://ollama.com/</a>）にアクセスします。
+お使いのOS（Windows, macOS, Linux）に対応したインストーラーをダウンロードします。</p>
+</li>
+<li><p><strong>インストール:</strong>
+ダウンロードしたインストーラーを実行し、指示に従ってインストールを進めます。ほとんどの場合、デフォルト設定で問題ありません。
+Windowsの場合、<code>ollama-setup.exe</code>のようなファイルを実行します。
+macOSの場合、<code>Ollama.dmg</code>を開き、アプリケーションフォルダにドラッグ＆ドロップします。
+Linuxの場合、ターミナルで以下のコマンドを実行します。</p>
+<pre><code class="language-bash">curl -fsSL https://ollama.com/install.sh | sh</code></pre>
+</li>
+<li><p><strong>インストール確認:</strong>
+ターミナル（コマンドプロンプト）を開き、以下のコマンドを実行します。</p>
+<pre><code class="language-bash">ollama --version</code></pre>
+<p>バージョン情報が表示されれば、Ollamaのインストールは成功です。</p>
+</li>
+</ol>
+<h3 id="ステップ2-モデルのダウンロードと実行">ステップ2: モデルのダウンロードと実行</h3>
+<ol>
+<li><p><strong>モデルの選択:</strong>
+Ollamaのモデルライブラリ（<a href="https://ollama.com/library">https://ollama.com/library</a>）から、試したいモデルを選びます。最初は比較的小さなモデル（例: <code>llama2</code>, <code>mistral</code>, <code>gemma</code>など）から始めるのがおすすめです。
+ここでは例として<code>llama2</code>を使用します。</p>
+</li>
+<li><p><strong>モデルのダウンロード:</strong>
+ターミナルで以下のコマンドを実行します。</p>
+<pre><code class="language-bash">ollama pull llama2</code></pre>
+<p>これにより、<code>llama2</code>モデルがダウンロードされます。モデルのサイズによっては数分から数十分かかる場合があります。</p>
+</li>
+<li><p><strong>モデルの実行と対話:</strong>
+ダウンロードが完了したら、以下のコマンドでモデルを起動し、対話を開始できます。</p>
+<pre><code class="language-bash">ollama run llama2</code></pre>
+<p>プロンプトが表示されたら、質問を入力してみましょう。</p>
+<pre><code class="language-">&gt;&gt;&gt; How are you?
+I am an AI assistant, so I don't have feelings or emotions. But I'm ready to help you with any questions or tasks you have!
+&gt;&gt;&gt;</code></pre>
+<p>対話を終了するには、<code>Ctrl + D</code>を押します。</p>
+</li>
+</ol>
+<h3 id="ステップ3-open-webuiのインストールと設定">ステップ3: Open WebUIのインストールと設定</h3>
+<p>Open WebUIは、Ollamaが動作している環境にDockerを使ってインストールするのが最も簡単です。Dockerがインストールされていない場合は、先にDocker Desktop（<a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>）をインストールしてください。</p>
+<ol>
+<li><p><strong>Open WebUIの起動:</strong>
+ターミナルで以下のコマンドを実行します。</p>
+<pre><code class="language-bash">docker run -d -p 8080:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main</code></pre>
+<p>このコマンドは、Open WebUIをDockerコンテナとして起動し、ポート8080でアクセスできるようにします。</p>
+</li>
+<li><p><strong>Open WebUIへのアクセス:</strong>
+Webブラウザを開き、以下のURLにアクセスします。</p>
+<pre><code class="language-">http://localhost:8080/</code></pre>
+<p>初回アクセス時には、ユーザー登録画面が表示されます。任意のユーザー名とパスワードを設定してアカウントを作成します。</p>
+</li>
+<li><p><strong>モデルの選択とチャット:</strong>
+ログイン後、Open WebUIのインターフェースが表示されます。
+左下の「Models」またはチャット画面上部のドロップダウンから、Ollamaでダウンロードしたモデル（例: <code>llama2</code>）を選択します。
+これで、ChatGPTのようにブラウザ上でLLMと対話できるようになります。</p>
+</li>
+</ol>
+<h4 id="mermaid図によるollama-open-webuiの構成">Mermaid図によるOllama + Open WebUIの構成</h4>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B(Webブラウザ)
+    B --> C{Open WebUI}
+    C --> D[Ollama]
+    D --> E["ローカルモデルファイル (GGUF)"]
+    D -- 内部で利用 --> F[llama.cpp]
+
+    subgraph "ユーザーPC"
+        C
+        D
+        E
+        F
+    end
+
+    subgraph "インターネット"
+        G[Ollamaモデルライブラリ] --> D
+    end</pre>
+<p><strong>図23.2: OllamaとOpen WebUIの連携構成</strong>
+この図は、ユーザーがWebブラウザを通じてOpen WebUIにアクセスし、Open WebUIがOllamaと連携してローカルのモデルファイル（GGUF形式）を<code>llama.cpp</code>などの推論エンジンで実行する流れを示しています。モデルのダウンロードはOllamaがインターネット上のライブラリから行います。</p>
+<h4 id="ローカルllmのパフォーマンス指標">ローカルLLMのパフォーマンス指標</h4>
+<p>ローカルLLMのパフォーマンスは、主に以下の要素で評価されます。</p>
+<ol>
+<li><strong>推論速度 (Tokens/sec)</strong>: 1秒あたりに生成できるトークン数。</li>
+<li><strong>メモリ使用量 (GB)</strong>: モデルをロードするために必要なRAMまたはVRAMの量。</li>
+</ol>
+<p>これらの指標は、モデルのサイズ ($S$)、量子化ビット数 ($Q_b$)、およびハードウェアの性能 ($H_p$) に依存します。</p>
+<p>$$ \text{Tokens/sec} \propto \frac{H_p}{S \times Q_b} $$
+$$ \text{Memory Usage} \propto S \times Q_b $$</p>
+<p>ここで、$S$ はモデルのパラメータ数（例: 7B, 13B）、$Q_b$ は量子化ビット数（例: 4bit, 8bit）です。一般的に、モデルサイズが大きく、量子化ビット数が高いほど、メモリ使用量が増え、推論速度は低下します。適切なモデル選択と量子化は、ローカル環境での快適な利用に不可欠です。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">Ollama</th>
+<th align="left">LM Studio</th>
+<th align="left">ChatGPT (OpenAI)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>種類</strong></td>
+<td align="left">ローカルLLM実行フレームワーク</td>
+<td align="left">ローカルLLM実行GUIツール</td>
+<td align="left">クラウドベースのLLMサービス</td>
+</tr>
+<tr>
+<td align="left"><strong>インターフェース</strong></td>
+<td align="left">CLI (コマンドライン) が基本、API提供</td>
+<td align="left">GUI (グラフィカルユーザーインターフェース)</td>
+<td align="left">Web UI、API</td>
+</tr>
+<tr>
+<td align="left"><strong>モデル管理</strong></td>
+<td align="left"><code>ollama pull</code>でダウンロード、管理</td>
+<td align="left">GUIでモデルを検索・ダウンロード、管理</td>
+<td align="left">OpenAIが提供するモデルのみ</td>
+</tr>
+<tr>
+<td align="left"><strong>プライバシー</strong></td>
+<td align="left">高い（データが外部に出ない）</td>
+<td align="left">高い（データが外部に出ない）</td>
+<td align="left">利用規約による（データ学習利用の有無など）</td>
+</tr>
+<tr>
+<td align="left"><strong>必要スペック</strong></td>
+<td align="left">中〜高（モデルによる）</td>
+<td align="left">中〜高（モデルによる）</td>
+<td align="left">不要（サーバー側で処理）</td>
+</tr>
+<tr>
+<td align="left"><strong>主な用途</strong></td>
+<td align="left">開発、自動化、Web UIとの連携</td>
+<td align="left">手軽な試用、個人利用</td>
+<td align="left">一般的な利用、高度なタスク、商用利用</td>
+</tr>
+<tr>
+<td align="left"><strong>学習コスト</strong></td>
+<td align="left">低〜中（CLIに慣れていれば低）</td>
+<td align="left">低</td>
+<td align="left">低</td>
+</tr>
+</tbody></table></div>
+<p><strong>表23.1: Ollama、LM Studio、ChatGPTの比較</strong></p>
+<p>OllamaとLM StudioはどちらもローカルLLMを動かすためのツールですが、Ollamaはコマンドラインベースでより柔軟な利用が可能であり、Open WebUIのような外部UIと連携しやすい特徴があります。一方、LM Studioは単体でGUIを提供するため、より手軽に試したい場合に適しています。ChatGPTのようなクラウドサービスは、手元のPCスペックを気にせず利用できる反面、プライバシーやカスタマイズの自由度でローカルLLMに劣ります。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>この章で紹介したOllamaとOpen WebUIの組み合わせは、実務においても非常に有用です。</p>
+<ol>
+<li><p><strong>プロトタイピングと開発:</strong>
+新しいLLMアプリケーションを開発する際、まずはローカル環境で迅速にプロトタイプを作成できます。APIキーの管理や課金を気にせず、自由にモデルを試行錯誤できるため、開発サイクルを高速化できます。</p>
+</li>
+<li><p><strong>プライバシーが重要な業務:</strong>
+機密情報や個人情報を含むデータを扱う場合、クラウドサービスにデータを送信することはできません。ローカルLLMであれば、データが外部に出ることなく、セキュアな環境でLLMを利用できます。</p>
+</li>
+<li><p><strong>オフライン環境での利用:</strong>
+インターネット接続が不安定な場所や、セキュリティポリシー上インターネット接続が制限される環境でも、ローカルLLMは問題なく動作します。</p>
+</li>
+<li><p><strong>コスト削減:</strong>
+クラウドLLMのAPI利用には費用がかかりますが、ローカルLLMは一度環境を構築してしまえば、追加の利用料はかかりません（電気代はかかりますが）。</p>
+</li>
+<li><p><strong>カスタマイズとファインチューニングの基盤:</strong>
+ローカルでモデルを動かせることは、将来的にモデルのファインチューニング（第13章参照）や、独自のデータセットでの継続事前学習（第12章参照）を行う上での第一歩となります。</p>
+</li>
+</ol>
+<h4 id="ローカルllm導入の意思決定フロー">ローカルLLM導入の意思決定フロー</h4>
+<pre class="mermaid">flowchart TD
+    A[LLM利用の目的は？] --> B{"プライバシー/セキュリティは重要？"}
+    B -- はい --> C{オフライン利用は必要？}
+    B -- いいえ --> D{手元のPCスペックは十分？}
+
+    C -- はい --> E[ローカルLLMが最適]
+    C -- いいえ --> D
+
+    D -- はい --> E
+    D -- いいえ --> F[クラウドLLMを検討]
+
+    E --> G[Ollama + Open WebUIを推奨]
+    F --> H[ChatGPT/Gemini APIなどを検討]
+
+    G --> I[モデル選択とダウンロード]
+    I --> J[チャット開始]
+    H --> K[APIキー取得と利用]
+    K --> J</pre>
+<p><strong>図23.3: ローカルLLM導入の意思決定フロー</strong>
+このフローチャートは、LLMを導入する際の意思決定プロセスを示しています。プライバシー要件、オフライン利用の必要性、PCスペックなどを考慮し、ローカルLLMかクラウドLLMかを選択します。ローカルLLMを選択した場合、OllamaとOpen WebUIの組み合わせが推奨されるルートとなります。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ol>
+<li>Ollamaは、ローカルLLMを簡単にダウンロード・実行できるフレームワークです。</li>
+<li>Open WebUIは、Ollamaで動くLLMとブラウザで対話できる便利なチャットUIです。</li>
+<li>この組み合わせにより、手元のPCで手軽にLLMを動かし、プライバシー保護や開発の自由度を高めることができます。</li>
+</ol>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>Ollama</strong> と <strong>llama.cpp</strong>: Ollamaはllama.cppを内部で利用する「フレームワーク」であり、llama.cppは「推論エンジン」です。</li>
+<li><strong>Ollama</strong> と <strong>LM Studio</strong>: どちらもローカルLLMツールですが、OllamaはCLI中心、LM StudioはGUI中心です。</li>
+<li><strong>ローカルLLM</strong> と <strong>クラウドLLM</strong>: ローカルLLMは手元のPCで動作し、クラウドLLMはインターネット経由で外部サーバーを利用します。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li><strong>第7章: llama.cppとは何か</strong>: Ollamaの内部で利用されている技術について深く理解したい場合。</li>
+<li><strong>第8章: Ollama / LM Studio / Open WebUI / Jan など</strong>: 他のローカルLLMツールとの比較や詳細を知りたい場合。</li>
+<li><strong>第10章: 量子化（Quantization）</strong>: ローカルLLMのモデルサイズや実行速度に大きく影響する技術について学びたい場合。</li>
+<li><strong>第19章: RAG / embedding / vector DB</strong>: ローカルLLMを使ってより高度なアプリケーションを構築する第一歩として。</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-22.html" class="nav-prev">← 第22章 最低限これだけ覚えればよい用語30選</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-24.html" class="nav-next">第24章 用語索引 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

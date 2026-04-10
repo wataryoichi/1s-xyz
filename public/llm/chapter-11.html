@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第11章. BitNet / ternary / 1-bit系 - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 低ビット化の最先端の見取り図を作る">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-11.html">
+  <meta property="og:title" content="第11章. BitNet / ternary / 1-bit系 - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 低ビット化の最先端の見取り図を作る">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-11.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第11章. BitNet / ternary / 1-bit系 - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 低ビット化の最先端の見取り図を作る">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">11 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第6部: どうやって軽くするのか</li><li aria-current="page">第11章. BitNet / ternary / 1-bit系</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第11章-bitnet-ternary-1-bit系">第11章. BitNet / ternary / 1-bit系</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）の軽量化技術の中でも、特に極端な低ビット化を追求する「BitNet / ternary / 1-bit系」の技術について、その概念、背景、そして具体的なモデルや手法を理解することを目的とします。従来の量子化技術とは一線を画すこれらのアプローチが、LLMの未来にどのような可能性をもたらすのか、その最先端の見取り図を描きます。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>BitNet、ternary、1-bitといった極端な低ビット化の基本概念</li>
+<li>これらの技術が従来の量子化とどう異なるか</li>
+<li>1.58-bitという具体的なビット幅の意味と、その背景にある考え方</li>
+<li>BitNetの具体的な実装例である<code>bitnet.cpp</code>の役割</li>
+<li>低ビットモデルの学習手法である<code>native low-bit training</code>の重要性</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>前章「量子化（Quantization）」では、LLMのモデルサイズや計算負荷を削減するために、重みや活性化関数を低精度（例: FP32からFP16、INT8など）に変換する技術について学びました。しかし、これらの技術はあくまで「精度を落とす」というアプローチであり、依然として数ビット以上の情報量を保持していました。</p>
+<p>本章で扱う「BitNet / ternary / 1-bit系」の技術は、この低ビット化をさらに極限まで推し進め、重みや活性化関数をわずか1ビット、あるいは数ビットの精度で表現しようとするものです。これは、モデルのサイズを劇的に削減し、計算効率を飛躍的に向上させる可能性を秘めていますが、同時にその実現には多くの技術的課題が伴います。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="ひとことで言うと">ひとことで言うと</h3>
+<p>BitNet / ternary / 1-bit系は、LLMの重みや活性化関数を極めて少ないビット数（例: 1ビット、3値）で表現し、モデルのサイズと計算負荷を大幅に削減する技術群です。</p>
+<h3 id="何のカテゴリか">何のカテゴリか</h3>
+<p>LLMの軽量化技術、特に「極端な低ビット量子化」に分類されます。従来の量子化が数ビット（例: 4bit, 8bit）を扱うのに対し、これらは1ビットや3値（ternary）といった、情報量の最小単位に近いレベルでの表現を目指します。</p>
+<h3 id="何に使うのか">何に使うのか</h3>
+<ul>
+<li><strong>モデルサイズの劇的な削減</strong>: 数十GBのモデルを数GB、あるいは数百MBにまで圧縮し、ストレージやメモリの要件を緩和します。</li>
+<li><strong>計算速度の向上</strong>: 浮動小数点演算ではなく、ビット演算や整数演算を用いることで、推論速度を大幅に向上させます。</li>
+<li><strong>消費電力の削減</strong>: 計算負荷の軽減により、デバイスの消費電力を抑え、エッジデバイスでの利用を可能にします。</li>
+</ul>
+<h3 id="代表例">代表例</h3>
+<ul>
+<li><strong>BitNet</strong>: Microsoft Researchが発表した、1ビットの重みを持つ大規模言語モデルのフレームワーク。</li>
+<li><strong>ternary</strong>: 重みを-1, 0, 1の3値で表現する手法。</li>
+<li><strong>1-bit</strong>: 重みを-1または1の2値で表現する手法。</li>
+</ul>
+<h3 id="よく混同される用語">よく混同される用語</h3>
+<ul>
+<li><strong>従来の量子化（Quantization）</strong>: 4bitや8bitなど、より多くのビット数で表現する手法。BitNet系は量子化の一種ですが、その極端さが特徴です。</li>
+<li><strong>プルーニング（Pruning）</strong>: モデルの重みの一部を削除することでスパース化する手法。低ビット化とはアプローチが異なります。</li>
+</ul>
+<h3 id="初心者向け注意点">初心者向け注意点</h3>
+<p>極端な低ビット化は、モデルの表現能力を著しく低下させるリスクがあります。そのため、単にビット数を減らすだけでなく、その精度を維持するための特別な学習手法やアーキテクチャの工夫が不可欠です。</p>
+<hr>
+<h3 id="bitnet">BitNet</h3>
+<p>ひとことで言うと: 重みを1ビット（-1または1）で表現する大規模言語モデルのフレームワーク。
+何のカテゴリか: 極端な低ビット量子化モデル、LLM軽量化技術。
+何に使うのか: LLMのモデルサイズと計算負荷を劇的に削減し、高速かつ省電力な推論を実現する。
+代表例: BitNet b1.58、BitNet b1.58-LLM。
+よく混同される用語: 従来の量子化、ternary。
+初心者向け注意点: 1ビット化は情報損失が大きいため、特別な学習手法（native low-bit training）が必須です。</p>
+<h3 id="ternary">ternary</h3>
+<p>ひとことで言うと: モデルの重みを-1, 0, 1の3つの値のみで表現する手法。
+何のカテゴリか: 極端な低ビット量子化手法。
+何に使うのか: モデルサイズと計算量を削減する。0の導入により、スパース性を利用した効率化も可能。
+代表例: Ternary Weight Networks (TWN)。
+よく混同される用語: 1-bit、BitNet。
+初心者向け注意点: 3値化は1ビット化よりも表現力がありますが、それでも通常の浮動小数点数に比べると大きく制限されます。</p>
+<h3 id="1-bit">1-bit</h3>
+<p>ひとことで言うと: モデルの重みを-1または1の2つの値のみで表現する手法。
+何のカテゴリか: 極端な低ビット量子化手法。
+何に使うのか: モデルサイズと計算量を最小限に抑える。
+代表例: Binary Neural Networks (BNN)。
+よく混同される用語: ternary、BitNet。
+初心者向け注意点: 1-bitはBitNetの根幹をなす考え方ですが、BitNetはさらにその学習方法やアーキテクチャに工夫を凝らしています。</p>
+<h3 id="158-bit">1.58-bit</h3>
+<p>ひとことで言うと: BitNet b1.58で採用されている、実質的に1ビットに近いが、わずかに情報量が多い表現。
+何のカテゴリか: 極端な低ビット量子化における重みの表現形式。
+何に使うのか: 1ビットの極端な情報損失を緩和しつつ、1ビットに近い計算効率とモデルサイズを実現する。
+代表例: BitNet b1.58。
+よく混同される用語: 1-bit、ternary。
+初心者向け注意点: 1.58ビットという数値は、重みを{-1, 0, 1}の3値で表現し、そのうち0が特定の割合を占めることで、実質的な情報量が1ビットよりわずかに多いことを示唆しています。厳密には、3値表現は$\log_2 3 \approx 1.58$ビットの情報量を持つため、この名称が使われます。</p>
+<h3 id="bitnetcpp">bitnet.cpp</h3>
+<p>ひとことで言うと: BitNetモデルを効率的に推論・学習するためのC++実装。
+何のカテゴリか: LLM推論・学習ライブラリ、低ビットモデルのランタイム。
+何に使うのか: BitNetモデルの高速な推論、および低ビットモデルの学習を可能にする。
+代表例: Microsoft Researchが公開しているBitNet b1.58の参照実装。
+よく混同される用語: llama.cpp、vLLM。
+初心者向け注意点: <code>bitnet.cpp</code>はBitNetに特化しており、一般的なLLMモデルの推論には使えません。</p>
+<h3 id="native-low-bit-training">native low-bit training</h3>
+<p>ひとことで言うと: モデルの学習プロセス全体を通して、重みや活性化関数を低ビット精度で維持しながら学習する手法。
+何のカテゴリか: LLM学習手法、低ビットモデルの最適化。
+何に使うのか: 低ビットモデルが、高精度モデルに匹敵する性能を発揮できるようにする。学習時のメモリ使用量や計算量を削減する効果もある。
+代表例: BitNet b1.58の学習に用いられる手法。
+よく混同される用語: 量子化対応学習（Quantization-Aware Training, QAT）、学習後量子化（Post-Training Quantization, PTQ）。
+初心者向け注意点: <code>native low-bit training</code>は、学習の最初から最後まで低ビットで処理を行うため、従来のQATよりも根本的なアプローチです。これにより、低ビットモデルの性能を最大限に引き出すことができます。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="bitnet-b158の仕組み">BitNet b1.58の仕組み</h3>
+<p>BitNet b1.58は、その名の通り、重みを約1.58ビットで表現するモデルです。これは、重みを{-1, 0, 1}の3値で表現することに由来します。</p>
+<p><strong>重みの表現:</strong>
+BitNetでは、重み$W$を以下のように表現します。
+$$ W_{b} = \text{sign}(W) \cdot \text{scale} $$
+ここで、$\text{sign}(W)$は$W$の符号（-1または1）を取る関数ですが、BitNet b1.58ではさらに0を許容します。具体的には、重みを3値（-1, 0, 1）に量子化します。</p>
+<p><strong>1.58ビットの由来:</strong>
+3つの状態（-1, 0, 1）を表現するために必要な情報量は、$\log_2 3 \approx 1.5849$ビットです。このため、「1.58-bit」という名称が用いられます。</p>
+<p><strong>計算の効率化:</strong>
+重みが-1, 0, 1のいずれかであるため、行列乗算などの計算は、浮動小数点演算ではなく、加算、減算、ゼロチェックといった単純な整数演算やビット演算に置き換えることができます。これにより、計算速度が大幅に向上し、消費電力も削減されます。</p>
+<h3 id="bitnet-b158の学習プロセス-native-low-bit-training">BitNet b1.58の学習プロセス (native low-bit training)</h3>
+<p>BitNet b1.58は、単に重みを3値に量子化するだけでなく、学習プロセス全体を通して低ビット精度を維持する「native low-bit training」という手法を採用しています。</p>
+<pre class="mermaid">graph TD
+    A[初期化] --> B{"重み/活性化関数を低ビット化"}
+    B --> C["順伝播 (低ビット演算)"]
+    C --> D[損失計算]
+    D --> E["逆伝播 (勾配計算)"]
+    E --> F{"重み更新 (高精度勾配)"}
+    F --> B</pre>
+<p><em>図11.1: BitNet b1.58の学習フロー</em></p>
+<ol>
+<li><strong>初期化</strong>: モデルの重みを初期化します。</li>
+<li><strong>低ビット化</strong>: 順伝播の前に、重みと活性化関数を低ビット（例: 3値）に量子化します。</li>
+<li><strong>順伝播</strong>: 量子化された重みと活性化関数を用いて、低ビット演算で順伝播を行います。</li>
+<li><strong>損失計算</strong>: 出力と正解ラベルから損失を計算します。</li>
+<li><strong>逆伝播</strong>: 損失に基づいて勾配を計算します。この際、勾配自体は高精度（例: FP32）で計算されることが多いですが、重みの更新は低ビット化を考慮して行われます。</li>
+<li><strong>重み更新</strong>: 計算された勾配を用いて重みを更新します。更新された重みは、次の順伝播の前に再び低ビット化されます。</li>
+</ol>
+<p>このプロセスを繰り返すことで、モデルは低ビット表現に最適化された学習を行います。従来の量子化対応学習（QAT）が、高精度モデルを学習してから量子化するのに対し、native low-bit trainingは最初から低ビットで学習するため、より高い性能を引き出すことができます。</p>
+<h3 id="bitnetcppの役割">`bitnet.cpp`の役割</h3>
+<p><code>bitnet.cpp</code>は、BitNet b1.58のような低ビットモデルを効率的に実行するためのC++実装です。<code>llama.cpp</code>がLlamaモデルをCPUで高速に実行するのと同様に、<code>bitnet.cpp</code>はBitNetモデルに特化し、低ビット演算を最適化することで、高速な推論を実現します。</p>
+<p><strong>主な機能:</strong></p>
+<ul>
+<li><strong>低ビット行列乗算の最適化</strong>: 3値重みと低精度活性化関数を用いた行列乗算を、CPU上で効率的に実行する。</li>
+<li><strong>メモリ効率の向上</strong>: 重みを1ビットまたは3値で格納することで、メモリ使用量を大幅に削減する。</li>
+<li><strong>推論パイプラインの最適化</strong>: 低ビットモデルの特性を活かした推論処理。</li>
+</ul>
+<p>例えば、通常のFP16の行列乗算では、多くの浮動小数点演算ユニットが必要ですが、BitNetの行列乗算は、ビット単位のAND/OR/XORや、加算/減算といった単純な命令で処理できるため、CPUのSIMD命令などを活用して高速化が図られます。</p>
+<pre class="mermaid">graph TD
+    subgraph "BitNet 推論フロー"
+        A[入力データ] --> B{活性化関数量子化}
+        B --> C[低ビット重みロード]
+        C --> D[低ビット行列乗算]
+        D --> E{出力活性化関数}
+        E --> F[出力]
+    end
+    subgraph "従来のFP16推論フロー"
+        G[入力データ] --> H[FP16重みロード]
+        H --> I[FP16行列乗算]
+        I --> J[出力]
+    end
+    D -- "ビット演算/整数演算" --> F
+    I -- "浮動小数点演算" --> J</pre>
+<p><em>図11.2: BitNetと従来の推論フローの比較</em></p>
+<h3 id="bitnetにおける行列乗算の概念">BitNetにおける行列乗算の概念</h3>
+<p>BitNetのような1-bit/ternaryモデルでは、通常の浮動小数点行列乗算 $Y = WX$ は、以下のようなビット演算や整数演算に置き換えられます。</p>
+<p>重み$W$が${-1, 1}$のバイナリ値である場合、行列乗算は実質的に加算と減算の組み合わせになります。
+例えば、入力ベクトル $X = [x_1, x_2, ..., x_n]$ と重みベクトル $W = [w_1, w_2, ..., w_n]$ ($w_i \in {-1, 1}$) の内積は、
+$$ Y = \sum_{i=1}^{n} w_i x_i $$
+となります。これは、 $w_i=1$ の場合は $x_i$ を加算し、$w_i=-1$ の場合は $x_i$ を減算することに相当します。
+さらに、活性化関数も低ビット化される場合、例えば活性化関数が${-1, 1}$のバイナリ値 $A = [a_1, a_2, ..., a_n]$ ($a_i \in {-1, 1}$) であれば、内積は
+$$ Y = \sum_{i=1}^{n} w_i a_i $$
+となり、これはビット単位のXNOR演算とポップカウント（1の数を数える）に変換できる場合があります。
+$$ Y = \text{PopCount}(\text{XNOR}(W, A)) - \text{PopCount}(\text{XOR}(W, A)) $$
+この変換により、浮動小数点演算ユニットではなく、より単純で高速なビット演算ユニットで処理が可能になります。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">BitNet / 1-bit系</th>
+<th align="left">従来の量子化 (例: INT4/INT8)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ビット幅</strong></td>
+<td align="left">1ビット、1.58ビット（3値）など、極めて低い</td>
+<td align="left">4ビット、8ビットなど</td>
+</tr>
+<tr>
+<td align="left"><strong>重みの値</strong></td>
+<td align="left">{-1, 1} または {-1, 0, 1}</td>
+<td align="left">整数値（例: -128〜127）</td>
+</tr>
+<tr>
+<td align="left"><strong>計算方法</strong></td>
+<td align="left">ビット演算、加減算、ゼロチェックなど</td>
+<td align="left">整数演算</td>
+</tr>
+<tr>
+<td align="left"><strong>モデルサイズ</strong></td>
+<td align="left">劇的に小さい（FP32の1/32〜1/20程度）</td>
+<td align="left">大幅に小さい（FP32の1/8〜1/4程度）</td>
+</tr>
+<tr>
+<td align="left"><strong>学習方法</strong></td>
+<td align="left">native low-bit trainingが主流</td>
+<td align="left">PTQ（学習後量子化）、QAT（量子化対応学習）</td>
+</tr>
+<tr>
+<td align="left"><strong>性能維持</strong></td>
+<td align="left">難易度が高いが、native trainingで高精度を達成</td>
+<td align="left">比較的容易だが、極端な低ビットでは性能劣化が大きい</td>
+</tr>
+<tr>
+<td align="left"><strong>ハードウェア</strong></td>
+<td align="left">特殊なビット演算に最適化されたHWでさらに高速化</td>
+<td align="left">汎用的な整数演算HWで高速化</td>
+</tr>
+<tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">極限の軽量化、高速化、省電力化</td>
+<td align="left">軽量化、高速化、メモリ削減</td>
+</tr>
+</tbody></table></div>
+<p><em>表11.1: BitNet / 1-bit系と従来の量子化の比較</em></p>
+<p>BitNet / 1-bit系は、従来の量子化よりもさらに踏み込んだアプローチであり、その実現にはより高度な技術と工夫が求められます。特に、<code>native low-bit training</code>は、この極端な低ビット化モデルが実用的な性能を維持するための鍵となります。</p>
+<h3 id="量子化手法の比較">量子化手法の比較</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/手法</th>
+<th align="left">学習後量子化 (PTQ)</th>
+<th align="left">量子化対応学習 (QAT)</th>
+<th align="left">Native Low-Bit Training (BitNet系)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>量子化タイミング</strong></td>
+<td align="left">学習済みモデルを量子化</td>
+<td align="left">学習中に量子化をシミュレート</td>
+<td align="left">学習の最初から低ビットで実行</td>
+</tr>
+<tr>
+<td align="left"><strong>学習プロセス</strong></td>
+<td align="left">なし（微調整は可能）</td>
+<td align="left">高精度モデルを学習し、量子化誤差を考慮して微調整</td>
+<td align="left">低ビット表現に特化して学習</td>
+</tr>
+<tr>
+<td align="left"><strong>精度維持</strong></td>
+<td align="left">比較的容易だが、低ビットでは劣化しやすい</td>
+<td align="left">PTQより高精度を維持しやすい</td>
+<td align="left">最も高精度を維持できる可能性が高い（低ビットの場合）</td>
+</tr>
+<tr>
+<td align="left"><strong>計算効率</strong></td>
+<td align="left">推論時のみ効率化</td>
+<td align="left">推論時のみ効率化</td>
+<td align="left">学習時・推論時ともに効率化</td>
+</tr>
+<tr>
+<td align="left"><strong>メモリ使用量</strong></td>
+<td align="left">推論時のみ削減</td>
+<td align="left">学習時は高精度、推論時のみ削減</td>
+<td align="left">学習時・推論時ともに削減</td>
+</tr>
+<tr>
+<td align="left"><strong>実装の複雑さ</strong></td>
+<td align="left">比較的単純</td>
+<td align="left">中程度</td>
+<td align="left">高度（特に勾配計算など）</td>
+</tr>
+<tr>
+<td align="left"><strong>適用ビット幅</strong></td>
+<td align="left">広く適用可能（INT8, INT4など）</td>
+<td align="left">広く適用可能（INT8, INT4など）</td>
+<td align="left">極端な低ビット（1-bit, 1.58-bit）に特化</td>
+</tr>
+</tbody></table></div>
+<p><em>表11.2: 量子化手法の比較</em></p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>BitNet / ternary / 1-bit系の技術は、LLMの実用化において、特に以下の分野で大きな影響を与える可能性があります。</p>
+<ol>
+<li><strong>エッジデバイスでのLLM展開</strong>: スマートフォン、IoTデバイス、組み込みシステムなど、計算資源や電力に制約のある環境でLLMを動作させることを可能にします。これにより、クラウドへの依存を減らし、リアルタイム性やプライバシー保護を向上させることができます。</li>
+<li><strong>大規模なLLMの低コスト運用</strong>: クラウド上でのLLM推論コストは、メモリ使用量と計算量に大きく依存します。BitNetのようなモデルは、これらのリソースを劇的に削減するため、より安価にLLMサービスを提供できるようになります。</li>
+<li><strong>新しいハードウェアの設計</strong>: 1ビット演算や3値演算に特化したAIアクセラレータの開発を促進します。これにより、現在のGPUとは異なる、より効率的なLLM処理専用のハードウェアが登場する可能性があります。</li>
+<li><strong>研究開発のフロンティア</strong>: 現在のLLMは、その巨大さゆえに研究開発のサイクルが長くなりがちです。低ビットモデルは、より少ないリソースで実験を繰り返せるため、新しいアーキテクチャや学習手法の探求を加速させます。</li>
+</ol>
+<p>しかし、これらの技術はまだ発展途上であり、従来のFP16/FP32モデルと同等の性能を安定して出すには、さらなる研究が必要です。特に、モデルの汎用性や、特定のタスクにおける性能劣化の抑制が課題となります。</p>
+<pre class="mermaid">graph TD
+    subgraph "LLM軽量化技術の全体像"
+        A[LLM軽量化] --> B(量子化)
+        A --> C(プルーニング)
+        A --> D(蒸留)
+        B --> B1(従来の量子化)
+        B --> B2(極端な低ビット量子化)
+        B1 --> B1_1(PTQ)
+        B1 --> B1_2(QAT)
+        B2 --> B2_1(1-bit)
+        B2 --> B2_2(Ternary)
+        B2 --> B2_3(BitNet)
+        B2_3 -- "native low-bit training" --> B2_3_1(高性能化)
+        B2_3 -- "bitnet.cpp" --> B2_3_2(高速推論)
+    end
+    B2_3_1 --> E[エッジデバイス展開]
+    B2_3_2 --> F[低コスト運用]
+    E --> G[新しいハードウェア]
+    F --> G</pre>
+<p><em>図11.3: LLM軽量化技術におけるBitNet系の位置づけ</em></p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>BitNet / ternary / 1-bit系は、LLMの重みや活性化関数を極めて少ないビット数（1ビット、3値）で表現し、モデルサイズと計算負荷を劇的に削減する技術です。</li>
+<li>1.58-bitは、重みを{-1, 0, 1}の3値で表現することに由来し、<code>native low-bit training</code>によって高精度を維持します。</li>
+<li><code>bitnet.cpp</code>のような専用実装は、これらの低ビットモデルを効率的に推論・学習するための鍵であり、エッジデバイスや低コスト運用への道を開きます。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>BitNet / 1-bit系</strong> と <strong>従来の量子化</strong>: BitNet系は量子化の一種ですが、そのビット幅が極端に低い点が異なります。</li>
+<li><strong>native low-bit training</strong> と <strong>QAT</strong>: native low-bit trainingは学習の最初から低ビットで行うのに対し、QATは高精度モデルの学習後に量子化を意識した微調整を行います。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第12章: LLMの評価指標とベンチマーク</li>
+<li>第13章: LLMのファインチューニングとアダプター技術</li>
+<li>第14章: LLMの推論最適化の最前線</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-10.html" class="nav-prev">← 第10章 量子化（Quantization）</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-12.html" class="nav-next">第12章 事前学習・継続事前学習・SFT →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

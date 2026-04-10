@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第2章. モデル・重み・トークナイザ - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 「モデル」という言葉が何を指すのか曖昧にしない">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-02.html">
+  <meta property="og:title" content="第2章. モデル・重み・トークナイザ - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 「モデル」という言葉が何を指すのか曖昧にしない">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-02.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第2章. モデル・重み・トークナイザ - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 「モデル」という言葉が何を指すのか曖昧にしない">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">2 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第2部: モデルとは何か</li><li aria-current="page">第2章. モデル・重み・トークナイザ</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h2 id="第2章-モデル重みトークナイザ">第2章. モデル・重み・トークナイザ</h2>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、LLM（大規模言語モデル）を理解する上で不可欠な「モデル」という言葉が指す多様な意味を明確にし、その構成要素である「重み」「トークナイザ」といった主要な概念を深く掘り下げます。特に、これらの用語がどのように関連し、LLMの機能に貢献しているのかを初心者から中級者までが理解できるよう解説します。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>LLMにおける「モデル」の多義性を理解し、文脈に応じて適切に解釈できるようになる。</li>
+<li><code>architecture</code>、<code>weights</code>、<code>parameters</code>、<code>checkpoint</code>といった概念の違いと関係性を説明できるようになる。</li>
+<li><code>tokenizer</code>と<code>vocabulary</code>の役割を理解し、テキスト処理における重要性を説明できるようになる。</li>
+<li><code>context length</code>と<code>embedding</code>がLLMの性能にどのように影響するかを説明できるようになる。</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>「モデル」という言葉は、LLMの世界では非常に多くの意味で使われます。例えば、「GPT-3モデル」と言えば、特定の性能を持つAIを指すこともあれば、そのAIの内部構造や学習済みのデータそのものを指すこともあります。この多義性は、特に学習を始めたばかりの皆さんを混乱させる原因となりがちです。</p>
+<p>しかし、ご安心ください。この章を読み終える頃には、「モデル」という言葉が指す具体的な要素、そしてそれらがどのように組み合わさってLLMを形成しているのかを明確に理解できるようになるでしょう。私たちは、LLMの「脳」と「言葉の理解」を司る主要な構成要素に焦点を当て、その仕組みを紐解いていきます。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>LLMの「モデル」を構成する主要な要素は、大きく分けて「構造（architecture）」と「学習結果（weights/parameters）」、そして「言語処理の入り口（tokenizer）」の3つに分類できます。</p>
+<h3 id="1-architecture-アーキテクチャ">1. architecture (アーキテクチャ)</h3>
+<p>ひとことで言うと: LLMの骨格となる設計図。
+何のカテゴリか: モデルの構造、設計思想。
+何に使うのか: モデルがどのように情報を処理し、学習するかを定義する。
+代表例: Transformer、BERT、GPTシリーズの基本構造。
+よく混同される用語: weights（重み）、checkpoint（チェックポイント）。
+初心者向け注意点: architectureは「何を学習したか」ではなく「どのように学習するか」を決めるものです。</p>
+<p>LLMの<code>architecture</code>は、モデルの内部構造、つまりニューラルネットワークの層の数、各層の種類（例: 注意機構、フィードフォワードネットワーク）、それらの接続方法などを定めた「設計図」です。例えば、Transformerというarchitectureは、現在の多くのLLMの基盤となっています。この設計図自体には、まだ具体的な知識は含まれていません。</p>
+<h3 id="2-weights-重み-parameters-パラメータ">2. weights (重み) / parameters (パラメータ)</h3>
+<p>ひとことで言うと: architectureが学習によって獲得した知識や経験。
+何のカテゴリか: モデルの学習結果、数値データ。
+何に使うのか: 入力データに対してどのような出力を生成するかを決定する。
+代表例: <code>model.bin</code>、<code>.safetensors</code>といったファイルに保存された数値の集合。
+よく混同される用語: architecture（アーキテクチャ）、model（モデル）。
+初心者向け注意点: weightsとparametersはほぼ同義で使われますが、parametersは重みだけでなくバイアスなども含む広義の概念です。</p>
+<p><code>weights</code>（重み）や<code>parameters</code>（パラメータ）は、<code>architecture</code>という骨格に肉付けされた「知識」そのものです。これらは、モデルが大量のテキストデータから学習した結果として得られる膨大な数の数値の集合体です。これらの数値が、入力されたテキストをどのように解釈し、次の単語を予測するかを決定します。</p>
+<p>$$
+\text{output} = f(\text{input}, \mathbf{W})
+$$</p>
+<p>ここで、$f$はarchitectureによって定義される関数、$\text{input}$は入力データ、$\mathbf{W}$は重み（parameters）の集合を表します。この$\mathbf{W}$が、モデルの「知性」の源です。</p>
+<h3 id="3-checkpoint-チェックポイント">3. checkpoint (チェックポイント)</h3>
+<p>ひとことで言うと: 特定の学習段階におけるモデルの状態（architectureとweightsの組み合わせ）。
+何のカテゴリか: モデルの保存形式。
+何に使うのか: 学習の再開、異なる環境でのモデル利用、モデルのバージョン管理。
+代表例: <code>pytorch_model.bin</code>、<code>model.safetensors</code>などのファイル群。
+よく混同される用語: weights（重み）、model（モデル）。
+初心者向け注意点: checkpointは、architectureとweightsの両方、またはそれらを復元するための情報を含んでいます。</p>
+<p><code>checkpoint</code>は、学習途中の特定の時点や学習完了後のモデルの状態を保存したものです。これには通常、モデルの<code>architecture</code>を再構築するための情報と、その時点での<code>weights</code>が含まれます。これにより、学習を中断した場所から再開したり、学習済みのモデルを他の環境で利用したりすることが可能になります。</p>
+<pre class="mermaid">graph TD
+    A["LLM開発プロセス"] --> B["Architecture設計"]
+    B --> C["データ収集・前処理"]
+    C --> D["モデル学習"]
+    D -- "定期的に保存" --> E["Checkpoint (学習途中)"]
+    D -- "学習完了" --> F["Checkpoint (最終モデル)"]
+    F --> G["モデルデプロイ"]
+    E --> D
+    subgraph "Checkpointの内容"
+        F -- "含む" --> F1["Architecture情報"]
+        F -- "含む" --> F2["Weights/Parameters"]
+    end</pre>
+<p>この図は、LLM開発プロセスにおける<code>checkpoint</code>の位置づけと、その内容を示しています。<code>checkpoint</code>は、<code>architecture</code>と<code>weights</code>をセットで保存することで、モデルの状態を完全に再現可能にします。</p>
+<h3 id="4-tokenizer-トークナイザ">4. tokenizer (トークナイザ)</h3>
+<p>ひとことで言うと: 人間の言葉をモデルが理解できる数値の列に変換する道具。
+何のカテゴリか: 自然言語処理の前処理ツール。
+何に使うのか: テキストをモデルの入力形式に変換し、モデルの出力を人間に読める形式に戻す。
+代表例: SentencePiece、Byte-Pair Encoding (BPE) を利用したトークナイザ。
+よく混同される用語: vocabulary（語彙）。
+初心者向け注意点: トークナイザはモデルとセットで使うことがほとんどです。異なるモデルには異なるトークナイザが必要です。</p>
+<p><code>tokenizer</code>は、人間が話す自然言語（テキスト）を、LLMが処理できる数値の列（トークンID）に変換する役割を担います。例えば、「こんにちは、世界！」という文を、<code>[101, 7592, 102, 2088, 102, 102]</code>のような数値の列に変換します。この逆の変換（数値列からテキストへの復元）も行います。</p>
+<h3 id="5-vocab-ボキャブラリ">5. vocab (ボキャブラリ)</h3>
+<p>ひとことで言うと: トークナイザが知っている単語や文字のリストと、それに対応する数値IDの対応表。
+何のカテゴリか: トークナイザの構成要素。
+何に使うのか: テキストをトークンIDに変換する際の辞書として機能する。
+代表例: <code>vocab.txt</code>、<code>tokenizer.json</code>などのファイルに含まれる単語とIDのペア。
+よく混同される用語: tokenizer（トークナイザ）。
+初心者向け注意点: vocabularyはトークナイザの一部であり、トークナイザがテキストをトークンに分割する際の「辞書」です。</p>
+<p><code>vocab</code>（ボキャブラリ）は、<code>tokenizer</code>が使用する「単語（または単語の一部、文字）と、それに対応する一意の数値ID」の対応表です。このリストにない単語は、通常「未知のトークン」として処理されます。</p>
+<h3 id="6-context-length-コンテキスト長">6. context length (コンテキスト長)</h3>
+<p>ひとことで言うと: モデルが一度に処理できるテキストの最大量。
+何のカテゴリか: モデルの制約、性能指標。
+何に使うのか: モデルがどれくらいの長さの情報を記憶し、参照できるかを決定する。
+代表例: 2048トークン、4096トークン、32768トークンなど。
+よく混同される用語: モデルの学習データ量。
+初心者向け注意点: コンテキスト長が長いほど、より長い文章の理解や生成が可能になりますが、計算コストも増加します。</p>
+<p><code>context length</code>（コンテキスト長）は、LLMが一度に考慮できる入力テキストの最大トークン数です。これを超えると、モデルはそれ以前の情報を「忘れて」しまいます。例えば、コンテキスト長が4096トークンのモデルは、4096トークンを超える入力があった場合、最初の部分を切り捨てるか、エラーを発生させます。</p>
+<h3 id="7-embedding-埋め込み">7. embedding (埋め込み)</h3>
+<p>ひとことで言うと: 単語や文の意味を数値ベクトルで表現したもの。
+何のカテゴリか: 意味表現、特徴量。
+何に使うのか: モデルが単語の意味的な関係性を理解し、計算できるようにする。
+代表例: Word2Vec、GloVe、Transformerモデルの内部表現。
+よく混同される用語: トークンID。
+初心者向け注意点: embeddingは単なるIDではなく、意味的な情報を持った高次元の数値ベクトルです。</p>
+<p><code>embedding</code>（埋め込み）は、単語や文といった言語要素を、意味的な情報を持った高次元の数値ベクトルに変換したものです。例えば、「王様」と「女王」のembeddingベクトルは、互いに近い位置に配置され、「リンゴ」とは遠い位置に配置されるなど、単語間の意味的な関係性を数値的に表現します。LLMは、このembedding表現を用いてテキストを処理します。</p>
+<p>$$
+\text{Embedding}(\text{word}) = \mathbf{v}_{\text{word}} \in \mathbb{R}^d
+$$</p>
+<p>ここで、$\text{Embedding}(\text{word})$は単語の埋め込みベクトルを生成する関数、$\mathbf{v}_{\text{word}}$はその単語に対応する$d$次元のベクトルです。このベクトル空間では、意味的に近い単語ほどベクトル間の距離が近くなります。</p>
+<h2 id="具体例">具体例</h2>
+<p>LLMの利用シナリオを通じて、これらの概念がどのように連携するかを見てみましょう。</p>
+<pre class="mermaid">graph TD
+    A[ユーザーの入力テキスト] --> B(Tokenizer)
+    B --> C{Vocabulary}
+    C --> D[トークンIDの列]
+    D --> E[Embedding層]
+    E --> F[Embeddingベクトル]
+    F --> G(Architecture)
+    G --> H{"Weights / Parameters"}
+    H --> I["モデルの出力 (次のトークンID)"]
+    I --> J(Tokenizer)
+    J --> K[生成されたテキスト]
+
+    subgraph "LLMの内部"
+        G
+        H
+        E
+    end
+    subgraph "言語処理の入り口・出口"
+        B
+        C
+        D
+        J
+    end</pre>
+<ol>
+<li><strong>ユーザーの入力</strong>: 「今日の天気は？」</li>
+<li><strong>Tokenizerによる処理</strong>: <code>tokenizer</code>がこのテキストを<code>vocabulary</code>を参照しながら、<code>[101, 1234, 5678, 9012, 102]</code>のような<code>トークンIDの列</code>に変換します。</li>
+<li><strong>Embedding</strong>: これらのトークンIDは、モデルの<code>embedding</code>層に入力され、それぞれのトークンに対応する<code>embeddingベクトル</code>に変換されます。これにより、モデルは単語の意味を数値的に理解できるようになります。</li>
+<li><strong>ArchitectureとWeightsによる推論</strong>: <code>embeddingベクトル</code>は、<code>architecture</code>（例: Transformer）によって定義された構造を通り、<code>weights</code>（学習済みの知識）を使って計算されます。このプロセスで、モデルは入力された文脈を理解し、次に続く可能性のある単語（トークン）を予測します。</li>
+<li><strong>モデルの出力</strong>: モデルは、次に続くトークンの<code>トークンID</code>を出力します。例えば、「晴れ」に対応するIDかもしれません。</li>
+<li><strong>Tokenizerによる復元</strong>: 出力された<code>トークンID</code>は、再び<code>tokenizer</code>によって人間に読めるテキスト「晴れ」に変換され、ユーザーに提示されます。</li>
+</ol>
+<p>この一連の流れの中で、<code>context length</code>は、モデルが「今日の天気は？」という文脈全体をどれだけ長く記憶し、その後の予測に利用できるかを決定します。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<h3 id="モデル名-vs-重みファイル">モデル名 vs 重みファイル</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">モデル名 (例: GPT-3, Llama 2)</th>
+<th align="left">重みファイル (例: <code>model.safetensors</code>)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">特定の<code>architecture</code>と<code>weights</code>の組み合わせに与えられたブランド名。</td>
+<td align="left"><code>architecture</code>が学習によって獲得した知識（数値データ）そのもの。</td>
+</tr>
+<tr>
+<td align="left"><strong>内容</strong></td>
+<td align="left"><code>architecture</code>の設計思想、<code>weights</code>の学習データや学習方法、性能、バージョンなどを含む包括的な概念。</td>
+<td align="left">モデルの各層の接続強度を示す膨大な数値の集合。</td>
+</tr>
+<tr>
+<td align="left"><strong>実体</strong></td>
+<td align="left">概念的な名称、または特定の<code>checkpoint</code>を指す。</td>
+<td align="left">物理的なファイル（通常は数GB〜数百GB）。</td>
+</tr>
+<tr>
+<td align="left"><strong>役割</strong></td>
+<td align="left">モデルの識別、性能や特徴の伝達。</td>
+<td align="left">モデルが推論を行うための具体的なデータ。</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left">「Llama 2 7B」は、Meta社が開発した70億パラメータを持つモデル。</td>
+<td align="left">Llama 2 7Bの<code>weights</code>が保存された<code>.safetensors</code>ファイル。</td>
+</tr>
+<tr>
+<td align="left"><strong>関係</strong></td>
+<td align="left">モデル名が指す実体の一部が重みファイル。</td>
+<td align="left">重みファイルはモデル名が指すAIの「脳」そのもの。</td>
+</tr>
+</tbody></table></div>
+<h3 id="tokenizer-vs-vocabulary">tokenizer vs vocabulary</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">Tokenizer (トークナイザ)</th>
+<th align="left">Vocabulary (ボキャブラリ)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">テキストをトークンIDに変換・復元する「道具」または「機能」。</td>
+<td align="left">トークンとIDの対応関係を定義した「辞書」。</td>
+</tr>
+<tr>
+<td align="left"><strong>内容</strong></td>
+<td align="left">テキスト分割のルール（BPEなど）、<code>vocabulary</code>、特殊トークン情報など。</td>
+<td align="left">トークン（単語、サブワード、文字）と、それに対応する一意の数値IDのリスト。</td>
+</tr>
+<tr>
+<td align="left"><strong>実体</strong></td>
+<td align="left">プログラムコード、設定ファイル、<code>vocabulary</code>ファイルを含むパッケージ。</td>
+<td align="left">通常はテキストファイルやJSONファイルとして保存される。</td>
+</tr>
+<tr>
+<td align="left"><strong>役割</strong></td>
+<td align="left">自然言語とモデルの間の橋渡し。</td>
+<td align="left">トークナイザがテキストを数値に変換する際の参照元。</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left"><code>transformers</code>ライブラリの<code>AutoTokenizer</code>クラス。</td>
+<td align="left"><code>vocab.txt</code>や<code>tokenizer.json</code>に含まれる<code>{&quot;hello&quot;: 1234, &quot;world&quot;: 5678}</code>のような対応表。</td>
+</tr>
+<tr>
+<td align="left"><strong>関係</strong></td>
+<td align="left">トークナイザはボキャブラリを「利用する」。</td>
+<td align="left">ボキャブラリはトークナイザの「構成要素」の一つ。</td>
+</tr>
+</tbody></table></div>
+<h3 id="parameter数-vs-実行メモリ">parameter数 vs 実行メモリ</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">Parameter数 (パラメータ数)</th>
+<th align="left">実行メモリ (RAM/VRAM)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">モデルの「大きさ」や「複雑さ」を示す指標。</td>
+<td align="left">モデルを動かすために必要なコンピュータの記憶領域。</td>
+</tr>
+<tr>
+<td align="left"><strong>内容</strong></td>
+<td align="left">モデルの<code>weights</code>や<code>biases</code>の総数。</td>
+<td align="left">モデルの<code>weights</code>、<code>embedding</code>、中間計算結果、<code>context</code>などを保持する領域。</td>
+</tr>
+<tr>
+<td align="left"><strong>単位</strong></td>
+<td align="left">億、兆 (例: 7B, 13B, 70B)</td>
+<td align="left">GB (ギガバイト)</td>
+</tr>
+<tr>
+<td align="left"><strong>影響</strong></td>
+<td align="left">多いほど表現力が高まる傾向があるが、学習・推論コストも増大する。</td>
+<td align="left">不足するとモデルが動作しない、または処理が非常に遅くなる。</td>
+</tr>
+<tr>
+<td align="left"><strong>関係</strong></td>
+<td align="left">パラメータ数が多いほど、それを保持するための実行メモリも多く必要になる。</td>
+<td align="left">実行メモリは、パラメータ数だけでなく、<code>context length</code>やバッチサイズにも依存する。</td>
+</tr>
+<tr>
+<td align="left"><strong>計算例</strong></td>
+<td align="left">7B (70億) パラメータのモデルをFP16で動かす場合: $7 \times 10^9 \times 2 \text{ bytes} \approx 14 \text{ GB}$</td>
+<td align="left">14GBのVRAMを持つGPUが必要。さらに中間計算や<code>context</code>で追加のメモリが必要。</td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>これらの概念は、LLMを実際に利用したり、開発したりする上で非常に重要です。</p>
+<pre class="mermaid">graph TD
+    A["LLMの利用・開発"] --> B["モデルの選択"]
+    A --> C["リソースの見積もり"]
+    A --> D["性能チューニング"]
+    A --> E["モデルのカスタマイズ"]
+
+    B -- "依存" --> B1["Architecture特性"]
+    B -- "依存" --> B2["Weightsの学習データ"]
+
+    C -- "考慮" --> C1["Parameter数"]
+    C -- "考慮" --> C2["Context Length"]
+    C -- "考慮" --> C3["データ型 (FP16/FP8など)"]
+
+    D -- "影響" --> D1["Tokenizerの選択"]
+    D -- "影響" --> D2["Tokenizer設定"]
+
+    E -- "基盤" --> E1["既存Checkpoint"]
+    E -- "手法" --> E2["ファインチューニング"]
+
+    subgraph "主要概念"
+        B1
+        B2
+        C1
+        C2
+        C3
+        D1
+        D2
+        E1
+        E2
+    end</pre>
+<p>この図は、LLMの利用や開発において、各概念がどのように実務上の意思決定に影響するかを示しています。</p>
+<ul>
+<li><strong>モデルの選択</strong>: どの「モデル」（例: Llama 2 7B、Mistral 7B）を選ぶかは、その<code>architecture</code>の特性と<code>weights</code>の学習データに依存します。</li>
+<li><strong>リソースの見積もり</strong>: <code>parameter</code>数と<code>context length</code>は、モデルを実行するために必要なGPUメモリ（VRAM）や計算リソースを見積もる上で不可欠です。</li>
+<li><strong>性能チューニング</strong>: <code>tokenizer</code>の選択や設定は、モデルの入力処理の効率性や、特定の言語・タスクにおける性能に大きく影響します。</li>
+<li><strong>モデルのカスタマイズ</strong>: 既存の<code>checkpoint</code>を基に、追加の学習（ファインチューニング）を行うことで、特定のタスクに特化したモデルを作成できます。</li>
+</ul>
+<p>これらの要素を理解することで、単にLLMを使うだけでなく、その挙動を深く理解し、目的に応じて最適化できるようになります。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>LLMの「モデル」は、<code>architecture</code>（設計図）と<code>weights</code>（学習結果）の組み合わせであり、<code>checkpoint</code>として保存される。</li>
+<li><code>tokenizer</code>と<code>vocabulary</code>は、人間が話す言葉をモデルが理解できる数値に変換し、その逆も行う言語処理の要である。</li>
+<li><code>parameter</code>数、<code>context length</code>、<code>embedding</code>は、モデルの性能、リソース要件、そして意味理解の深さに直結する重要な概念である。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>モデル名</strong>と<strong>重みファイル</strong>: モデル名はブランド、重みファイルは中身。</li>
+<li><strong>Tokenizer</strong>と<strong>Vocabulary</strong>: トークナイザは道具、ボキャブラリは辞書。</li>
+<li><strong>Parameter数</strong>と<strong>実行メモリ</strong>: パラメータ数はモデルの大きさ、実行メモリはそれを動かすための容量。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第3章: LLMの学習プロセスとファインチューニング
+(この章で学んだ<code>weights</code>がどのように形成され、<code>checkpoint</code>がどのように活用されるかをさらに深く掘り下げます。)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-01.html" class="nav-prev">← 第1章 LLM周辺の世界地図</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-03.html" class="nav-next">第3章 Hugging Faceとは何か →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

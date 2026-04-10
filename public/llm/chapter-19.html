@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第19章. RAG / embedding / vector DB - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: モデル単体ではなく周辺システムまで理解する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-19.html">
+  <meta property="og:title" content="第19章. RAG / embedding / vector DB - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: モデル単体ではなく周辺システムまで理解する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-19.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第19章. RAG / embedding / vector DB - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: モデル単体ではなく周辺システムまで理解する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">19 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第10部: データ・検索・周辺システム</li><li aria-current="page">第19章. RAG / embedding / vector DB</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第19章-rag-embedding-vector-db">第19章. RAG / embedding / vector DB</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）が単体では解決できない情報検索や最新情報の利用といった課題を克服するための周辺技術について学びます。特に、外部知識をLLMに提供する「Retrieval-Augmented Generation (RAG)」の概念と、それを支える主要なコンポーネントである「embedding」「vector DB」「reranker」などを深く理解することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>RAGがLLMの限界をどのように補うのか</li>
+<li>embeddingがテキスト情報をどのように数値化し、意味を捉えるのか</li>
+<li>vector DBがembeddingを効率的に保存・検索する仕組み</li>
+<li>chunking、retrieval、rerankerがRAGパイプラインで果たす役割</li>
+<li>hybrid searchが検索精度を向上させる方法</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMは驚くべき能力を持っていますが、いくつかの限界も抱えています。例えば、学習データに含まれない最新の情報や、特定の企業内部のドキュメントについては回答できません。また、学習データに偏りがある場合、誤った情報を生成する「ハルシネーション」と呼ばれる現象も発生します。</p>
+<p>これらの課題を解決し、LLMの能力を最大限に引き出すための強力なアプローチが「Retrieval-Augmented Generation (RAG)」です。RAGは、LLMが回答を生成する前に、関連する情報を外部の知識ベースから検索（Retrieval）し、その情報を参照しながら回答を生成（Generation）する手法です。これにより、LLMは最新かつ正確な情報に基づいた、より信頼性の高い回答を提供できるようになります。</p>
+<p>本章では、RAGの全体像を理解し、その中核をなす技術であるembedding、vector DB、そして検索精度を高めるためのrerankerやhybrid searchといった要素について詳しく見ていきます。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="rag-retrieval-augmented-generation">RAG (Retrieval-Augmented Generation)</h3>
+<p>ひとことで言うと: LLMが外部の知識を参照して回答を生成するフレームワーク。
+何のカテゴリか: LLMアプリケーションアーキテクチャ、情報検索と生成の融合。
+何に使うのか: LLMのハルシネーション抑制、最新情報や専門知識の利用、情報源の提示。
+代表例: 企業内ドキュメントからのQ&amp;Aシステム、最新ニュースに基づく要約。
+よく混同される用語: SFT (Supervised Fine-Tuning)
+初心者向け注意点: RAGはLLM自体を学習し直すものではなく、LLMに与えるプロンプトに外部情報を追加する手法です。</p>
+<p>RAGは、LLMの知識を拡張し、より正確で信頼性の高い応答を生成するための強力なパラダイムです。従来のLLMは、学習データに含まれる情報のみに基づいて応答を生成するため、学習データにない情報や最新の出来事については回答できませんでした。また、学習データに誤りや偏りがある場合、ハルシネーション（事実に基づかない情報を生成すること）を引き起こす可能性もありました。</p>
+<p>RAGは、この問題を解決するために、以下の2つの主要なステップを組み合わせます。</p>
+<ol>
+<li><strong>Retrieval (検索)</strong>: ユーザーの質問やプロンプトに関連する情報を、外部の知識ベース（ドキュメント、データベース、ウェブなど）から検索します。このステップでは、質問と知識ベース内の情報を比較し、最も関連性の高い情報を特定します。</li>
+<li><strong>Augmentation &amp; Generation (拡張と生成)</strong>: 検索された情報をLLMへのプロンプトに含めて（拡張）、その情報に基づいてLLMに回答を生成させます。これにより、LLMは自身の内部知識だけでなく、提供された外部情報も考慮して応答を生成できます。</li>
+</ol>
+<h4 id="ragのメリット">RAGのメリット</h4>
+<ul>
+<li><strong>ハルシネーションの抑制</strong>: 外部の信頼できる情報源を参照することで、LLMが事実に基づかない情報を生成するリスクを低減します。</li>
+<li><strong>最新情報の利用</strong>: LLMの学習データが古くても、RAGは最新の外部情報源から情報を取得できるため、常に最新の知識に基づいた回答が可能です。</li>
+<li><strong>専門知識の活用</strong>: 特定のドメイン（企業内部資料、専門論文など）の知識をLLMに提供できます。</li>
+<li><strong>情報源の提示</strong>: 検索された情報源をユーザーに提示することで、回答の信頼性を高め、ユーザーが情報を検証できるようにします。</li>
+</ul>
+<h4 id="ragの基本的な流れ-mermaid図">RAGの基本的な流れ (Mermaid図)</h4>
+<pre class="mermaid">graph TD
+    A[ユーザーの質問] --> B{関連情報検索}
+    B --> C[外部知識ベース]
+    C --> D[関連情報]
+    D --> E["プロンプト構築 (質問 + 関連情報)"]
+    E --> F[LLM]
+    F --> G[回答生成]
+    G --> H[ユーザーへの回答]
+
+    subgraph "RAGパイプライン"
+        B -- "embedding" --> C
+        C -- "vector DB" --> D
+        D -- "reranker (オプション)" --> D
+    end</pre>
+<p>この図は、ユーザーの質問がRAGパイプラインに入力され、外部知識ベースから関連情報が検索され、それがLLMへのプロンプトに組み込まれて回答が生成される一連の流れを示しています。</p>
+<h3 id="embedding">embedding</h3>
+<p>ひとことで言うと: テキストの意味を捉えた数値ベクトル表現。
+何のカテゴリか: 自然言語処理、機械学習。
+何に使うのか: テキスト間の類似度計算、検索、分類、クラスタリング。
+代表例: OpenAIの<code>text-embedding-ada-002</code>、Sentence-BERT、Word2Vec。
+よく混同される用語: One-hotエンコーディング、トークンID。
+初心者向け注意点: embeddingは単なる数値の羅列ではなく、意味的に近いテキストはベクトル空間上で近くに配置されるという特性を持ちます。</p>
+<p>embeddingは、単語や文章といったテキスト情報を、多次元の数値ベクトル（数値の並び）に変換する技術です。この変換は、単語や文章の意味的な関係性をベクトル空間上に反映させるように行われます。つまり、意味的に似ている単語や文章は、ベクトル空間上でも互いに近い位置に配置されるようになります。</p>
+<p>例えば、「猫」と「犬」のembeddingベクトルは、「車」のembeddingベクトルよりも互いに近い位置にあります。これにより、テキスト情報を直接扱うのではなく、数値ベクトルとして扱うことで、コンピュータがテキストの意味を理解し、様々な計算（類似度計算など）を行えるようになります。</p>
+<h4 id="embeddingの生成">embeddingの生成</h4>
+<p>embeddingは、通常、Transformerベースのニューラルネットワーク（例: BERT, GPTなどの一部）によって生成されます。これらのモデルは、大量のテキストデータで学習されており、単語や文章の文脈を理解し、その意味を捉えたベクトルを生成する能力を持っています。</p>
+<h4 id="コサイン類似度">コサイン類似度</h4>
+<p>embeddingベクトル間の類似度を測る一般的な方法として「コサイン類似度」があります。これは、2つのベクトルのなす角度のコサイン値を計算するもので、値が1に近いほど類似度が高く、-1に近いほど類似度が低いことを示します。</p>
+<p>$$ \text{similarity}(\mathbf{A}, \mathbf{B}) = \frac{\mathbf{A} \cdot \mathbf{B}}{|\mathbf{A}| |\mathbf{B}|} $$</p>
+<p>ここで、$\mathbf{A}$ と $\mathbf{B}$ は2つのembeddingベクトル、$\cdot$ は内積、$|\cdot|$ はベクトルのノルム（長さ）を表します。コサイン類似度は、ベクトルの方向がどれだけ似ているかを示し、ベクトルの長さ（大きさ）には影響されません。</p>
+<h3 id="vector-db-vector-database">vector DB (Vector Database)</h3>
+<p>ひとことで言うと: embeddingベクトルを効率的に保存・検索するためのデータベース。
+何のカテゴリか: データベース、情報検索。
+何に使うのか: 類似度検索（Nearest Neighbor Search）、RAGシステム、レコメンデーション。
+代表例: Pinecone, Weaviate, Milvus, Chroma, Qdrant。
+よく混同される用語: リレーショナルデータベース、NoSQLデータベース。
+初心者向け注意点: vector DBは、従来のデータベースとは異なり、主にベクトル間の類似度検索に特化しています。</p>
+<p>vector DBは、embeddingベクトルを保存し、高速かつ効率的に類似度検索を実行するために設計された特殊なデータベースです。RAGシステムにおいて、ユーザーの質問のembeddingベクトルと、知識ベース内のドキュメントのembeddingベクトルを比較し、最も類似性の高いドキュメント（またはその一部）を迅速に特定する役割を担います。</p>
+<h4 id="vector-dbの主な機能">vector DBの主な機能</h4>
+<ul>
+<li><strong>ベクトルインデックス</strong>: 大量のベクトルデータの中から、クエリベクトルに最も近いベクトルを高速に検索するためのインデックス構造（例: HNSW, IVFなど）を持っています。</li>
+<li><strong>メタデータ管理</strong>: ベクトルだけでなく、そのベクトルが表現する元のテキストやその他の関連情報（作成日時、カテゴリなど）をメタデータとして保存し、フィルタリングや検索条件に利用できます。</li>
+<li><strong>スケーラビリティ</strong>: 大規模なデータセットや高負荷なクエリに対応できるよう、分散処理や水平スケーリングが可能です。</li>
+</ul>
+<h4 id="ragにおけるvector-dbの役割-mermaid図">RAGにおけるVector DBの役割 (Mermaid図)</h4>
+<pre class="mermaid">graph TD
+    A[ドキュメント] --> B[チャンク化]
+    B --> C[Embeddingモデル]
+    C --> D[Embeddingベクトル]
+    D --> E["Vector DB (インデックス作成)"]
+
+    F[ユーザーの質問] --> G[Embeddingモデル]
+    G --> H[クエリベクトル]
+    H --> I{Vector DBで類似検索}
+    I --> J[類似チャンク]
+
+    subgraph "データ取り込み (オフライン)"
+        A -- "前処理" --> B
+        B -- "ベクトル化" --> C
+        C -- "保存" --> D
+        D -- "インデックス構築" --> E
+    end
+
+    subgraph "検索 (オンライン)"
+        F -- "ベクトル化" --> G
+        G -- "クエリ" --> H
+        H -- "高速検索" --> I
+        I -- "結果" --> J
+    end</pre>
+<p>この図は、ドキュメントがチャンク化され、embeddingベクトルに変換されてVector DBに保存される「データ取り込み」プロセスと、ユーザーの質問がクエリベクトルに変換され、Vector DBで類似チャンクが検索される「検索」プロセスを示しています。</p>
+<h3 id="chunking">chunking</h3>
+<p>ひとことで言うと: 長いテキストを意味のある小さな塊に分割するプロセス。
+何のカテゴリか: 自然言語処理、データ前処理。
+何に使うのか: RAGシステムでの情報検索、LLMの入力トークン制限への対応。
+代表例: 固定長分割、文区切り、セマンティック分割。
+よく混同される用語: トークナイゼーション。
+初心者向け注意点: チャンクのサイズや分割方法は、RAGの検索精度に大きく影響します。</p>
+<p>LLMは入力できるテキストの長さに制限（コンテキストウィンドウ）があります。また、RAGで関連情報を検索する際、非常に長いドキュメント全体をembedding化して検索すると、特定の質問に対する関連情報が埋もれてしまったり、検索精度が低下したりする可能性があります。</p>
+<p>chunkingは、このような問題を解決するために、長いドキュメントを意味のある小さな「チャンク（塊）」に分割するプロセスです。各チャンクは独立してembedding化され、vector DBに保存されます。</p>
+<h4 id="chunkingの考慮事項">chunkingの考慮事項</h4>
+<ul>
+<li><strong>チャンクサイズ</strong>: チャンクが小さすぎると文脈が失われ、大きすぎると関連情報が埋もれる可能性があります。適切なサイズはアプリケーションやデータによって異なります。</li>
+<li><strong>オーバーラップ</strong>: チャンク間に一部重複を持たせることで、文脈の連続性を保ち、重要な情報がチャンクの境界で分断されるのを防ぎます。</li>
+<li><strong>分割戦略</strong>:<ul>
+<li><strong>固定長分割</strong>: 単純に一定の文字数やトークン数で分割します。</li>
+<li><strong>文区切り分割</strong>: 文の区切り（句読点など）で分割します。</li>
+<li><strong>セマンティック分割</strong>: 段落、セクション、または意味的なまとまりで分割します。より高度な手法では、テキストの意味的な変化点を検出して分割します。</li>
+</ul>
+</li>
+</ul>
+<h3 id="retrieval">retrieval</h3>
+<p>ひとことで言うと: ユーザーの質問に関連する情報を知識ベースから探し出すプロセス。
+何のカテゴリか: 情報検索、RAGの主要ステップ。
+何に使うのか: RAGシステムでの関連文書取得、検索エンジンのバックエンド。
+代表例: ベクトル類似度検索、キーワード検索。
+よく混同される用語: 生成（Generation）。
+初心者向け注意点: retrievalの精度がRAG全体の性能を大きく左右します。</p>
+<p>retrievalは、RAGパイプラインの最初の重要なステップであり、ユーザーの質問（クエリ）に対して、外部の知識ベースから最も関連性の高い情報を取得するプロセスです。このプロセスは、主に以下の方法で行われます。</p>
+<ol>
+<li><strong>クエリのembedding化</strong>: ユーザーの質問をembeddingモデルに入力し、質問のembeddingベクトルを生成します。</li>
+<li><strong>類似度検索</strong>: 生成された質問のembeddingベクトルと、vector DBに保存されている知識ベースの各チャンクのembeddingベクトルとの類似度を計算します。</li>
+<li><strong>上位N件の取得</strong>: 計算された類似度に基づいて、最も類似度の高い上位N件のチャンク（ドキュメントの一部）を取得します。</li>
+</ol>
+<h3 id="reranker">reranker</h3>
+<p>ひとことで言うと: 検索された情報の関連性を再評価し、順位を付け直すモデル。
+何のカテゴリか: 自然言語処理、情報検索。
+何に使うのか: RAGシステムでの検索精度向上、検索結果の最適化。
+代表例: Cross-encoderモデル（例: BERTベースの再ランキングモデル）。
+よく混同される用語: embeddingモデル。
+初心者向け注意点: rerankerは検索結果の数を減らすのではなく、順序を最適化するものです。</p>
+<p>retrievalステップで取得された上位N件のチャンクは、必ずしも質問に対して最も関連性の高い順に並んでいるとは限りません。embeddingモデルは、一般的に「意味的な類似性」を捉えるのが得意ですが、質問とチャンクの間の「直接的な関連性」や「回答に役立つ度合い」を正確に評価するのは難しい場合があります。</p>
+<p>rerankerは、この問題を解決するために導入されます。rerankerは、取得されたチャンクと元の質問のペアを入力として受け取り、それぞれのペアがどれだけ関連性が高いかをより詳細に評価し、そのスコアに基づいてチャンクの順位を付け直します。これにより、LLMに渡される情報がより精度の高いものとなり、最終的な回答の品質が向上します。</p>
+<h4 id="rerankerの仕組み">rerankerの仕組み</h4>
+<p>rerankerは、通常、質問とチャンクの両方を同時に考慮する「Cross-encoder」と呼ばれるモデルアーキテクチャを使用します。これにより、両者の間の相互作用を深く理解し、より正確な関連性スコアを算出できます。</p>
+<h3 id="hybrid-search">hybrid search</h3>
+<p>ひとことで言うと: ベクトル検索とキーワード検索（全文検索）を組み合わせて検索精度を高める手法。
+何のカテゴリか: 情報検索。
+何に使うのか: RAGシステムでの検索精度向上、複雑なクエリへの対応。
+代表例: ベクトル検索 + BM25、ベクトル検索 + TF-IDF。
+よく混同される用語: 単一の検索手法。
+初心者向け注意点: それぞれの検索手法の長所を組み合わせることで、より堅牢な検索システムを構築できます。</p>
+<p>ベクトル検索（セマンティック検索）は、テキストの意味的な類似性を捉えるのに優れていますが、特定のキーワードが厳密に含まれるドキュメントを見つけ出すのが苦手な場合があります。例えば、「Apple社の最新のiPhoneモデルは何ですか？」という質問に対して、ベクトル検索は「スマートフォン」や「新製品」といった意味的に近い情報を取得するかもしれませんが、「iPhone」というキーワードが必ずしも含まれるとは限りません。</p>
+<p>一方、キーワード検索（全文検索、例: BM25, TF-IDF）は、特定のキーワードがテキストに存在するかどうかを高速に判断するのに優れていますが、キーワードの表面的な一致に依存するため、意味的な関連性を見落とすことがあります。</p>
+<p>hybrid searchは、これら二つの検索手法の長所を組み合わせることで、検索精度を向上させるアプローチです。</p>
+<h4 id="hybrid-searchの一般的なアプローチ">hybrid searchの一般的なアプローチ</h4>
+<ol>
+<li><strong>ベクトル検索の実行</strong>: ユーザーの質問をembedding化し、vector DBで類似するチャンクを検索します。</li>
+<li><strong>キーワード検索の実行</strong>: ユーザーの質問からキーワードを抽出し、従来の全文検索エンジン（例: Elasticsearch, Solr）で関連するチャンクを検索します。</li>
+<li><strong>結果の統合</strong>: 両方の検索結果を統合し、それぞれのスコアを重み付けして最終的なランキングを決定します。この際、rerankerを適用して最終的な順位を調整することもあります。</li>
+</ol>
+<h4 id="hybrid-searchの処理フロー-mermaid図">Hybrid Searchの処理フロー (Mermaid図)</h4>
+<pre class="mermaid">graph TD
+    A[ユーザーの質問] --> B[キーワード抽出]
+    A --> C[Embeddingモデル]
+
+    B --> D["キーワード検索 (BM25/TF-IDF)"]
+    C --> E[クエリベクトル]
+    E --> F["ベクトル検索 (Vector DB)"]
+
+    D --> G[キーワード検索結果]
+    F --> H[ベクトル検索結果]
+
+    G & H --> I{"結果統合 & スコアリング"}
+    I --> J["最終検索結果 (reranker適用可)"]</pre>
+<p>この図は、ユーザーの質問がキーワード検索とベクトル検索の2つのパスに分岐し、それぞれの結果が統合されて最終的な検索結果が生成されるHybrid Searchの処理フローを示しています。</p>
+<h2 id="具体例">具体例</h2>
+<p>ここでは、RAGシステムがどのように動作するかを、具体的なシナリオで見ていきましょう。</p>
+<p><strong>シナリオ</strong>: 企業の人事部門が、従業員からの「育児休暇の申請方法について教えてください」という質問に答えるQ&amp;Aシステムを構築する。</p>
+<ol>
+<li><p><strong>データ準備 (オフラインプロセス)</strong></p>
+<ul>
+<li><strong>知識ベースの構築</strong>: 企業内の人事規定、育児休暇に関するFAQ、申請書テンプレートなどのドキュメントを収集します。</li>
+<li><strong>chunking</strong>: これらのドキュメントを、意味のある小さなチャンクに分割します。例えば、「育児休暇の対象者」「申請期間」「必要書類」「給付金」といったセクションごとに分割し、各チャンクに元のドキュメントのタイトルやページ番号などのメタデータを付与します。</li>
+<li><strong>embedding</strong>: 各チャンクをembeddingモデル（例: OpenAIの<code>text-embedding-ada-002</code>）に入力し、それぞれのチャンクに対応するembeddingベクトルを生成します。</li>
+<li><strong>vector DBへの保存</strong>: 生成されたembeddingベクトルと、元のチャンクテキスト、およびメタデータをvector DB（例: Pinecone）に保存します。</li>
+</ul>
+</li>
+<li><p><strong>ユーザーからの質問 (オンラインプロセス)</strong></p>
+<ul>
+<li><strong>ユーザーの質問</strong>: 従業員が「育児休暇の申請方法について教えてください」とシステムに入力します。</li>
+<li><strong>質問のembedding化</strong>: この質問を、知識ベースのチャンクをembedding化したのと同じembeddingモデルに入力し、質問のembeddingベクトルを生成します。</li>
+<li><strong>retrieval (検索)</strong>:<ul>
+<li><strong>ベクトル検索</strong>: 生成された質問のembeddingベクトルを使って、vector DB内で最も類似性の高い上位10件のチャンクを検索します。</li>
+<li><strong>キーワード検索 (hybrid searchの場合)</strong>: 質問から「育児休暇」「申請方法」といったキーワードを抽出し、全文検索エンジンで関連するチャンクを検索します。</li>
+<li><strong>結果の統合</strong>: ベクトル検索とキーワード検索の結果を統合し、上位20件程度のチャンク候補を選出します。</li>
+</ul>
+</li>
+<li><strong>reranker (オプション)</strong>: 取得された20件のチャンク候補と元の質問のペアをrerankerモデルに入力し、質問に対する関連性の高い順に上位5件のチャンクを選び直します。</li>
+<li><strong>プロンプト構築</strong>: ユーザーの質問と、rerankerによって選ばれた上位5件のチャンクの内容を組み合わせて、LLMへのプロンプトを作成します。<pre><code class="language-">以下の情報に基づいて、育児休暇の申請方法について具体的に説明してください。
+
+---
+情報1:
+[チャンク1の内容: 育児休暇の申請期間は、原則として休暇開始日の1ヶ月前までです。]
+
+情報2:
+[チャンク2の内容: 育児休暇の申請には、育児休暇申請書、母子手帳のコピー、住民票が必要です。]
+
+情報3:
+[チャンク3の内容: 申請書は人事部のウェブサイトからダウンロードできます。]
+---
+
+質問: 育児休暇の申請方法について教えてください。</code></pre>
+</li>
+<li><strong>LLMによる回答生成</strong>: 構築されたプロンプトをLLM（例: GPT-4）に入力し、回答を生成させます。</li>
+<li><strong>回答の提示</strong>: LLMが生成した回答「育児休暇の申請は、休暇開始日の1ヶ月前までに、人事部のウェブサイトからダウンロードした申請書に必要事項を記入し、母子手帳のコピーと住民票を添えて提出してください。」をユーザーに提示します。</li>
+</ul>
+</li>
+</ol>
+<p>このように、RAGは外部の知識を動的に参照することで、LLMがより正確で具体的な回答を生成することを可能にします。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<p>RAGはLLMの能力を拡張する強力な手法ですが、LLMの学習プロセス自体を変更するものではありません。ここでは、RAGと混同されやすい他の概念との違いを明確にします。</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/手法</th>
+<th align="left">RAG (Retrieval-Augmented Generation)</th>
+<th align="left">SFT (Supervised Fine-Tuning)</th>
+<th align="left">事前学習 (Pre-training)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">LLMに外部知識を提供し、ハルシネーション抑制、最新情報/専門知識の利用、情報源の提示</td>
+<td align="left">特定タスクの性能向上、特定のスタイル/トーンへの適応、特定の知識の強化</td>
+<td align="left">大量のテキストデータから汎用的な言語理解能力を獲得</td>
+</tr>
+<tr>
+<td align="left"><strong>対象</strong></td>
+<td align="left">既存のLLMモデル</td>
+<td align="left">既存のLLMモデル</td>
+<td align="left">ゼロからモデルを構築</td>
+</tr>
+<tr>
+<td align="left"><strong>方法</strong></td>
+<td align="left">外部知識ベースから情報を検索し、LLMへのプロンプトに含める</td>
+<td align="left">特定のタスクに特化したラベル付きデータセットでLLMの重みを更新</td>
+<td align="left">大規模なテキストコーパスで自己教師あり学習</td>
+</tr>
+<tr>
+<td align="left"><strong>知識源</strong></td>
+<td align="left">外部の動的な知識ベース（ドキュメント、DBなど）</td>
+<td align="left">ファインチューニングデータセット内の知識</td>
+<td align="left">事前学習コーパス内の知識</td>
+</tr>
+<tr>
+<td align="left"><strong>更新頻度</strong></td>
+<td align="left">知識ベースを更新すれば即座に反映可能</td>
+<td align="left">モデルの再学習が必要</td>
+<td align="left">モデルの再学習が必要</td>
+</tr>
+<tr>
+<td align="left"><strong>ハルシネーション</strong></td>
+<td align="left">外部情報源を参照することで抑制</td>
+<td align="left">ファインチューニングデータに依存、抑制効果は限定的</td>
+<td align="left">発生しやすい</td>
+</tr>
+<tr>
+<td align="left"><strong>コスト</strong></td>
+<td align="left">比較的低コスト（検索インフラとプロンプト構築）</td>
+<td align="left">計算リソースとデータ準備にコストがかかる</td>
+<td align="left">非常に高コスト</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left">企業内Q&amp;A、最新ニュースに基づく要約</td>
+<td align="left">特定の業界用語への適応、チャットボットの応答スタイル調整</td>
+<td align="left">GPT-3, Llama 2などの基盤モデルの構築</td>
+</tr>
+</tbody></table></div>
+<p><strong>RAG vs SFT</strong>:
+RAGは、LLMの重みを変更することなく、外部情報をプロンプトとして与えることで、LLMの知識を「拡張」します。一方、SFT（Supervised Fine-Tuning）は、特定のタスクやデータセットに合わせてLLMの重みを「調整」し、モデル自体の振る舞いを変更します。RAGは動的な情報への対応に優れ、SFTは特定のタスクにおけるモデルの性能やスタイルを最適化するのに適しています。両者は排他的なものではなく、SFTされたモデルにRAGを組み合わせることで、さらに強力なシステムを構築することも可能です。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>RAGは、LLMを実世界のアプリケーションに導入する上で、非常に重要な役割を担っています。特に、以下のようなシナリオでその価値を発揮します。</p>
+<ol>
+<li><strong>企業内知識Q&amp;Aシステム</strong>: 企業の膨大なドキュメント（規定、マニュアル、報告書など）から、従業員の質問に正確に答えるシステム。ハルシネーションのリスクを低減し、情報源を明示できるため、信頼性が高いです。</li>
+<li><strong>カスタマーサポート</strong>: 顧客からの問い合わせに対し、製品マニュアルやFAQ、過去のサポート履歴を参照して、パーソナライズされた回答を生成します。</li>
+<li><strong>研究・開発支援</strong>: 最新の論文や技術文書から関連情報を抽出し、研究者の情報収集を支援します。</li>
+<li><strong>法務・医療分野</strong>: 専門性の高いドキュメントから、特定のケースに関する情報を検索し、専門家の意思決定を支援します。</li>
+<li><strong>リアルタイム情報への対応</strong>: 株価情報、最新ニュース、天気予報など、頻繁に更新される情報をLLMに提供し、常に最新の状況に基づいた回答を生成させます。</li>
+</ol>
+<p>RAGは、LLMの「知っていること」と「知っているべきこと」のギャップを埋めるためのブリッジとして機能します。これにより、LLMは単なる言語生成ツールから、信頼できる情報アシスタントへと進化し、ビジネスや研究の様々な領域でその応用範囲を広げています。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>RAGは、LLMが外部知識を参照して回答を生成するフレームワークで、ハルシネーション抑制と最新情報利用を可能にする。</li>
+<li>embeddingはテキストを意味のある数値ベクトルに変換し、vector DBはそれを効率的に保存・検索する。</li>
+<li>chunking、retrieval、reranker、hybrid searchはRAGの検索精度を高めるための重要なコンポーネントである。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>RAGとSFT</strong>: RAGは外部知識の参照、SFTはモデルの重み調整。</li>
+<li><strong>embeddingとOne-hotエンコーディング</strong>: embeddingは意味を捉えた密なベクトル、One-hotは単語の存在を示す疎なベクトル。</li>
+<li><strong>vector DBとリレーショナルDB</strong>: vector DBはベクトル検索に特化、リレーショナルDBは構造化データ管理に特化。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第20章: プロンプトエンジニアリングの基礎</li>
+<li>第21章: エージェントとツール利用</li>
+<li>第22章: LLMアプリケーション開発フレームワーク (LangChain, LlamaIndex)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-18.html" class="nav-prev">← 第18章 CUDA / ROCm / Metal / DirectML</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-20.html" class="nav-next">第20章 エージェント / ツール利用 / MCP →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

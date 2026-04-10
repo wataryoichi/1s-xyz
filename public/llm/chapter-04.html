@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第4章. モデルファイル形式の基本 - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 「GGUFって何？ safetensorsって何？」を整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-04.html">
+  <meta property="og:title" content="第4章. モデルファイル形式の基本 - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 「GGUFって何？ safetensorsって何？」を整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-04.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第4章. モデルファイル形式の基本 - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 「GGUFって何？ safetensorsって何？」を整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">4 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第4部: モデル形式と保存形式</li><li aria-current="page">第4章. モデルファイル形式の基本</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第4章-モデルファイル形式の基本">第4章. モデルファイル形式の基本</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、LLM（大規模言語モデル）を扱う上で頻繁に目にする「モデルファイル形式」について、その種類と特徴、そしてそれぞれの使い分けを理解することを目的とします。特に「GGUFって何？ safetensorsって何？」といった疑問を解消し、それぞれのファイル形式がどのような役割を果たしているのかを整理します。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li><code>safetensors</code>、<code>PyTorch checkpoint</code>、<code>GGUF</code>、<code>ONNX</code>、<code>TensorRT engine</code>、<code>MLX format</code>といった主要なモデルファイル形式の概要と特徴</li>
+<li>各ファイル形式がどのような目的で利用されるのか</li>
+<li><code>safetensors</code>と<code>GGUF</code>の違い、<code>GGUF</code>とモデルアーキテクチャの関係性</li>
+<li>量子化されたモデルファイルがどのように生成され、利用されるのか</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMをダウンロードしたり、推論を実行したりする際、私たちは様々な拡張子を持つファイルに遭遇します。<code>.safetensors</code>、<code>.bin</code>、<code>.gguf</code>、<code>.onnx</code>など、これらはすべてモデルの「重み（weights）」や「構造（architecture）」、あるいはその両方を保存するためのファイル形式です。しかし、それぞれの形式がどのような特徴を持ち、どのような場面で使われるのか、初心者にとっては混乱しやすいポイントです。</p>
+<p>例えば、Hugging Face Hubでモデルを探すと、同じモデル名でも複数のファイル形式が提供されていることがあります。どのファイルを選べば良いのか、なぜ複数の形式が存在するのか、といった疑問は当然湧いてくるでしょう。この章では、これらの疑問に答え、各ファイル形式の役割と利用シーンを明確にしていきます。</p>
+<h3 id="モデルファイル形式の選択フロー">モデルファイル形式の選択フロー</h3>
+<p>LLMのモデルファイル形式は、その利用目的や実行環境によって最適なものが異なります。以下のフローチャートは、一般的な選択プロセスを示しています。</p>
+<pre class="mermaid">graph TD
+    A[LLMモデルの利用目的は？] --> B{"学習済みモデルの配布/推論？"}
+    B -- はい --> C{セキュリティと高速ロードが最優先？}
+    C -- はい --> D[safetensors]
+    C -- いいえ --> E{"PyTorchで学習再開/開発？"}
+    E -- はい --> F[PyTorch checkpoint]
+    E -- いいえ --> G{"CPU/統合GPUで効率的な推論？"}
+    G -- はい --> H[GGUF]
+    G -- いいえ --> I{"異なるフレームワーク間で交換/汎用推論？"}
+    I -- はい --> J[ONNX]
+    I -- いいえ --> K{NVIDIA GPUで最高速推論？}
+    K -- はい --> L[TensorRT engine]
+    K -- いいえ --> M{Apple Siliconで最適化推論？}
+    M -- はい --> N[MLX format]
+    M -- いいえ --> O[その他/特殊な要件]</pre>
+<h2 id="基本概念">基本概念</h2>
+<p>LLMのモデルファイルは、主に以下の要素を保存しています。</p>
+<ol>
+<li><strong>モデルの重み（Weights）</strong>: ニューラルネットワークの各層における数値パラメータ。これがモデルの「知識」を構成します。</li>
+<li><strong>モデルのアーキテクチャ（Architecture）</strong>: モデルの層の構成、接続方法、活性化関数など、ネットワークの構造を定義する情報。</li>
+<li><strong>メタデータ（Metadata）</strong>: モデルに関する追加情報（例えば、学習時の設定、トークナイザの情報、ライセンスなど）。</li>
+</ol>
+<p>これらの要素をどのように保存するかによって、様々なファイル形式が生まれます。</p>
+<h3 id="モデルの構成要素">モデルの構成要素</h3>
+<p>モデルファイルは、これらの要素をどのようにパッケージ化するかによって異なります。</p>
+<pre class="mermaid">graph TD
+    A[LLMモデル] --> B(モデルの重み)
+    A --> C(モデルのアーキテクチャ)
+    A --> D(メタデータ)
+
+    subgraph "ファイル形式の例"
+        B -- safetensors --> E[safetensorsファイル]
+        B & C & D -- GGUF --> F[GGUFファイル]
+        B & C -- ONNX --> G[ONNXファイル]
+    end</pre>
+<h3 id="safetensors">safetensors</h3>
+<p>ひとことで言うと: 安全かつ高速にモデルの重みを読み込むためのファイル形式。
+何のカテゴリか: モデルの重み保存形式
+何に使うのか: PyTorchなどのフレームワークで学習されたモデルの重みを、セキュリティリスクなく効率的にロードするために使用。
+代表例: Hugging Face Hubで提供される多くのLLMモデルの重みファイル（例: <code>model.safetensors</code>）
+よく混同される用語: GGUF, PyTorch checkpoint
+初心者向け注意点: <code>safetensors</code>ファイル自体にはモデルのアーキテクチャ情報は含まれていません。通常、Pythonコード（例: <code>config.json</code>と<code>modeling_*.py</code>）と組み合わせて使用します。</p>
+<p><code>safetensors</code>は、悪意のあるコードの実行リスクを排除しつつ、高速にテンソル（重み）を読み込むことを目的として開発されました。従来のPyTorchの<code>pickle</code>ベースの保存形式（<code>.bin</code>や<code>.pt</code>）は、柔軟性がある一方で、任意のPythonコードを実行できるためセキュリティ上の懸念がありました。<code>safetensors</code>は、テンソルデータとシンプルなメタデータのみを保存するように設計されており、この問題を解決します。</p>
+<h3 id="pytorch-checkpoint">PyTorch checkpoint</h3>
+<p>ひとことで言うと: PyTorchモデルの重みや学習状態を保存する標準的な形式。
+何のカテゴリか: PyTorchフレームワーク固有のモデル保存形式
+何に使うのか: PyTorchで学習したモデルの重み、オプティマイザの状態、学習の進行状況などを保存し、学習の再開や推論に利用。
+代表例: <code>pytorch_model.bin</code>, <code>model.pt</code>
+よく混同される用語: safetensors
+初心者向け注意点: <code>pickle</code>形式を使用しているため、信頼できないソースからのファイルをロードする際にはセキュリティリスクが伴います。Hugging Faceは<code>safetensors</code>への移行を推奨しています。</p>
+<p>PyTorch checkpointは、Pythonの<code>pickle</code>モジュールを使用してモデルの<code>state_dict</code>（重みの辞書）やその他のオブジェクトをシリアライズします。これにより、モデルの重みだけでなく、オプティマイザの状態や学習率スケジューラなど、学習に必要なあらゆる情報を保存できます。</p>
+<p><strong>safetensors と PyTorch checkpoint の比較</strong></p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">safetensors</th>
+<th align="left">PyTorch checkpoint (<code>.bin</code>, <code>.pt</code>)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>セキュリティ</strong></td>
+<td align="left"><strong>安全</strong> (任意のコード実行リスクなし)</td>
+<td align="left"><strong>リスクあり</strong> (pickleによる任意のコード実行)</td>
+</tr>
+<tr>
+<td align="left"><strong>柔軟性</strong></td>
+<td align="left">低い (テンソルとメタデータのみ)</td>
+<td align="left">高い (Pythonオブジェクト全般を保存可能)</td>
+</tr>
+<tr>
+<td align="left"><strong>ロード速度</strong></td>
+<td align="left">高速</td>
+<td align="left">やや遅い (pickleのデシリアライズ)</td>
+</tr>
+<tr>
+<td align="left"><strong>用途</strong></td>
+<td align="left">主に推論時のモデル重み配布</td>
+<td align="left">学習状態の保存、学習の再開</td>
+</tr>
+<tr>
+<td align="left"><strong>推奨</strong></td>
+<td align="left">モデルの公開・配布にはこちらが推奨される</td>
+<td align="left">信頼できる環境での学習・開発向け</td>
+</tr>
+</tbody></table></div>
+<h3 id="gguf">GGUF</h3>
+<p>ひとことで言うと: CPUでの効率的な推論に特化した、モデルの重みとアーキテクチャ、トークナイザを統合したファイル形式。
+何のカテゴリか: CPU推論向けモデルファイル形式
+何に使うのか: 量子化されたLLMを、CPUや統合GPUなど限られたリソースの環境で高速に推論するために使用。
+代表例: <code>llama-2-7b-chat.Q4_K_M.gguf</code>
+よく混同される用語: safetensors, model architecture, quantization
+初心者向け注意点: GGUFファイルは、特定の推論エンジン（例: llama.cpp）で使用されることを前提としています。Hugging Face Transformersライブラリのような汎用的なフレームワークで直接ロードすることはできません。</p>
+<p>GGUFは、<code>llama.cpp</code>プロジェクトによって開発されたファイル形式で、主にCPUでのLLM推論を最適化するために設計されています。モデルの重みだけでなく、モデルのアーキテクチャ情報、トークナイザ、そして量子化に関するメタデータも単一ファイルに統合されています。これにより、推論時に必要なすべての情報が揃い、効率的なロードと実行が可能になります。特に、量子化されたモデルの重みを効率的に格納し、CPUでのメモリ効率と計算速度を最大化するよう設計されています。</p>
+<p><strong>GGUF と safetensors の比較</strong></p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">GGUF</th>
+<th align="left">safetensors</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">CPU/統合GPUでの効率的な推論 (llama.cpp向け)</td>
+<td align="left">安全かつ高速なモデル重みロード (汎用)</td>
+</tr>
+<tr>
+<td align="left"><strong>内容</strong></td>
+<td align="left"><strong>重み、アーキテクチャ、トークナイザ、メタデータ</strong></td>
+<td align="left"><strong>重み、シンプルなメタデータ</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>汎用性</strong></td>
+<td align="left">低い (llama.cppエコシステムに特化)</td>
+<td align="left">高い (PyTorchなどのフレームワークで利用可能)</td>
+</tr>
+<tr>
+<td align="left"><strong>量子化</strong></td>
+<td align="left">量子化されたモデルの格納に最適化</td>
+<td align="left">量子化された重みも格納可能だが、形式自体は量子化に特化していない</td>
+</tr>
+<tr>
+<td align="left"><strong>ファイル数</strong></td>
+<td align="left">通常1ファイルで完結</td>
+<td align="left">重みファイルと設定ファイル（<code>config.json</code>など）が別途必要</td>
+</tr>
+</tbody></table></div>
+<h3 id="onnx-open-neural-network-exchange">ONNX (Open Neural Network Exchange)</h3>
+<p>ひとことで言うと: 異なるフレームワーク間でモデルを交換するためのオープンな標準形式。
+何のカテゴリか: モデル交換フォーマット
+何に使うのか: PyTorchやTensorFlowなどで学習したモデルを、ONNX Runtimeなどの推論エンジンや、他のフレームワークに変換して利用するために使用。
+代表例: <code>model.onnx</code>
+よく混同される用語: 特定のフレームワーク固有の形式（PyTorch checkpoint, TensorFlow SavedModel）
+初心者向け注意点: ONNXはモデルのグラフ構造と重みを保存しますが、元のフレームワークのすべての操作をサポートしているわけではありません。複雑なモデルでは変換に工夫が必要な場合があります。</p>
+<p>ONNXは、ニューラルネットワークモデルを表現するためのオープンソース形式です。これにより、開発者は任意のフレームワークでモデルを学習し、ONNX形式にエクスポートすることで、別のフレームワークや推論エンジンで利用できるようになります。特に、エッジデバイスや組み込みシステムでの推論最適化において重要な役割を果たします。</p>
+<h3 id="tensorrt-engine">TensorRT engine</h3>
+<p>ひとことで言うと: NVIDIA GPU上での推論を最大限に高速化するために最適化されたモデル形式。
+何のカテゴリか: NVIDIA GPU向け推論最適化形式
+何に使うのか: NVIDIA GPU環境で、LLMを含む深層学習モデルの推論レイテンシとスループットを極限まで高めるために使用。
+代表例: <code>model.engine</code>
+よく混同される用語: ONNX (ONNXからTensorRT engineを生成することが多い)
+初心者向け注意点: 特定のGPUアーキテクチャとCUDAバージョンに強く依存するため、異なる環境間での互換性はありません。再生成が必要です。</p>
+<p>TensorRTは、NVIDIAが提供する高性能な深層学習推論最適化SDKです。TensorRT engineファイルは、特定のNVIDIA GPU上で動作するように、モデルのグラフ構造を最適化し、量子化やカーネル融合などの技術を適用した結果生成されます。これにより、GPUの性能を最大限に引き出し、推論速度を大幅に向上させることができます。</p>
+<h3 id="mlx-format">MLX format</h3>
+<p>ひとことで言うと: Apple Silicon（Mシリーズチップ）に最適化されたモデル形式。
+何のカテゴリか: Apple Silicon向けモデル形式
+何に使うのか: Apple Silicon搭載Macで、LLMを効率的に推論するために使用。
+代表例: <code>model.mlx</code>
+よく混同される用語: GGUF (どちらも特定のハードウェアに最適化されている点)
+初心者向け注意点: Apple Silicon以外の環境では利用できません。</p>
+<p>MLXは、Appleが開発した機械学習フレームワークであり、Apple Siliconの高性能なニューラルエンジンを最大限に活用するように設計されています。MLX formatは、このフレームワークで利用されるモデルの保存形式で、Apple Silicon上での推論性能を最適化します。具体的には、Apple Siliconの統合メモリアーキテクチャを最大限に活用し、CPUとGPU間でデータ転送のオーバーヘッドを最小限に抑えることで、メモリ効率と推論速度を向上させています。</p>
+<h3 id="quantized-model-file-量子化されたモデルファイル">quantized model file (量子化されたモデルファイル)</h3>
+<p>ひとことで言うと: モデルの重みを低精度（例: 16ビット浮動小数点数から4ビット整数）に変換し、ファイルサイズとメモリ使用量を削減したファイル。
+何のカテゴリか: モデルの重み表現形式
+何に使うのか: メモリや計算リソースが限られた環境（例: CPU、エッジデバイス）で、LLMを動作させるために使用。
+代表例: <code>model.Q4_K_M.gguf</code>, <code>model_quantized.safetensors</code>
+よく混同される用語: 量子化されていない通常のモデルファイル
+初心者向け注意点: 量子化はモデルの精度をわずかに低下させる可能性があります。どの量子化レベルが自分の用途に最適か、試行錯誤が必要です。</p>
+<p>量子化は、モデルの重みを表現するのに必要なビット数を減らす技術です。例えば、通常32ビット浮動小数点数で表現される重みを、16ビット浮動小数点数や8ビット整数、さらには4ビット整数に変換します。これにより、モデルのファイルサイズが大幅に削減され、メモリ使用量も減るため、限られたリソースの環境でもLLMを動作させることが可能になります。GGUFファイルは、量子化されたモデルを保存するための主要な形式の一つです。</p>
+<h4 id="量子化によるメモリ削減の例">量子化によるメモリ削減の例</h4>
+<p>モデルの重みが$N$個あり、それぞれが$B_{original}$ビットで表現されている場合、元のモデルのメモリサイズは$N \times B_{original}$です。
+量子化により、各重みが$B_{quantized}$ビットで表現されるようになると、量子化後のモデルのメモリサイズは$N \times B_{quantized}$となります。
+このとき、メモリ削減率は以下の式で表せます。</p>
+<p>$$
+\text{Memory Reduction Ratio} = \frac{N \times B_{original} - N \times B_{quantized}}{N \times B_{original}} = 1 - \frac{B_{quantized}}{B_{original}}
+$$</p>
+<p>例えば、32ビット浮動小数点数（FP32）から4ビット整数（INT4）に量子化する場合、$B_{original}=32$, $B_{quantized}=4$なので、メモリ削減率は$1 - \frac{4}{32} = 1 - \frac{1}{8} = \frac{7}{8} = 87.5%$となります。これは、モデルのメモリ使用量が元の1/8になることを意味します。</p>
+<h2 id="具体例">具体例</h2>
+<p>Hugging Face Hubで<code>mistralai/Mistral-7B-Instruct-v0.2</code>モデルを見てみましょう。</p>
+<p>| ファイル名                               | 形式             | 説明</p>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-03.html" class="nav-prev">← 第3章 Hugging Faceとは何か</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-05.html" class="nav-next">第5章 GGUFを重点的に理解する →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

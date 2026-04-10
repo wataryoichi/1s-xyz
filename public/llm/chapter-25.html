@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第25章. 学習順ガイド - LLM周辺用語 教科書</title>
+  <meta name="description" content="学習順ガイド">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-25.html">
+  <meta property="og:title" content="第25章. 学習順ガイド - LLM周辺用語 教科書">
+  <meta property="og:description" content="学習順ガイド">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-25.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第25章. 学習順ガイド - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="学習順ガイド">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">25 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第12部: 付録</li><li aria-current="page">第25章. 学習順ガイド</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h2 id="第25章-学習順ガイド">第25章. 学習順ガイド</h2>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、これまでに学んだLLM関連の膨大な知識を、効率的かつ体系的に習得するための学習順序を提案します。読者の興味や目的に応じた複数の学習パスを示すことで、LLM学習のロードマップを提供することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>LLM学習における主要な学習パスとその特徴</li>
+<li>自身の目的に合った学習パスの選び方</li>
+<li>各学習パスにおける推奨される章の順序</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLM（大規模言語モデル）の世界は広大で、日々新しい技術や概念が登場しています。本書では、その多岐にわたるトピックを網羅的に解説してきましたが、「どこから手をつければ良いのか」「何から学ぶべきか」と迷う方も少なくないでしょう。</p>
+<p>この章では、これまでの章で学んだ内容を効果的に消化し、自身の目標達成に役立てるための学習順序を提案します。大きく分けて、以下の3つの学習パスを用意しました。</p>
+<ol>
+<li><strong>「とにかく動かしたい！」パス</strong>: まずはローカルでLLMを動かし、その挙動を体験したい方向け。</li>
+<li><strong>「仕組みを理解したい！」パス</strong>: LLMの内部構造や動作原理を深く理解したい方向け。</li>
+<li><strong>「開発・応用したい！」パス</strong>: LLMを活用したアプリケーション開発や、より高度な技術応用を目指す方向け。</li>
+</ol>
+<p>これらのパスは相互に排他的なものではなく、途中で別のパスに切り替えたり、複数のパスを組み合わせたりすることも可能です。自身の興味や学習進度に合わせて、柔軟に活用してください。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>学習順ガイドは、LLM学習の効率を最大化するための「学習ロードマップ」です。個々の章の内容を単独で学ぶのではなく、関連性の高い章をまとめて学ぶことで、知識の定着と理解の深化を促します。</p>
+<h3 id="学習パスの考え方">学習パスの考え方</h3>
+<p>学習パスは、特定の学習目標を達成するために推奨される章の順序を示します。各パスは、以下の要素を考慮して設計されています。</p>
+<ul>
+<li><strong>前提知識</strong>: ある章を理解するために必要な、先行する章の知識。</li>
+<li><strong>実践性</strong>: 実際に手を動かす機会の多さ。</li>
+<li><strong>専門性</strong>: 特定の分野に特化した知識の深さ。</li>
+<li><strong>難易度</strong>: 各章の概念的な複雑さ。</li>
+</ul>
+<h3 id="学習パスの選び方">学習パスの選び方</h3>
+<p>自身の学習目標を明確にすることが、最適なパスを選ぶ第一歩です。</p>
+<ul>
+<li><strong>「LLMって何？」という状態から始めたい</strong>: 「とにかく動かしたい！」パスから始めるのがおすすめです。実際に触れることで、具体的なイメージが掴めます。</li>
+<li><strong>LLMの論文を読んだり、自分でモデルを改善したい</strong>: 「仕組みを理解したい！」パスで基礎を固め、さらに深掘りしていくのが良いでしょう。</li>
+<li><strong>LLMを使ったチャットボットや、RAGシステムを作りたい</strong>: 「開発・応用したい！」パスで、実践的な知識を身につけるのが効率的です。</li>
+</ul>
+<pre class="mermaid">graph TD
+    A[学習目標の明確化] --> B{LLMを動かしたい？}
+    B -- Yes --> C[とにかく動かしたい！パス]
+    B -- No --> D{LLMの仕組みを理解したい？}
+    D -- Yes --> E[仕組みを理解したい！パス]
+    D -- No --> F{LLMを開発・応用したい？}
+    F -- Yes --> G[開発・応用したい！パス]
+    F -- No --> H[他のパスを検討 / 複数パスの組み合わせ]
+    C --> I[学習開始]
+    E --> I
+    G --> I
+    H --> I</pre>
+<p><strong>図25.1: 学習パス選択フロー</strong>
+このフローチャートは、読者が自身の学習目標に基づいて最適なLLM学習パスを選択するプロセスを示しています。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="学習パス1-とにかく動かしたいパス">学習パス1: 「とにかく動かしたい！」パス</h3>
+<p>このパスは、LLMをローカル環境で動かすことを最優先する方向けです。まずは手を動かし、LLMの挙動を体験することから始めましょう。</p>
+<p><strong>推奨学習順序:</strong></p>
+<ol>
+<li><strong>第1章: LLM周辺の世界地図</strong>: LLM全体の概要を把握します。</li>
+<li><strong>第3章: Hugging Faceとは何か</strong>: LLMモデルの主要なハブを理解します。</li>
+<li><strong>第4章: モデルファイル形式の基本</strong>: モデルファイルの基礎知識を得ます。</li>
+<li><strong>第5章: GGUFを重点的に理解する</strong>: ローカル実行で主流のGGUF形式を学びます。</li>
+<li><strong>第6章: 推論ランタイムとは何か</strong>: モデルを動かすためのソフトウェアの役割を理解します。</li>
+<li><strong>第7章: llama.cppとは何か</strong>: ローカルLLM実行のデファクトスタンダードを学びます。</li>
+<li><strong>第8章: Ollama / LM Studio / Open WebUI / Jan など</strong>: 手軽にLLMを動かすためのツール群を体験します。</li>
+<li><strong>第23章: ローカルLLMを触る最短ルート</strong>: 実際にローカルLLMを動かすための具体的な手順を学びます。</li>
+</ol>
+<p><strong>このパスで得られること:</strong></p>
+<ul>
+<li>LLMの全体像と主要なエコシステムを把握できる。</li>
+<li>ローカル環境でLLMをセットアップし、実際に動かせるようになる。</li>
+<li>様々なツールを使ってLLMと対話できるようになる。</li>
+</ul>
+<pre class="mermaid">graph TD
+    subgraph "とにかく動かしたい！パス"
+        A[1章: 世界地図] --> B[3章: Hugging Face]
+        B --> C[4章: モデルファイル]
+        C --> D[5章: GGUF]
+        D --> E[6章: 推論ランタイム]
+        E --> F[7章: llama.cpp]
+        F --> G[8章: 各種ツール]
+        G --> H[23章: 最短ルート]
+    end</pre>
+<p><strong>図25.2: 「とにかく動かしたい！」パスの学習順序</strong>
+この図は、ローカル環境でLLMを動かすことを目的とした学習パスの推奨順序を示しています。</p>
+<h3 id="学習パス2-仕組みを理解したいパス">学習パス2: 「仕組みを理解したい！」パス</h3>
+<p>このパスは、LLMの内部構造、動作原理、および関連技術の深い理解を目指す方向けです。なぜLLMが動くのか、どのように学習されるのかといった根源的な疑問に答えます。</p>
+<p><strong>推奨学習順序:</strong></p>
+<ol>
+<li><strong>第1章: LLM周辺の世界地図</strong>: 全体像を把握します。</li>
+<li><strong>第2章: モデル・重み・トークナイザ</strong>: LLMの最も基本的な構成要素を学びます。</li>
+<li><strong>第12章: 事前学習・継続事前学習・SFT</strong>: LLMがどのように学習されるかを深く理解します。</li>
+<li><strong>第10章: 量子化（Quantization）</strong>: モデルの軽量化技術の原理を学びます。</li>
+<li><strong>第13章: LoRA / QLoRA / Adapter</strong>: ファインチューニングの効率化技術を理解します。</li>
+<li><strong>第15章: KV cache / batching / paged attention</strong>: 推論時の効率化技術を学びます。</li>
+<li><strong>第16章: speculative decoding / EAGLE / DFlash</strong>: より高度な推論最適化技術を理解します。</li>
+<li><strong>第17章: CPU / GPU / NPU / TPU の違い</strong>: ハードウェアの基礎知識を深めます。</li>
+<li><strong>第18章: CUDA / ROCm / Metal / DirectML</strong>: ハードウェアを制御するソフトウェアの役割を理解します。</li>
+<li><strong>第4章: モデルファイル形式の基本</strong> および <strong>第5章: GGUFを重点的に理解する</strong>: モデルファイルの技術的な詳細を再確認します。</li>
+<li><strong>第6章: 推論ランタイムとは何か</strong> および <strong>第7章: llama.cppとは何か</strong>: 推論ランタイムの内部動作に焦点を当てて学びます。</li>
+<li><strong>第11章: BitNet / ternary / 1-bit系</strong>: 次世代のモデルアーキテクチャに触れます。</li>
+</ol>
+<p><strong>このパスで得られること:</strong></p>
+<ul>
+<li>LLMの学習プロセスから推論メカニズムまで、深い技術的理解が得られる。</li>
+<li>モデルの軽量化、効率化、最適化に関する専門知識が身につく。</li>
+<li>LLM関連の論文や技術記事をより深く理解できるようになる。</li>
+</ul>
+<h3 id="学習パス3-開発応用したいパス">学習パス3: 「開発・応用したい！」パス</h3>
+<p>このパスは、LLMを活用したアプリケーション開発や、特定のタスクへの応用を目指す方向けです。実践的な技術と、それを支える概念を学びます。</p>
+<p><strong>推奨学習順序:</strong></p>
+<ol>
+<li><strong>第1章: LLM周辺の世界地図</strong>: 全体像を把握します。</li>
+<li><strong>第3章: Hugging Faceとは何か</strong>: モデルの探索と利用のハブを理解します。</li>
+<li><strong>第23章: ローカルLLMを触る最短ルート</strong>: まずはLLMを動かす体験をします。</li>
+<li><strong>第8章: Ollama / LM Studio / Open WebUI / Jan など</strong>: 開発に利用できるツールやインターフェースを理解します。</li>
+<li><strong>第9章: vLLM / TGI / TensorRT-LLM</strong>: 高性能な推論サーバーの利用方法を学びます。</li>
+<li><strong>第19章: RAG / embedding / vector DB</strong>: LLMの知識を拡張する強力な手法を学びます。</li>
+<li><strong>第20章: エージェント / ツール利用 / MCP</strong>: LLMに自律性や外部ツール連携を持たせる技術を理解します。</li>
+<li><strong>第14章: 学習ツール群</strong>: 必要に応じて、モデルのファインチューニングや学習を行うためのツールを学びます。</li>
+<li><strong>第13章: LoRA / QLoRA / Adapter</strong>: ファインチューニングの効率化技術を応用します。</li>
+</ol>
+<p><strong>このパスで得られること:</strong></p>
+<ul>
+<li>LLMを使ったアプリケーション開発に必要な技術スタックを習得できる。</li>
+<li>RAGやエージェントといった、LLMの応用範囲を広げる強力な手法を使いこなせるようになる。</li>
+<li>高性能な推論環境を構築し、効率的なLLMサービスを提供できるようになる。</li>
+</ul>
+<pre class="mermaid">graph TD
+    subgraph "開発・応用したい！パス"
+        A[1章: 世界地図] --> B[3章: Hugging Face]
+        B --> C[23章: 最短ルート]
+        C --> D[8章: 各種ツール]
+        D --> E[9章: 高性能推論]
+        E --> F[19章: RAG/Embedding/VectorDB]
+        F --> G[20章: エージェント/ツール]
+        G --> H[14章: 学習ツール群]
+        H --> I[13章: LoRA/QLoRA]
+    end</pre>
+<p><strong>図25.3: 「開発・応用したい！」パスの学習順序</strong>
+この図は、LLMを活用したアプリケーション開発や応用を目指す学習パスの推奨順序を示しています。</p>
+<h3 id="学習パスの比較表">学習パスの比較表</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">学習パス</th>
+<th align="left">主な目的</th>
+<th align="left">重点を置く内容</th>
+<th align="left">推奨される読者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>とにかく動かしたい！</strong></td>
+<td align="left">LLMを実際に動かす体験</td>
+<td align="left">環境構築、基本的なツールの使い方</td>
+<td align="left">初めてLLMに触れる人、手軽に試したい人</td>
+</tr>
+<tr>
+<td align="left"><strong>仕組みを理解したい！</strong></td>
+<td align="left">LLMの内部構造、動作原理の深い理解</td>
+<td align="left">モデルアーキテクチャ、学習・推論メカニズム、最適化</td>
+<td align="left">研究者、エンジニア、LLMの根幹を理解したい人</td>
+</tr>
+<tr>
+<td align="left"><strong>開発・応用したい！</strong></td>
+<td align="left">LLMを活用したアプリケーション開発、応用技術</td>
+<td align="left">RAG、エージェント、高性能推論、ファインチューニング</td>
+<td align="left">開発者、LLMサービスを構築したい人、ビジネス活用を考える人</td>
+</tr>
+</tbody></table></div>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<p>この章自体は学習順序を提案するものであり、特定の技術用語を扱うものではないため、混同される用語との比較は割愛します。しかし、学習パス自体が読者にとって選択を迷わせる概念であるため、各パス間の微妙な違いや、どちらを選ぶべきかの判断基準について、もう少し深掘りして説明します。</p>
+<ul>
+<li><p><strong>「とにかく動かしたい！」パス vs 「開発・応用したい！」パス</strong>:
+どちらも実践的で「LLMを動かす」という共通点がありますが、目的と深さが異なります。「とにかく動かしたい！」パスは、<strong>LLMの体験と基本的な操作</strong>に重きを置きます。ローカル環境で手軽に動かし、LLMの挙動を肌で感じることが主眼です。一方、「開発・応用したい！」パスは、<strong>LLMをシステムに組み込み、特定の課題を解決する</strong>ことに焦点を当てます。単に動かすだけでなく、RAGやエージェントなどの応用技術を駆使し、より堅牢で実用的なアプリケーションを構築するための知識を深めます。前者は「体験」が目的、後者は「構築」が目的と考えると良いでしょう。</p>
+</li>
+<li><p><strong>「仕組みを理解したい！」パス vs その他のパス</strong>:
+「仕組みを理解したい！」パスは、他の2つのパスとは異なり、直接的な「動かす」や「開発する」ことよりも、<strong>LLMの根源的な原理や技術的詳細</strong>に深く潜り込むことを目的とします。このパスで得られる知識は、他のパスで直面する問題（例：モデルの性能が上がらない、推論が遅いなど）の原因を特定し、解決策を考案する上で非常に役立ちます。例えば、「とにかく動かしたい！」パスでLLMの挙動に疑問を感じたり、「開発・応用したい！」パスでより高度な最適化やカスタマイズが必要になったりした場合に、「仕組みを理解したい！」パスの知識が活きてきます。このパスは、LLMを「ブラックボックス」として扱うのではなく、「ホワイトボックス」として理解したいと考える読者に最適です。</p>
+</li>
+</ul>
+<p>これらの比較を通じて、読者は自身の現在の興味や将来の目標に合わせて、より適切な学習パスを選択できるようになるでしょう。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>学習順ガイドは、個人の学習効率を最大化し、実務でLLMを効果的に活用するための基盤を築きます。</p>
+<ul>
+<li><strong>初心者</strong>: どの技術から学ぶべきか迷うことなく、着実にステップアップできます。</li>
+<li><strong>経験者</strong>: 自身の専門分野以外のLLM関連技術を効率的にキャッチアップするための指針となります。</li>
+<li><strong>チームリーダー</strong>: メンバーのスキルアップ計画を立てる際の参考資料として活用できます。</li>
+</ul>
+<p>LLMの技術は急速に進化しており、常に新しい知識を吸収し続ける必要があります。このガイドは、その学習プロセスを体系化し、無駄なく知識を習得するための強力なツールとなるでしょう。</p>
+<p>LLMの学習効率($E$)は、適切な学習パスの選択($P$)、学習時間($T$)、および個人の学習能力($C$)に依存すると考えられます。
+$$ E = f(P, T, C) $$
+ここで、$P$は選択された学習パスの適切さ、$T$は学習に費やされた時間、$C$は個人の背景知識や学習スタイルを含む学習能力を表します。このガイドは、$P$を最適化することで$E$を最大化することを目指します。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>LLM学習には「とにかく動かしたい！」「仕組みを理解したい！」「開発・応用したい！」の3つの主要パスがある。</li>
+<li>自身の学習目標に合わせて最適なパスを選び、推奨される章の順序で学ぶことで効率的に知識を習得できる。</li>
+<li>このガイドは、LLMの広大な世界を体系的に学び、実務で活用するためのロードマップを提供する。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<p>この章自体は学習順序を提案するものであり、特定の技術用語を扱うものではないため、混同しやすい用語は特にありません。</p>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<p>この章は付録であり、学習の全体像をまとめるものです。特定の次の章を推奨するものではありませんが、自身の選んだ学習パスに従って、各パスの最初の章から読み進めてください。</p>
+<ul>
+<li><strong>「とにかく動かしたい！」パスを選んだ場合</strong>: 第1章: LLM周辺の世界地図</li>
+<li><strong>「仕組みを理解したい！」パスを選んだ場合</strong>: 第1章: LLM周辺の世界地図</li>
+<li><strong>「開発・応用したい！」パスを選んだ場合</strong>: 第1章: LLM周辺の世界地図</li>
+</ul>
+<p>また、本書の学習を終えた後や、特定の用語の意味を再確認したい場合は、以下の章が役立ちます。</p>
+<ul>
+<li><strong>第21章: よく混同される用語まとめ</strong></li>
+<li><strong>第22章: 最低限これだけ覚えればよい用語30選</strong></li>
+<li><strong>第24章: 用語索引</strong></li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-24.html" class="nav-prev">← 第24章 用語索引</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="glossary.html" class="nav-next">用語集 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

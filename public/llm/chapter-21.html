@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第21章. よく混同される用語まとめ - LLM周辺用語 教科書</title>
+  <meta name="description" content="よく混同される用語まとめ">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-21.html">
+  <meta property="og:title" content="第21章. よく混同される用語まとめ - LLM周辺用語 教科書">
+  <meta property="og:description" content="よく混同される用語まとめ">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-21.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第21章. よく混同される用語まとめ - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="よく混同される用語まとめ">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">21 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第11部: 実務で混乱しやすい比較特集</li><li aria-current="page">第21章. よく混同される用語まとめ</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第21章-よく混同される用語まとめ">第21章. よく混同される用語まとめ</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>LLM（大規模言語モデル）の学習と利用において、多くの専門用語が登場します。これらの用語の中には、似たような文脈で使われたり、密接に関連していたりするため、初心者だけでなく中級者でも混同しやすいものが少なくありません。本章では、特に混同されやすい用語のペアに焦点を当て、それぞれの違いと関係性を明確にすることで、読者の理解を深め、適切な用語選択と概念把握を助けることを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>Hugging Faceと<code>transformers</code>ライブラリの関係性</li>
+<li>モデルファイル形式であるGGUFとsafetensorsの役割の違い</li>
+<li>推論ランタイムであるllama.cppとOllamaの機能と利用シーン</li>
+<li>デスクトップアプリケーションであるOllamaとLM Studioの比較</li>
+<li>モデルのカスタマイズ手法であるLoRAとファインチューニングの概念</li>
+<li>量子化とGGUFファイル形式の関係性</li>
+<li>高性能推論サーバーであるvLLMとTGIの特性</li>
+<li>モデルファイルと推論ランタイムの役割分担</li>
+<li>推論（Inference）とサービング（Serving）の工程の違い</li>
+<li>モデルの学習手法であるSFTと利用手法であるRAGの目的</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMの技術領域は急速に進化しており、新しい概念やツールが次々と登場しています。その結果、多くの用語が生まれ、時にはそれらが同じような意味で使われたり、あるいは密接に関連しているために区別がつきにくくなったりすることがあります。例えば、「Hugging Face」という言葉を聞いたとき、それが企業名なのか、プラットフォームなのか、あるいは特定のライブラリを指すのか、迷った経験はないでしょうか？また、「ファインチューニング」と「LoRA」はどちらもモデルをカスタマイズする手法ですが、そのアプローチには明確な違いがあります。</p>
+<p>本章では、このような混乱を解消するため、特に混同されやすい用語のペアを厳選し、それぞれの定義、役割、そして違いを具体的に解説します。これにより、読者の皆さんがLLM関連の情報をより正確に理解し、適切なツールや手法を選択できるようになることを目指します。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>LLMの用語が混同されやすい主な理由は以下の通りです。</p>
+<ol>
+<li><strong>階層性</strong>: ある用語が別の用語の包含関係にあったり、特定の技術スタックの一部であったりする場合。</li>
+<li><strong>目的の類似性</strong>: 異なるアプローチや技術が、最終的に同じ目的（例: モデルの高速化、カスタマイズ）を達成するために使われる場合。</li>
+<li><strong>エコシステムの複雑性</strong>: Hugging Faceのように、企業、プラットフォーム、ライブラリ、モデルなどが複合的に絡み合っている場合。</li>
+<li><strong>技術の進化</strong>: 新しい技術が登場し、既存の概念と組み合わされたり、置き換えられたりする過程で、用語の使われ方が変化する場合。</li>
+</ol>
+<p>これらの背景を踏まえ、各ペアについて「ひとことで言うと」から始まり、詳細な比較を行っていきます。</p>
+<h3 id="1-hugging-face-vs-transformers">1. Hugging Face vs `transformers`</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">Hugging Face</th>
+<th align="left"><code>transformers</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">LLMエコシステム全体を構築する企業・プラットフォーム</td>
+<td align="left">Hugging Faceが提供する、LLMを扱うためのPythonライブラリ</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">企業、AIコミュニティプラットフォーム</td>
+<td align="left">Pythonライブラリ、ソフトウェアフレームワーク</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">モデルの共有・発見、データセットの利用、デモアプリのホスティング、MLOpsツール提供など、LLM開発のあらゆる側面をサポート</td>
+<td align="left">事前学習済みモデルのロード、ファインチューニング、推論実行、トークナイザの利用など、LLMのプログラマティックな操作</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left">Hugging Face Hub (モデル、データセット、Spaces)、AutoTrain、Inference Endpoints</td>
+<td align="left"><code>from transformers import AutoModelForCausalLM, AutoTokenizer</code></td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left"><code>transformers</code>ライブラリ、Hugging Face Hub</td>
+<td align="left">Hugging Face (企業・プラットフォーム)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">Hugging Faceは単一の製品ではなく、多くのサービスやツールを提供する「エコシステム」全体を指します。<code>transformers</code>はそのエコシステムの中核をなす重要なライブラリの一つです。</td>
+<td align="left"><code>transformers</code>ライブラリはHugging Face社が開発・保守していますが、Hugging Faceの全サービスを指すわけではありません。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+Hugging Faceは、AI、特に自然言語処理（NLP）とLLMの分野で最も影響力のある企業の一つです。彼らは、モデル、データセット、デモアプリケーションなどを共有・発見できるプラットフォーム「Hugging Face Hub」を運営し、AIコミュニティの中心的な存在となっています。一方、<code>transformers</code>はHugging Faceが開発したオープンソースのPythonライブラリであり、BERT、GPT、T5などの最先端の事前学習済みモデルを簡単に利用できるようにします。つまり、Hugging Faceという企業が提供する数あるプロダクト・サービスの一つが<code>transformers</code>ライブラリである、という関係性です。</p>
+<pre class="mermaid">graph TD
+    subgraph "Hugging Face エコシステム"
+        A["Hugging Face (企業)"] --> B["Hugging Face Hub (プラットフォーム)"]
+        A --> C["transformers (Pythonライブラリ)"]
+        A --> D["Datasets (Pythonライブラリ)"]
+        A --> E["Accelerate (Pythonライブラリ)"]
+    end
+    B --> F[モデルの共有]
+    B --> G[データセットの共有]
+    B --> H["Spaces (デモアプリ)"]
+    C --> I[モデルのロード]
+    C --> J[トークナイザの利用]
+    C --> K[推論実行]</pre>
+<p>Hugging Faceは企業であり、その企業が提供するプラットフォームやライブラリ群を総称して「Hugging Faceエコシステム」と呼びます。<code>transformers</code>はそのエコシステムの中核をなすライブラリの一つです。</p>
+<h3 id="2-gguf-vs-safetensors">2. GGUF vs safetensors</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">GGUF</th>
+<th align="left">safetensors</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">CPU推論に最適化されたLLMモデルファイル形式</td>
+<td align="left">安全で高速なモデルの読み込みを目的とした汎用的なテンソル保存形式</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">モデルファイル形式、バイナリ形式</td>
+<td align="left">テンソル保存形式、バイナリ形式</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left"><code>llama.cpp</code>などのCPUベースの推論ランタイムでLLMを効率的に実行するため</td>
+<td align="left">PyTorchなどのフレームワークで学習したモデルの重みを、安全かつ高速に保存・ロードするため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left"><code>llama-2-7b-chat.Q4_K_M.gguf</code></td>
+<td align="left"><code>model.safetensors</code>, <code>model.safetensors.index.json</code></td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">safetensors (両者ともモデルファイル形式として認識されがち)</td>
+<td align="left">GGUF (両者ともモデルファイル形式として認識されがち)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">GGUFは<code>llama.cpp</code>専用に近い形式で、量子化情報や推論に必要なメタデータを含みます。safetensorsはより汎用的なテンソル保存形式で、セキュリティと速度が特徴です。</td>
+<td align="left">safetensorsはモデルの重み（テンソル）を保存する形式であり、それ自体が推論エンジンではありません。GGUFは推論エンジン（<code>llama.cpp</code>）と密接に連携する形式です。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+GGUFは、主に<code>llama.cpp</code>プロジェクトで開発された、CPUでのLLM推論に特化したモデルファイル形式です。量子化された重み、トークナイザ、推論に必要な様々なメタデータを単一のファイルに効率的に格納します。これにより、<code>llama.cpp</code>はGGUFファイルを直接読み込み、CPU上で高速な推論を実行できます。</p>
+<p>一方、safetensorsは、Hugging Faceによって開発された、テンソル（モデルの重みなど）を保存するための汎用的なバイナリ形式です。従来のPyTorchの<code>pickle</code>形式が持つセキュリティ上の脆弱性（任意のコード実行リスク）を排除し、かつ高速な読み込みを可能にすることを目的としています。safetensorsは特定の推論エンジンに依存せず、多くのフレームワークやライブラリで利用されています。</p>
+<p>簡単に言えば、GGUFは「<code>llama.cpp</code>で動かすためのLLMパッケージ」であり、safetensorsは「安全に重みを保存するための箱」です。</p>
+<h3 id="3-llamacpp-vs-ollama">3. llama.cpp vs Ollama</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">llama.cpp</th>
+<th align="left">Ollama</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">CPUでのLLM推論を可能にするC++ライブラリ</td>
+<td align="left">LLMのダウンロード、実行、管理を容易にするデスクトップアプリケーション/CLIツール</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">推論ランタイム、C++ライブラリ</td>
+<td align="left">LLM管理ツール、デスクトップアプリケーション、CLIツール</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">CPU上でGGUF形式のLLMを高速に推論するため</td>
+<td align="left">ローカル環境でLLMを簡単にセットアップし、実行し、APIとして提供するため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left"><code>main</code>コマンド (<code>./main -m model.gguf -p &quot;Hello&quot;</code>)</td>
+<td align="left"><code>ollama run llama2</code>, <code>ollama serve</code></td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">Ollama (Ollamaの内部でllama.cppが使われているため)</td>
+<td align="left">llama.cpp (Ollamaが提供する機能の一部として認識されがち)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left"><code>llama.cpp</code>は低レベルな推論エンジンであり、直接使うにはコンパイルやコマンドライン操作が必要です。</td>
+<td align="left">Ollamaは<code>llama.cpp</code>を内部で利用しつつ、よりユーザーフレンドリーなインターフェース（ダウンロード、API提供など）を提供します。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+<code>llama.cpp</code>は、MetaのLlamaモデルをC++で再実装し、特にCPU上での効率的な推論を可能にしたプロジェクトです。GGUF形式のモデルファイルを読み込み、量子化されたモデルをCPUで高速に実行する能力が特徴です。これは、低リソース環境でのLLM利用を大きく促進しました。</p>
+<p>Ollamaは、この<code>llama.cpp</code>を内部エンジンとして利用し、ユーザーがローカル環境でLLMを簡単にダウンロード、実行、管理できるようにするツールです。CLI（コマンドラインインターフェース）やデスクトップアプリケーションとして提供され、モデルのダウンロードからAPIサーバーの立ち上げまでを数コマンドで実現できます。Ollamaは<code>llama.cpp</code>の機能を活用しつつ、より高いレベルでユーザー体験を向上させています。</p>
+<pre class="mermaid">graph TD
+    subgraph "Ollamaの内部構造"
+        A[ユーザー] --> B["Ollama (デスクトップアプリ/CLI)"]
+        B --> C[モデルのダウンロード]
+        B --> D[APIサーバーの起動]
+        B --> E[モデルの実行]
+        E --> F["llama.cpp (推論エンジン)"]
+        F --> G[GGUFモデルファイル]
+    end</pre>
+<p>Ollamaは<code>llama.cpp</code>を基盤として、ユーザーフレンドリーなインターフェースと機能を提供します。</p>
+<h3 id="4-ollama-vs-lm-studio">4. Ollama vs LM Studio</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">Ollama</th>
+<th align="left">LM Studio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">CLI中心でAPI提供に強みを持つローカルLLM実行ツール</td>
+<td align="left">GUI中心で手軽なモデル試用と管理に強みを持つローカルLLM実行ツール</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">LLM管理ツール、CLIツール、APIサーバー</td>
+<td align="left">LLM管理ツール、デスクトップアプリケーション (GUI)</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">ローカルでLLMを動かし、APIとして他のアプリケーションから利用する。開発者向け。</td>
+<td align="left">ローカルでLLMを簡単に試用し、管理する。GUIで直感的に操作したいユーザー向け。</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left"><code>ollama run llama2</code>, <code>ollama serve</code></td>
+<td align="left">LM StudioのGUIからモデルをダウンロードし、チャットインターフェースで会話</td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">LM Studio (どちらもローカルLLM実行ツールであるため)</td>
+<td align="left">Ollama (どちらもローカルLLM実行ツールであるため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">Ollamaはコマンドライン操作が基本ですが、API提供が容易で開発者向けです。</td>
+<td align="left">LM StudioはGUIが充実しており、プログラミング知識がなくても手軽にLLMを試せるのが魅力です。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+OllamaとLM Studioはどちらも、ユーザーがローカル環境でLLMを簡単に実行できるようにするツールですが、そのアプローチとターゲットユーザーが異なります。</p>
+<p>Ollamaは、主にCLIを通じて操作され、モデルのダウンロード、実行、そしてAPIサーバーとしての提供に重点を置いています。これにより、開発者は自分のアプリケーションからローカルで動作するLLMに簡単にアクセスできます。</p>
+<p>LM Studioは、よりGUI（グラフィカルユーザーインターフェース）に特化したデスクトップアプリケーションです。モデルの検索、ダウンロード、チャットインターフェースでの試用、そしてローカルAPIサーバーの立ち上げまでを、直感的な操作で実現できます。プログラミングの知識がなくても、手軽に様々なLLMを試したいユーザーに適しています。</p>
+<p>両者とも内部で<code>llama.cpp</code>などの推論エンジンを利用していることが多いですが、提供するユーザー体験が異なります。</p>
+<h3 id="5-lora-vs-fine-tuning">5. LoRA vs fine-tuning</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">LoRA (Low-Rank Adaptation)</th>
+<th align="left">Fine-tuning (ファインチューニング)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">既存モデルの重みの一部を凍結し、少数の追加パラメータのみを学習する効率的なファインチューニング手法</td>
+<td align="left">既存の事前学習済みモデルの全パラメータ、または大部分のパラメータを特定のタスクやデータに合わせて再学習する手法</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">ファインチューニング手法、パラメータ効率的学習 (PEFT)</td>
+<td align="left">モデル学習手法、転移学習</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">計算リソースを抑えつつ、特定のタスクやドメインにモデルを適応させるため</td>
+<td align="left">モデルの性能を特定のタスクで最大化するため、新しいデータセットにモデルを適応させるため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left">既存のLLMに医療ドメインの知識を追加する、特定の文体で応答するように調整する</td>
+<td align="left">BERTを感情分析タスク用に再学習する、GPTを特定の企業データで再学習する</td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">Fine-tuning (LoRAはファインチューニングの一種であるため)</td>
+<td align="left">LoRA (LoRAはファインチューニングの具体的な手法であるため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">LoRAは「ファインチューニングの一種」であり、特にリソースが限られた環境で有効な手法です。</td>
+<td align="left">ファインチューニングはより広範な概念で、LoRAはその中の効率的なアプローチの一つと理解しましょう。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+ファインチューニングは、事前学習済みモデルを特定のタスクやデータセットに合わせて再学習させる一般的な手法です。通常、モデルの全パラメータを更新するため、多くの計算リソースと時間が必要です。</p>
+<p>LoRA（Low-Rank Adaptation）は、このファインチューニングをより効率的に行うための手法の一つです。LoRAでは、事前学習済みモデルの大部分の重みを凍結し、ごく少数の追加パラメータ（アダプターモジュール）のみを学習します。これにより、学習に必要な計算リソースとストレージを大幅に削減できるだけでなく、過学習のリスクも低減できます。LoRAは「Parameter-Efficient Fine-Tuning (PEFT)」と呼ばれるカテゴリに属します。</p>
+<pre class="mermaid">graph TD
+    subgraph "モデルカスタマイズ手法"
+        A[事前学習済みモデル] --> B{ファインチューニング}
+        B --> C["全パラメータ更新 (従来のファインチューニング)"]
+        B --> D["一部パラメータ更新 (PEFT)"]
+    end
+    D --> E[LoRA]
+    D --> F[Adapter]
+    D --> G[Prefix Tuning]</pre>
+<p>ファインチューニングは広範な概念であり、LoRAはパラメータ効率的ファインチューニング（PEFT）の一種です。</p>
+<h3 id="6-quantization-vs-gguf">6. quantization vs GGUF</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">Quantization (量子化)</th>
+<th align="left">GGUF</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">モデルの重みを低精度（例: 16bitから4bit）に変換する技術</td>
+<td align="left"><code>llama.cpp</code>で利用される、量子化されたモデルを格納するためのファイル形式</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">モデル最適化技術、データ圧縮技術</td>
+<td align="left">モデルファイル形式、バイナリ形式</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">モデルのファイルサイズを削減し、推論時のメモリ使用量と計算速度を向上させるため</td>
+<td align="left"><code>llama.cpp</code>で量子化されたLLMを効率的にロードし、CPUで推論するため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left">FP16からINT8への量子化、Q4_K_MなどのGGUF量子化タイプ</td>
+<td align="left"><code>llama-2-7b-chat.Q4_K_M.gguf</code></td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">GGUF (GGUFファイルは量子化されたモデルを含むため)</td>
+<td align="left">Quantization (GGUFが量子化モデルの主要な配布形式であるため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">量子化は「技術」であり、GGUFは「その技術が適用されたモデルを保存する形式」です。GGUFファイルは、量子化されたモデルを格納するための「箱」と考えると分かりやすいでしょう。</td>
+<td align="left">GGUFは量子化されたモデルを扱うための形式ですが、量子化自体はGGUFに限らず様々な形式や手法で行われます。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+量子化（Quantization）は、LLMの重み（通常は浮動小数点数）をより低い精度（例: 16ビット浮動小数点数から8ビット整数、または4ビット整数）に変換する技術です。これにより、モデルのファイルサイズが大幅に削減され、メモリ使用量が減り、推論速度が向上します。これは、特にリソースが限られたデバイス（CPUやエッジデバイス）でLLMを実行する上で非常に重要です。</p>
+<p>GGUFは、前述の通り<code>llama.cpp</code>プロジェクトで開発されたモデルファイル形式です。このGGUF形式は、量子化されたモデルの重みを効率的に格納し、<code>llama.cpp</code>が直接読み込んで推論できるように設計されています。つまり、GGUFファイルの中には、量子化によって軽量化されたモデルの重みが含まれている、という関係性です。</p>
+<p>量子化によるモデルサイズの削減は、例えば以下のように表現できます。
+$$
+\text{Memory Reduction Factor} = \frac{\text{Original Bit Precision}}{\text{Quantized Bit Precision}}
+$$
+例えば、16ビット浮動小数点数（FP16）から4ビット整数（INT4）に量子化する場合、メモリ使用量は $16/4 = 4$ 倍に削減されます。</p>
+<h3 id="7-vllm-vs-tgi">7. vLLM vs TGI</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">vLLM</th>
+<th align="left">TGI (Text Generation Inference)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">高速なLLM推論のためのPythonライブラリ/サーバー</td>
+<td align="left">Hugging Faceが提供する、高速なLLM推論のためのRust製サーバー</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">LLM推論フレームワーク、推論サーバー</td>
+<td align="left">LLM推論フレームワーク、推論サーバー</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">GPU上でLLMの推論スループットとレイテンシを最大化するため</td>
+<td align="left">Hugging Face Hubのモデルを効率的にサービングし、本番環境でのLLM推論を高速化するため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left">PagedAttention、連続バッチ処理</td>
+<td align="left">FlashAttention、カスタムカーネル、Rustによる最適化</td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">TGI (どちらも高性能推論サーバーであるため)</td>
+<td align="left">vLLM (どちらも高性能推論サーバーであるため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">どちらもGPUを活用してLLM推論を高速化するためのツールですが、vLLMはPythonベースで柔軟性が高く、TGIはRustベースでHugging Faceエコシステムとの連携が強みです。</td>
+<td align="left">どちらを選ぶかは、既存のインフラ、プログラミング言語の好み、Hugging Face Hubとの連携の必要性によって変わります。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+vLLMとTGIは、どちらもGPU上でLLMの推論を高速化し、スループットを向上させることを目的とした高性能推論サーバーです。</p>
+<p>vLLMは、UC Berkeleyが開発したPythonベースのライブラリで、特に「PagedAttention」という革新的なKVキャッシュ管理アルゴリズムを導入することで、LLMの推論スループットを大幅に向上させました。これにより、複数のリクエストを効率的にバッチ処理し、GPUメモリを最大限に活用できます。</p>
+<p>TGI（Text Generation Inference）は、Hugging Faceが開発したRustベースの推論サーバーです。FlashAttention、カスタムCUDAカーネル、最適化されたデコーディング戦略などを活用し、Hugging Face Hub上のモデルを本番環境で効率的にサービングできるように設計されています。Rustで書かれているため、高いパフォーマンスとメモリ安全性が特徴です。</p>
+<pre class="mermaid">graph TD
+    subgraph "高性能LLM推論サーバー"
+        A[ユーザーリクエスト] --> B[推論サーバー]
+        B --> C{vLLM}
+        B --> D{TGI}
+    end
+    C --> E[PagedAttention]
+    C --> F[連続バッチ処理]
+    D --> G[FlashAttention]
+    D --> H[Rust最適化]
+    E & F & G & H --> I[GPU]
+    I --> J[高速LLM推論]</pre>
+<p>vLLMとTGIは、それぞれ異なる技術的アプローチでGPU上でのLLM推論を高速化します。</p>
+<h3 id="8-model-file-vs-runtime">8. model file vs runtime</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">Model File (モデルファイル)</th>
+<th align="left">Runtime (ランタイム)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">LLMの学習済み知識（重み、アーキテクチャ、トークナイザなど）を格納したデータファイル</td>
+<td align="left">モデルファイルを読み込み、実際に推論を実行するためのソフトウェア環境/エンジン</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">データ、バイナリファイル</td>
+<td align="left">ソフトウェア、実行環境、エンジン</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">LLMの知識を保存・共有し、推論エンジンにロードするため</td>
+<td align="left">モデルファイルからLLMをロードし、ユーザーの入力に対して出力を生成するため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left"><code>model.safetensors</code>, <code>model.gguf</code>, <code>pytorch_model.bin</code></td>
+<td align="left"><code>llama.cpp</code>, <code>transformers</code>ライブラリ, vLLM, TGI, ONNX Runtime</td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">Runtime (モデルファイルだけでは動かないため)</td>
+<td align="left">Model File (ランタイムだけでは推論できないため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">モデルファイルは「設計図と材料」であり、ランタイムは「設計図を読み込み材料を使って製品を作る工場」です。両方が揃って初めてLLMを動かせます。</td>
+<td align="left">モデルファイルは単なるデータであり、それ自体がプログラムとして動作するわけではありません。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+モデルファイルは、LLMが学習した知識、つまりニューラルネットワークの重み（パラメータ）、モデルのアーキテクチャ定義、そしてテキストを数値に変換するためのトークナイザ情報などを格納したデータファイルです。これは、モデルを保存し、他のユーザーと共有したり、異なる環境で利用したりするための「設計図と材料」のようなものです。</p>
+<p>ランタイム（Runtime）は、このモデルファイルを読み込み、実際に計算を実行して推論を行うためのソフトウェア環境やエンジンを指します。ランタイムは、モデルのアーキテクチャを理解し、重みをメモリにロードし、入力データに対して計算を実行し、出力を生成する役割を担います。例えば、<code>llama.cpp</code>はGGUFモデルファイルを読み込むランタイムであり、<code>transformers</code>ライブラリはPyTorchやTensorFlow形式のモデルファイルを読み込み、Python環境で推論を実行するランタイムとして機能します。</p>
+<h3 id="9-inference-vs-serving">9. inference vs serving</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">Inference (推論)</th>
+<th align="left">Serving (サービング)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">学習済みモデルに新しい入力データを与え、出力を生成するプロセス</td>
+<td align="left">推論機能をAPIとして提供し、複数のユーザーやアプリケーションからのリクエストに応答できるようにするプロセス</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">プロセス、計算</td>
+<td align="left">サービス、デプロイメント</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">モデルの予測結果を得るため、モデルの性能を評価するため</td>
+<td align="left">モデルを本番環境で利用可能にするため、スケーラブルかつ安定的に推論を提供するため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left">ローカルで<code>llama.cpp</code>を使って一度だけプロンプトを投げる、Jupyter Notebookでモデルを動かす</td>
+<td align="left">vLLMやTGIを使ってAPIエンドポイントを公開し、Webアプリケーションから利用する</td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">Serving (サービングは推論を含むため)</td>
+<td align="left">Inference (サービングは推論をサービスとして提供することであるため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">推論は「モデルを動かす行為」そのものですが、サービングは「その動くモデルを多くの人が使えるようにする仕組み」です。</td>
+<td align="left">サービングは推論の概念を包含しますが、単なる推論以上の、スケーラビリティ、可用性、セキュリティなどの要素を含みます。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+推論（Inference）とは、学習済みのモデルに新しい入力データ（例: プロンプト）を与え、それに基づいてモデルが予測や出力を生成するプロセスそのものを指します。これは、モデルが「考える」または「応答する」行為に相当します。</p>
+<p>サービング（Serving）とは、この推論機能を、複数のユーザーやアプリケーションが利用できるように、API（Application Programming Interface）として公開し、運用するプロセスを指します。サービングには、推論の実行だけでなく、リクエストの管理、負荷分散、スケーリング、監視、セキュリティなどの要素が含まれます。本番環境でLLMを運用する際には、単に推論できるだけでなく、安定して高速に多数のリクエストを処理できるサービングの仕組みが不可欠です。vLLMやTGIは、高性能なLLMサービングを実現するためのツールです。</p>
+<p>推論のスループット（throughput）は、単位時間あたりに処理できるトークン数で表されます。
+$$
+\text{Throughput} = \frac{\text{Total Tokens Generated}}{\text{Total Time}} \quad (\text{tokens/second})
+$$
+サービングでは、このスループットを最大化しつつ、レイテンシ（応答時間）を最小化することが求められます。</p>
+<h3 id="10-sft-vs-rag">10. SFT vs RAG</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較項目</th>
+<th align="left">SFT (Supervised Fine-Tuning)</th>
+<th align="left">RAG (Retrieval-Augmented Generation)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>ひとことで言うと</strong></td>
+<td align="left">特定のタスクやドメインのデータでモデルを再学習させる手法</td>
+<td align="left">外部知識ベースから関連情報を検索し、その情報に基づいてLLMが回答を生成する手法</td>
+</tr>
+<tr>
+<td align="left"><strong>何のカテゴリか</strong></td>
+<td align="left">モデル学習手法、ファインチューニングの一種</td>
+<td align="left">LLM利用手法、情報検索と生成の組み合わせ</td>
+</tr>
+<tr>
+<td align="left"><strong>何に使うのか</strong></td>
+<td align="left">モデルの振る舞いや知識を特定のデータセットに合わせて調整するため</td>
+<td align="left">LLMが最新の情報や専門的な知識に基づいて回答できるようにするため、幻覚（hallucination）を減らすため</td>
+</tr>
+<tr>
+<td align="left"><strong>代表例</strong></td>
+<td align="left">医療Q&amp;AデータでLLMをファインチューニングし、医療に関する質問に特化させる</td>
+<td align="left">企業の社内ドキュメントを検索し、その情報に基づいてLLMが質問に回答する</td>
+</tr>
+<tr>
+<td align="left"><strong>よく混同される用語</strong></td>
+<td align="left">RAG (どちらもLLMの知識を増やすように見えるため)</td>
+<td align="left">SFT (どちらもLLMの知識を増やすように見えるため)</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">SFTはモデル自体の「脳」を書き換えるようなものですが、RAGは「外部の参考書を読んでから答える」ようなものです。</td>
+<td align="left">SFTは学習コストが高いですが、モデルの振る舞いを根本から変えられます。RAGは学習不要で最新情報に対応しやすいですが、検索精度に依存します。</td>
+</tr>
+</tbody></table></div>
+<p><strong>詳細:</strong>
+SFT（Supervised Fine-Tuning）は、教師あり学習データを用いて、事前学習済みLLMを特定のタスクやドメインに合わせてファインチューニングする手法です。これにより、モデルは特定の知識を内部化したり、特定の応答スタイルを学習したりします。例えば、医療Q&amp;AデータでSFTを行うと、モデルは医療に関する質問に対してより正確で専門的な回答を生成できるようになります。モデルの「脳」に直接新しい知識を書き込むイメージです。</p>
+<p>RAG（Retrieval-Augmented Generation）は、LLMが回答を生成する際に、外部の知識ベース（ドキュメント、データベースなど）から関連情報を検索し、その情報を参照しながら回答を生成する手法です。LLMは、検索された情報をプロンプトの一部として受け取り、それに基づいて回答を生成します。これにより、LLMは事前学習データにはない最新の情報や、特定のドメインに特化した情報を利用できるようになり、幻覚（hallucination）を減らし、より正確で根拠のある回答を提供できます。RAGはモデルの「脳」を書き換えるのではなく、「外部の参考書を読んでから答える」ようなイメージです。</p>
+<pre class="mermaid">graph TD
+    subgraph "LLMの知識拡張アプローチ"
+        A[ユーザーの質問] --> B{SFT}
+        B --> C[ファインチューニング済みLLM]
+        C --> D[回答]
+
+        E[ユーザーの質問] --> F{RAG}
+        F --> G[検索システム]
+        G --> H[外部知識ベース]
+        H --> I[関連情報]
+        F --> J["LLM (プロンプトに情報追加)"]
+        J --> K[回答]
+    end</pre>
+<p>SFTはモデルの内部知識を更新するのに対し、RAGは外部知識を参照して回答を生成します。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>これらの混同しやすい用語は、LLMの実務において、適切な技術選択やコミュニケーションのために正確な理解が不可欠です。</p>
+<ul>
+<li><strong>Hugging Face vs <code>transformers</code></strong>: Hugging Faceエコシステム全体を理解し、その中で<code>transformers</code>ライブラリがどのような役割を果たすかを把握することで、モデルの探索から開発、デプロイまでを一貫して進めることができます。</li>
+<li><strong>GGUF vs safetensors</strong>: モデルファイルの形式を正しく理解することで、どの推論ランタイムでどのモデルが動くのか、またセキュリティ上のリスクは何かを判断できます。特にCPU環境でのLLM利用にはGGUFが重要です。</li>
+<li><strong>llama.cpp vs Ollama vs LM Studio</strong>: ローカル環境でのLLM利用において、CLIベースでAPI提供に強いOllama、GUIベースで手軽なLM Studio、そしてその基盤となる<code>llama.cpp</code>の役割を理解することで、用途に応じた最適なツールを選択できます。</li>
+<li><strong>LoRA vs fine-tuning</strong>: モデルのカスタマイズにおいて、計算リソースの制約や目的（モデルの振る舞い変更か、知識追加か）に応じて、LoRAのようなPEFT手法を選ぶか、従来のファインチューニングを選ぶかを判断する上で重要です。</li>
+<li><strong>quantization vs GGUF</strong>: モデルの最適化と配布形式の関係を理解することで、軽量化されたモデルをどのように利用するか、またその性能特性を把握できます。</li>
+<li><strong>vLLM vs TGI</strong>: 本番環境でのLLMサービングにおいて、スループットやレイテンシの要件、既存の技術スタック（Python vs Rust）、Hugging Faceエコシステムとの連携度合いに応じて、最適な高性能推論サーバーを選択できます。</li>
+<li><strong>model file vs runtime</strong>: LLMを動かすための基本的な構成要素を理解することで、トラブルシューティングや新しい環境へのデプロイがスムーズになります。</li>
+<li><strong>inference vs serving</strong>: LLMを単に動かすだけでなく、サービスとして提供する際の要件（スケーラビリティ、可用性など）を明確にし、適切なデプロイ戦略を立てる上で重要です。</li>
+<li><strong>SFT vs RAG</strong>: LLMに特定の知識や振る舞いを付与する際、モデル自体を学習させるSFTと、外部情報を参照させるRAGのどちらが目的に合致するか、コストと効果を考慮して選択する上で不可欠な知識です。</li>
+</ul>
+<p>これらの用語を正確に使い分けることで、LLM開発の効率が向上し、より適切なアーキテクチャ設計やツール選定が可能になります。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>LLMの用語は密接に関連し、階層性や目的の類似性から混同されやすい。</li>
+<li>Hugging Faceはエコシステム、<code>transformers</code>はライブラリ、GGUFはCPU向けモデル形式、Ollama/LM Studioはローカル実行ツール。</li>
+<li>LoRAは効率的ファインチューニング、量子化はモデル軽量化技術、RAGは外部参照による知識拡張手法。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li>Hugging Face (企業・プラットフォーム) と <code>transformers</code> (ライブラリ)</li>
+<li>GGUF (<code>llama.cpp</code>向けモデル形式) と safetensors (汎用テンソル保存形式)</li>
+<li><code>llama.cpp</code> (推論エンジン) と Ollama (<code>llama.cpp</code>を利用した管理ツール)</li>
+<li>Ollama (CLI中心) と LM Studio (GUI中心)</li>
+<li>LoRA (効率的ファインチューニング手法) と Fine-tuning (広範な再学習手法)</li>
+<li>Quantization (モデル最適化技術) と GGUF (量子化モデルを格納する形式)</li>
+<li>Inference (推論プロセス) と Serving (推論をサービスとして提供するプロセス)</li>
+<li>SFT (モデルの学習による知識付与) と RAG (外部参照による知識拡張)</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li><strong>第3章: Hugging Faceとは何か</strong>: Hugging Faceエコシステムの全体像をさらに深く理解するため。</li>
+<li><strong>第5章: GGUFを重点的に理解する</strong>: GGUF形式の詳細と<code>llama.cpp</code>との連携について。</li>
+<li><strong>第8章: Ollama / LM Studio / Open WebUI / Jan など</strong>: ローカルLLM実行ツールの具体的な使い方と選択肢について。</li>
+<li><strong>第12章: 事前学習・継続事前学習・SFT</strong>: SFTの概念と他の学習手法との比較について。</li>
+<li><strong>第13章: LoRA / QLoRA / Adapter</strong>: LoRAの詳細とPEFT手法について。</li>
+<li><strong>第19章: RAG / embedding / vector DB</strong>: RAGの仕組みと関連技術について。</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-20.html" class="nav-prev">← 第20章 エージェント / ツール利用 / MCP</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-22.html" class="nav-next">第22章 最低限これだけ覚えればよい用語30選 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第12章. 事前学習・継続事前学習・SFT - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 学習系の大分類を理解する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-12.html">
+  <meta property="og:title" content="第12章. 事前学習・継続事前学習・SFT - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 学習系の大分類を理解する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-12.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第12章. 事前学習・継続事前学習・SFT - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 学習系の大分類を理解する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">12 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第7部: 学習と微調整</li><li aria-current="page">第12章. 事前学習・継続事前学習・SFT</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第12章-事前学習継続事前学習sft">第12章. 事前学習・継続事前学習・SFT</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）がどのようにしてその能力を獲得し、特定のタスクやユーザーの意図に沿うように調整されるのか、その学習プロセスにおける主要な段階を理解することを目的とします。特に、モデルの基盤を築く「事前学習」、特定のデータで知識を深める「継続事前学習」、そして人間が望む振る舞いを教え込む「SFT（教師ありファインチューニング）」に焦点を当てます。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li><strong>事前学習 (Pretraining)</strong> の目的と一般的な手法</li>
+<li><strong>継続事前学習 (Continued Pretraining)</strong> がどのような場合に用いられるか</li>
+<li><strong>SFT (Supervised Fine-Tuning)</strong> がモデルの振る舞いをどう変えるか</li>
+<li>これらの学習段階がLLMの能力開発においてどのような位置づけにあるか</li>
+<li>RLHFやDPOといった、より高度なアラインメント手法の概要</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>大規模言語モデル（LLM）は、まるで魔法のように人間と自然な会話をしたり、複雑なタスクをこなしたりします。しかし、その裏には膨大なデータと計算資源を投じた多段階の学習プロセスが存在します。このプロセスは大きく分けて、広範な知識を獲得する段階、特定の知識を深める段階、そして人間の意図に沿うように振る舞いを調整する段階に分けられます。</p>
+<p>本章では、これらの学習段階の中でも特に基盤となる「事前学習 (Pretraining)」、「継続事前学習 (Continued Pretraining)」、そして「教師ありファインチューニング (Supervised Fine-Tuning, SFT)」に焦点を当て、それぞれの役割と目的を明確に理解していきます。これらの概念を理解することは、LLMの能力の源泉を知り、モデルの選択や利用、さらには独自のモデル開発を考える上で不可欠です。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>LLMの学習プロセスは、一般的に以下の3つの主要なフェーズを経て行われます。</p>
+<ol>
+<li><strong>事前学習 (Pretraining)</strong>: 広範なテキストデータから一般的な言語知識とパターンを学習するフェーズ。</li>
+<li><strong>継続事前学習 (Continued Pretraining)</strong>: 特定のドメインや言語のデータを追加で学習し、知識を深めるフェーズ。</li>
+<li><strong>教師ありファインチューニング (Supervised Fine-Tuning, SFT)</strong>: 人間が望む特定のタスクや対話形式にモデルの振る舞いを調整するフェーズ。</li>
+</ol>
+<p>これらのフェーズは、それぞれ異なる目的と手法を持ち、モデルの能力を段階的に向上させます。</p>
+<h3 id="事前学習-pretraining">事前学習 (Pretraining)</h3>
+<p>ひとことで言うと: 膨大なテキストデータから、言語の基本的なルールや世界の知識を学ぶ最初の段階。
+何のカテゴリか: LLMの基盤モデル構築フェーズ
+何に使うのか: あらゆる言語タスクに対応できる汎用的な基盤モデルを生成するため。
+代表例: GPT-3, LLaMA, PaLMなどの基盤モデル。
+よく混同される用語: ファインチューニング（事前学習はゼロから学習するのに対し、ファインチューニングは既存モデルを調整する）
+初心者向け注意点: 事前学習は非常に計算コストが高く、個人や中小企業がゼロから行うのは現実的ではありません。既存の事前学習済みモデルを利用するのが一般的です。</p>
+<p>事前学習は、LLMがその知能の基盤を築く最初の、そして最も重要なステップです。この段階では、インターネット上の書籍、記事、ウェブページなど、数兆トークンにも及ぶ膨大な量のテキストデータがモデルに与えられます。モデルはこれらのデータから、単語の意味、文法構造、世界の事実、常識、さらには推論能力の萌芽といった、汎用的な言語知識とパターンを学習します。</p>
+<p>具体的な学習タスクとしては、<strong>自己回帰型（Autoregressive）</strong> の学習が主流です。これは、与えられた文脈（前の単語の並び）に基づいて次の単語を予測するというタスクを繰り返すことで行われます。</p>
+<p>$$ P(w_t | w_1, ..., w_{t-1}) $$</p>
+<p>この式は、「$w_1$から$w_{t-1}$までの単語が与えられたとき、$t$番目の単語$w_t$が出現する確率」を表します。モデルは、この確率を最大化するように学習を進めます。この単純なタスクを繰り返すことで、モデルは言語の複雑な構造と意味を内部的に表現できるようになります。</p>
+<h3 id="継続事前学習-continued-pretraining">継続事前学習 (Continued Pretraining)</h3>
+<p>ひとことで言うと: 特定のドメインや最新のデータで、既存の事前学習済みモデルの知識をさらに深める段階。
+何のカテゴリか: LLMの知識拡張フェーズ
+何に使うのか: 特定分野の専門知識をモデルに付与したり、最新の情報を学習させたりするため。
+代表例: 医療分野特化のMed-PaLM、法律分野特化のLegal-LLMなど。
+よく混同される用語: LoRA（LoRAはファインチューニングの一種で、モデル全体を学習する継続事前学習とは異なる）
+初心者向け注意点: 継続事前学習も事前学習ほどではないにせよ、それなりの計算資源と大量のドメイン特化データが必要です。</p>
+<p>継続事前学習は、すでに事前学習を終えたモデルに対し、追加で特定の種類のデータを学習させるプロセスです。これは、基盤モデルが学習していない新しい情報（例：最新のニュース、特定の専門分野の論文）や、特定の言語・文化圏に特化した知識をモデルに付与したい場合に有効です。</p>
+<p>例えば、医療分野のLLMを開発する場合、一般的なテキストデータで事前学習されたモデルに、医学論文や医療ガイドラインなどの専門的なテキストデータを追加で学習させます。これにより、モデルは医療用語や概念、疾患に関する深い知識を獲得し、より正確な医療関連の質問応答や情報生成が可能になります。</p>
+<p>技術的には、事前学習と同じ自己回帰型のタスクを、追加データセットに対して実行します。モデルの重みは事前学習時のものを引き継ぎ、そこからさらに学習を進める形になります。</p>
+<h3 id="教師ありファインチューニング-supervised-fine-tuning-sft">教師ありファインチューニング (Supervised Fine-Tuning, SFT)</h3>
+<p>ひとことで言うと: 人間が望む特定のタスクや対話形式に、モデルの振る舞いを調整する段階。
+何のカテゴリか: LLMの振る舞い調整フェーズ
+何に使うのか: 質問応答、要約、翻訳、チャットボットなど、特定のタスクでモデルの性能を向上させるため。
+代表例: ChatGPTの基盤モデル（GPT-3.5）に対するSFT、Llama 2 Chatモデル。
+よく混同される用語: RAG（RAGは外部知識を参照する仕組みで、モデルの学習とは異なる）
+初心者向け注意点: SFTは、モデルの「知識」を増やすというよりは、「使い方」や「振る舞い」を教えることに重点があります。</p>
+<p>SFTは、事前学習や継続事前学習で獲得した汎用的な知識を、特定のタスクやユーザーの意図に沿った形で「出力させる」ための重要なステップです。この段階では、人間が作成した高品質な「指示（プロンプト）」と「期待される応答」のペア（Instruction Tuningデータ）を用いて、モデルを学習させます。</p>
+<p>例えば、「日本の首都はどこですか？」という質問に対して「東京です。」と答える、あるいは「この文章を要約してください：[文章]」という指示に対して適切な要約を生成するといった、具体的なタスクの例をモデルに大量に示します。モデルはこれらの例から、どのような入力に対してどのような形式で応答すべきかを学習します。</p>
+<p>SFTは、モデルがより自然で、有用で、安全な応答を生成するために不可欠です。多くのチャットボットモデルは、このSFTの段階を経て、ユーザーとの対話に適した形に調整されています。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="事前学習の例-llama-2の基盤モデル">事前学習の例: LLaMA 2の基盤モデル</h3>
+<p>Metaが公開したLLaMA 2の基盤モデルは、数兆トークンに及ぶ公開データセット（CommonCrawl, C4, Wikipedia, Books, ArXiv, Stack Exchangeなど）を用いて事前学習されました。この段階で、モデルは英語の文法、世界の一般的な知識、プログラミングコードの構造などを学習し、様々なタスクに対応できる汎用的な能力を獲得しました。このモデルは、特定のタスクに特化しているわけではなく、あくまで「言語を理解し、生成する」ための土台です。</p>
+<h3 id="継続事前学習の例-医療分野特化モデル">継続事前学習の例: 医療分野特化モデル</h3>
+<p>ある研究チームが、LLaMA 2の基盤モデルを元に、医療分野に特化したLLMを開発するとします。彼らは、PubMedの論文、医療ガイドライン、電子カルテの匿名化データなど、数百万件の医療関連テキストデータを収集します。このデータをLLaMA 2の基盤モデルに追加で学習させることで、モデルは医療用語のニュアンスを理解し、疾患の症状や治療法に関する深い知識を獲得します。これにより、医療従事者向けの質問応答システムや、患者向けの医療情報提供システムなどに応用できるようになります。</p>
+<h3 id="sftの例-chatgptの対話能力">SFTの例: ChatGPTの対話能力</h3>
+<p>OpenAIのChatGPTは、GPT-3.5という事前学習済みモデルを基盤としています。このGPT-3.5に対して、人間が作成した大量の対話データ（プロンプトとそれに対する望ましい応答のペア）を用いてSFTが施されました。例えば、「こんにちは、元気ですか？」という入力に対して「はい、元気です！何かお手伝いできることはありますか？」と答える、あるいは「[文章]を要約してください」という指示に対して、簡潔で分かりやすい要約を生成するといった振る舞いを学習させます。このSFTによって、ChatGPTは単なるテキスト生成器ではなく、人間と自然に対話できるチャットボットとしての能力を獲得しました。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">用語</th>
+<th align="left">ひとことで言うと</th>
+<th align="left">目的</th>
+<th align="left">主なデータ</th>
+<th align="left">計算コスト</th>
+<th align="left">変更される内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>事前学習 (Pretraining)</strong></td>
+<td align="left">ゼロから言語の知識とパターンを学ぶ</td>
+<td align="left">汎用的な基盤モデルの構築</td>
+<td align="left">膨大な汎用テキストデータ</td>
+<td align="left">非常に高い</td>
+<td align="left">基礎的な言語理解、世界知識</td>
+</tr>
+<tr>
+<td align="left"><strong>継続事前学習 (Continued Pretraining)</strong></td>
+<td align="left">既存モデルに特定の知識を追加する</td>
+<td align="left">特定ドメインの知識深化、最新情報の学習</td>
+<td align="left">特定ドメインのテキストデータ、最新データ</td>
+<td align="left">高い</td>
+<td align="left">専門知識、最新情報</td>
+</tr>
+<tr>
+<td align="left"><strong>SFT (Supervised Fine-Tuning)</strong></td>
+<td align="left">既存モデルの振る舞いを特定のタスクに調整する</td>
+<td align="left">特定タスクでの性能向上、人間が望む応答の生成</td>
+<td align="left">プロンプトと応答のペア（Instruction Data）</td>
+<td align="left">中程度</td>
+<td align="left">応答形式、タスク遂行能力</td>
+</tr>
+<tr>
+<td align="left"><strong>LoRA</strong></td>
+<td align="left">ファインチューニングを効率的に行う技術</td>
+<td align="left">ファインチューニングの計算コスト削減</td>
+<td align="left">SFTと同じ（Instruction Data）</td>
+<td align="left">低い</td>
+<td align="left">SFTと同じ（応答形式、タスク遂行能力）</td>
+</tr>
+<tr>
+<td align="left"><strong>RAG</strong></td>
+<td align="left">外部情報源を参照して回答を生成する仕組み</td>
+<td align="left">最新情報や専門知識に基づいた正確な回答</td>
+<td align="left">外部データベース、ドキュメント</td>
+<td align="left">低い</td>
+<td align="left">モデルの学習ではない</td>
+</tr>
+</tbody></table></div>
+<h3 id="mermaid図による学習プロセスの概要">Mermaid図による学習プロセスの概要</h3>
+<pre class="mermaid">graph TD
+    A[広範なテキストデータ] --> B(事前学習 Pretraining)
+    B --> C{基盤モデル}
+    C --> D[特定ドメイン/最新データ]
+    C --> E["Instruction Data (プロンプト/応答ペア)"]
+
+    D --> F(継続事前学習 Continued Pretraining)
+    F --> G{ドメイン特化モデル}
+
+    E --> H(SFT Supervised Fine-Tuning)
+    H --> I{"チャットボット/タスク特化モデル"}
+
+    G --> H
+    I --> J[ユーザー利用]
+
+    subgraph "モデルの知識獲得"
+        A
+        B
+        C
+        D
+        F
+        G
+    end
+
+    subgraph "モデルの振る舞い調整"
+        E
+        H
+        I
+    end</pre>
+<p>この図は、事前学習が基盤モデルを形成し、そこから継続事前学習で知識を深めるか、SFTで振る舞いを調整するかの流れを示しています。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>LLMを実務で利用する際、これらの学習フェーズはモデルの選択とカスタマイズ戦略に直結します。</p>
+<ol>
+<li><strong>基盤モデルの選定</strong>: ほとんどの場合、私たちはすでに事前学習を終えた基盤モデル（例: LLaMA, Mistral, GPT-3.5など）からスタートします。ゼロからの事前学習は、GoogleやOpenAIのような大規模な組織でなければ現実的ではありません。</li>
+<li><strong>ドメイン特化の必要性</strong>: もしあなたのアプリケーションが特定の専門分野（医療、法律、金融など）に特化している場合、既存の基盤モデルでは知識が不足している可能性があります。この場合、<strong>継続事前学習</strong>を検討することで、モデルに専門知識を付与できます。ただし、これには大量のドメイン特化データとそれなりの計算資源が必要です。</li>
+<li><strong>タスク特化・対話能力の向上</strong>: ほとんどのLLMアプリケーションでは、モデルが特定のタスクを正確に実行したり、ユーザーと自然に対話したりする能力が求められます。この目的のために、<strong>SFT</strong>が最も一般的で効果的な手法となります。高品質な指示データセットを作成し、モデルをファインチューニングすることで、モデルの振る舞いを大幅に改善できます。LoRAのような効率的なファインチューニング手法と組み合わせることで、比較的少ない計算資源でSFTを行うことが可能です。</li>
+<li><strong>アラインメントの重要性</strong>: SFTはモデルを「有用」にするための重要なステップですが、さらに「安全」で「正直」で「無害」な応答を生成させるためには、<strong>アラインメント</strong>と呼ばれるプロセスが必要です。これには、SFTの後に続く<strong>RLHF (Reinforcement Learning from Human Feedback)</strong> や、よりシンプルな<strong>DPO (Direct Preference Optimization)</strong> といった手法が用いられます。これらは、人間の好みや倫理観をモデルに学習させることで、望ましくない応答（ハルシネーション、差別的発言など）を減らすことを目的とします。</li>
+</ol>
+<h3 id="アラインメント-alignment">アラインメント (Alignment)</h3>
+<p>ひとことで言うと: LLMの振る舞いを、人間の価値観や意図に合致させるプロセス。
+何のカテゴリか: LLMの安全性・有用性向上フェーズ
+何に使うのか: モデルがハルシネーションを起こしにくく、差別的・有害な内容を生成せず、ユーザーの意図を正確に理解して応答するようにするため。
+代表例: ChatGPTの安全対策、Llama 2 Chatモデルの倫理的振る舞い。
+よく混同される用語: SFT（SFTはタスク遂行能力向上、アラインメントは倫理的・安全な振る舞い向上）
+初心者向け注意点: アラインメントは非常に複雑で、完璧な解決策はまだ見つかっていません。継続的な研究と改善が必要です。</p>
+<p>アラインメントは、LLMが単に言語を生成するだけでなく、人間が期待する倫理的・道徳的な基準や、ユーザーの真の意図に沿った形で振る舞うように調整するプロセス全般を指します。SFTもアラインメントの一部と見なせますが、特にRLHFやDPOといった手法は、より高度なアラインメントを実現するために開発されました。</p>
+<h4 id="rlhf-reinforcement-learning-from-human-feedback">RLHF (Reinforcement Learning from Human Feedback)</h4>
+<p>ひとことで言うと: 人間の評価を報酬として、強化学習でモデルの振る舞いを改善する手法。
+何のカテゴリか: LLMのアラインメント手法
+何に使うのか: SFT後のモデルを、より人間の好みに合うように調整するため。
+代表例: ChatGPTの初期バージョンで広く採用された手法。
+初心者向け注意点: 複雑なパイプラインと大量の人間による評価データが必要で、実装が非常に難しいです。</p>
+<p>RLHFは、SFTでファインチューニングされたモデルの出力を、人間が評価し、その評価を報酬シグナルとして強化学習を行うことで、モデルの振る舞いをさらに改善する手法です。具体的には、以下のステップで進められます。</p>
+<ol>
+<li><strong>SFTモデルの準備</strong>: まず、SFTによって基本的なタスク遂行能力を持つモデルを用意します。</li>
+<li><strong>報酬モデルの学習</strong>: SFTモデルが生成した複数の応答に対し、人間が「どちらの応答がより良いか」を評価します。この人間の評価データを用いて、応答の品質を予測する「報酬モデル (Reward Model)」を学習させます。</li>
+<li><strong>強化学習</strong>: 報酬モデルからの報酬シグナルを使って、SFTモデルを強化学習します。モデルは、より高い報酬を得られるような応答を生成するように学習します。</li>
+</ol>
+<pre class="mermaid">graph TD
+    A[SFTモデル] --> B{プロンプト}
+    B --> C1[応答1]
+    B --> C2[応答2]
+    C1 & C2 --> D[人間による評価]
+    D --> E(報酬モデル学習)
+    E --> F{報酬モデル}
+    F --> G[SFTモデルの強化学習]
+    G --> H{RLHFモデル}
+
+    subgraph "RLHFプロセス"
+        A
+        B
+        C1
+        C2
+        D
+        E
+        F
+        G
+        H
+    end</pre>
+<p>このMermaid図は、RLHFの主要なステップとコンポーネントの関係を示しています。SFTモデルが生成した応答を人間が評価し、その評価を元に報酬モデルを学習させ、最終的にSFTモデルを強化学習で改善する流れです。</p>
+<h4 id="dpo-direct-preference-optimization">DPO (Direct Preference Optimization)</h4>
+<p>ひとことで言うと: 人間の好みデータを使って、より直接的にモデルを最適化するアラインメント手法。
+何のカテゴリか: LLMのアラインメント手法
+何に使うのか: RLHFよりもシンプルかつ安定的に、モデルを人間の好みにアラインさせるため。
+代表例: Mistral-7B-Instruct-v0.2などで採用。
+初心者向け注意点: RLHFに比べて実装は容易ですが、高品質な人間の好みデータは依然として重要です。</p>
+<p>DPOは、RLHFの複雑さを軽減しつつ、同様のアラインメント効果を目指す比較的新しい手法です。RLHFのように報酬モデルを別途学習させる必要がなく、人間の選好データ（「この応答は良い、この応答は悪い」といったペア）を直接用いて、モデルのポリシーを最適化します。これにより、学習プロセスがより安定し、計算効率も向上します。</p>
+<p>$$ \mathcal{L}<em>{DPO}(\pi; \beta) = - \mathbb{E}</em>{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log \frac{\pi(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right] $$</p>
+<p>この式はDPOの損失関数を表します。ここで、$x$はプロンプト、$y_w$は選好された（良い）応答、$y_l$は選好されなかった（悪い）応答です。$\pi$は現在のモデル、$\pi_{ref}$は参照モデル（通常はSFTモデル）、$\beta$はハイパーパラメータです。DPOは、良い応答の確率を上げ、悪い応答の確率を下げるようにモデルを学習させます。</p>
+<pre class="mermaid">graph TD
+    A[プロンプト x] --> B{SFTモデル}
+    B --> C1["応答 y_w (良い)"]
+    B --> C2["応答 y_l (悪い)"]
+    C1 & C2 --> D["人間による選好データ (y_w > y_l)"]
+    D --> E(DPO損失計算)
+    E --> F[モデルパラメータ更新]
+    F --> G{DPO最適化モデル}
+
+    subgraph "DPOプロセス"
+        A
+        B
+        C1
+        C2
+        D
+        E
+        F
+        G
+    end</pre>
+<p>このMermaid図は、DPOのプロセスを示しています。SFTモデルが生成した応答に対する人間の選好データを直接利用し、損失関数を通じてモデルパラメータを最適化する流れです。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li><strong>事前学習</strong>は、膨大なデータから言語の基礎と世界知識を学ぶ最初のステップで、汎用的な基盤モデルを構築します。</li>
+<li><strong>継続事前学習</strong>は、既存の基盤モデルに特定のドメイン知識や最新情報を追加で学習させることで、知識を深めます。</li>
+<li><strong>SFT</strong>は、人間が作成した指示と応答のペアを用いて、モデルの振る舞いを特定のタスクや対話形式に調整し、より有用なモデルにします。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>事前学習 vs ファインチューニング</strong>: 事前学習はゼロから学習、ファインチューニングは既存モデルを調整。</li>
+<li><strong>継続事前学習 vs LoRA</strong>: 継続事前学習はモデル全体を学習し知識を深める、LoRAはファインチューニングを効率化する技術。</li>
+<li><strong>SFT vs RAG</strong>: SFTはモデルの振る舞いを学習で変える、RAGは外部知識を参照する仕組みで学習ではない。</li>
+<li><strong>SFT vs RLHF/DPO</strong>: SFTはタスク遂行能力向上、RLHF/DPOは人間の価値観にアラインさせるためのより高度な振る舞い調整。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第13章: LoRAとPEFT (Parameter-Efficient Fine-Tuning)</li>
+<li>第14章: RAG (Retrieval Augmented Generation)</li>
+<li>第15章: プロンプトエンジニアリングの基本</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-11.html" class="nav-prev">← 第11章 BitNet / ternary / 1-bit系</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-13.html" class="nav-next">第13章 LoRA / QLoRA / Adapter →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

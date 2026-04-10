@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第1章. LLM周辺の世界地図 - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 用語の森に入る前に、全体の地図を持つ">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-01.html">
+  <meta property="og:title" content="第1章. LLM周辺の世界地図 - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 用語の森に入る前に、全体の地図を持つ">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-01.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第1章. LLM周辺の世界地図 - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 用語の森に入る前に、全体の地図を持つ">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">1 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第1部: 全体像をつかむ</li><li aria-current="page">第1章. LLM周辺の世界地図</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h2 id="第1章-llm周辺の世界地図">第1章. LLM周辺の世界地図</h2>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）を取り巻く主要な技術要素と概念を俯瞰し、それぞれの役割と関係性を理解することを目的とします。専門用語の海に飛び込む前に、全体像を把握することで、今後の学習をスムーズに進めるための「地図」を手に入れましょう。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>LLMがどのような要素で構成されているか</li>
+<li>モデルの学習（Training）と利用（Inference）の基本的な流れ</li>
+<li>各要素がLLMエコシステムの中でどのような役割を果たすか</li>
+<li>混同しやすい用語の明確な違い</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>近年、LLMは私たちの生活やビジネスに大きな変革をもたらしています。まるで魔法のようにテキストを生成し、質問に答え、複雑なタスクをこなすその能力は、多くの人々を魅了しています。しかし、その驚くべき能力の裏側には、「モデル」「学習」「推論」「API」といった様々な専門用語が複雑に絡み合っています。これらの用語は、LLMの仕組みを理解し、その可能性を最大限に引き出す上で不可欠な要素です。</p>
+<p>この章では、LLMを構成する主要な要素を一つずつ丁寧に解説し、それらがどのように連携して機能しているのかを「世界地図」のように広げて見せます。個々の用語の意味だけでなく、それらがLLMという大きなシステムの中でどのような位置づけにあるのかを理解することで、より深くLLM技術を学ぶための強固な基盤を築くことができます。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="llm-large-language-model">LLM (Large Language Model)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大量のテキストデータから言語のパターンを学習し、人間のようなテキストを生成・理解できる巨大なAIモデル。</li>
+<li><strong>何のカテゴリか</strong>: 人工知能、自然言語処理（NLP）モデル。</li>
+<li><strong>何に使うのか</strong>: テキスト生成、翻訳、要約、質問応答、プログラミングコード生成など、多岐にわたる言語タスク。</li>
+<li><strong>代表例</strong>: GPT-3/4、LLaMA、Claude、PaLM。</li>
+<li><strong>よく混同される用語</strong>: 汎用AI、チャットボット。LLMは汎用AIの一種ですが、チャットボットはLLMの応用例の一つに過ぎません。</li>
+<li><strong>初心者向け注意点</strong>: LLMは「賢い」ですが、学習データに基づいているため、常に正確な情報を返すわけではありません（ハルシネーション）。</li>
+</ul>
+<h3 id="model-モデル">Model (モデル)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 特定のタスクを実行するために学習された、データとアルゴリズムの集合体。LLMもモデルの一種。</li>
+<li><strong>何のカテゴリか</strong>: 機械学習、人工知能の成果物。</li>
+<li><strong>何に使うのか</strong>: 入力データを受け取り、学習したパターンに基づいて予測や判断を行う。</li>
+<li><strong>代表例</strong>: 画像分類モデル、音声認識モデル、そしてLLM。</li>
+<li><strong>よく混同される用語</strong>: アルゴリズム、ソフトウェア。モデルはアルゴリズムと学習データによって構築された「知識体系」であり、ソフトウェアはそのモデルを実行するためのプログラムです。</li>
+<li><strong>初心者向け注意点</strong>: モデルは学習データに強く依存します。学習データに偏りがあれば、モデルの出力にも偏りが出ます。</li>
+</ul>
+<h3 id="weights-重み">Weights (重み)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルが学習を通じて獲得した、入力データに対する重要度を示す数値の集合。</li>
+<li><strong>何のカテゴリか</strong>: モデルの内部パラメータ。</li>
+<li><strong>何に使うのか</strong>: 入力データがモデル内を伝播する際に、各情報にどれだけの「重み」を与えるかを決定し、最終的な出力に影響を与える。</li>
+<li><strong>代表例</strong>: ニューラルネットワークの各層の接続強度を示す数値。</li>
+<li><strong>よく混同される用語</strong>: バイアス。重みとバイアスはニューラルネットワークの主要なパラメータですが、重みは入力との積で、バイアスは単独で加算されます。</li>
+<li><strong>初心者向け注意点</strong>: 重みはモデルの「知識」そのものです。この重みを調整するプロセスが学習（Training）です。</li>
+</ul>
+<p>ニューラルネットワークにおける重みとバイアスの関係は、線形変換として表現できます。
+$y = \sum_{i=1}^{n} w_i x_i + b$
+ここで、$y$ は出力、$x_i$ は入力、$w_i$ は重み、$b$ はバイアスを表します。重み $w_i$ は各入力 $x_i$ の重要度を調整し、バイアス $b$ は活性化関数への入力に一定のオフセットを加えます。</p>
+<h3 id="tokenizer-トークナイザー">Tokenizer (トークナイザー)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: テキストをモデルが理解できる最小単位（トークン）に分割し、数値に変換するツール。</li>
+<li><strong>何のカテゴリか</strong>: 自然言語処理の前処理ツール。</li>
+<li><strong>何に使うのか</strong>: モデルへの入力テキストを準備し、モデルからの出力数値を人間が読めるテキストに戻す。</li>
+<li><strong>代表例</strong>: SentencePiece、BPE (Byte Pair Encoding)、WordPiece。</li>
+<li><strong>よく混同される用語</strong>: Vocabulary。Vocabularyはトークナイザーが使用する、既知のトークンとそのIDのリストです。トークナイザーはそのリストを使ってテキストを分割・変換します。</li>
+<li><strong>初心者向け注意点</strong>: トークナイザーの選択や設定は、モデルの性能に大きく影響します。特に日本語のような言語では、分割方法が重要です。</li>
+</ul>
+<h3 id="inference-推論">Inference (推論)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 学習済みのモデルに新しいデータを与え、予測や出力を得るプロセス。</li>
+<li><strong>何のカテゴリか</strong>: モデルの利用フェーズ。</li>
+<li><strong>何に使うのか</strong>: 質問応答、画像認識、テキスト生成など、モデルの能力を実世界で活用する。</li>
+<li><strong>代表例</strong>: ChatGPTに質問を投げかける、画像認識アプリで物体を検出する。</li>
+<li><strong>よく混同される用語</strong>: Serving。推論は「モデルが予測を出す行為」そのものですが、Servingは「推論を外部から利用できるように提供するシステム」を指します。</li>
+<li><strong>初心者向け注意点</strong>: 推論の速度や精度は、モデルのサイズや計算リソースに依存します。</li>
+</ul>
+<h3 id="training-学習">Training (学習)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大量のデータを使ってモデルの重みを調整し、特定のタスクを遂行できるようにするプロセス。</li>
+<li><strong>何のカテゴリか</strong>: モデル開発の主要フェーズ。</li>
+<li><strong>何に使うのか</strong>: モデルに知識やスキルを習得させる。</li>
+<li><strong>代表例</strong>: 大規模なテキストコーパスを用いてLLMをゼロから構築する。</li>
+<li><strong>よく混同される用語</strong>: Fine-tuning。学習はゼロからモデルを構築するのに対し、Fine-tuningは既存のモデルを特定のタスクに特化させるプロセスです。</li>
+<li><strong>初心者向け注意点</strong>: 学習には膨大な計算リソース（GPUなど）と時間が必要です。</li>
+</ul>
+<h3 id="fine-tuning-ファインチューニング">Fine-tuning (ファインチューニング)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 事前学習済みのモデルを、特定のタスクやデータセットに合わせてさらに学習させるプロセス。</li>
+<li><strong>何のカテゴリか</strong>: モデルのカスタマイズフェーズ。</li>
+<li><strong>何に使うのか</strong>: 汎用モデルを特定の業界用語や企業文化に合わせる、特定の質問応答タスクの精度を向上させる。</li>
+<li><strong>代表例</strong>: GPT-3を医療分野の質問応答に特化させるために、医療論文データで追加学習させる。</li>
+<li><strong>よく混同される用語</strong>: LoRA。LoRAはファインチューニングの一種であり、効率的にモデルをカスタマイズするための技術です。ファインチューニングは概念、LoRAはその具体的な手法の一つ。</li>
+<li><strong>初心者向け注意点</strong>: ファインチューニングはゼロからの学習よりもはるかに少ないデータとリソースで高い性能を発揮できます。</li>
+</ul>
+<h4 id="trainingとfine-tuningの比較">TrainingとFine-tuningの比較</h4>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較軸</th>
+<th align="left">Training (事前学習)</th>
+<th align="left">Fine-tuning (ファインチューニング)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">汎用的な知識と言語理解能力の獲得</td>
+<td align="left">特定のタスクやドメインへの適応、性能向上</td>
+</tr>
+<tr>
+<td align="left"><strong>データ量</strong></td>
+<td align="left">膨大（数兆トークン規模）</td>
+<td align="left">比較的少量（数千〜数百万トークン規模）</td>
+</tr>
+<tr>
+<td align="left"><strong>モデル</strong></td>
+<td align="left">ゼロから構築</td>
+<td align="left">事前学習済みモデルをベースにする</td>
+</tr>
+<tr>
+<td align="left"><strong>計算資源</strong></td>
+<td align="left">非常に大きい（数ヶ月〜年単位、大規模GPUクラスタ）</td>
+<td align="left">比較的少ない（数時間〜数日、単一GPUまたは小規模クラスタ）</td>
+</tr>
+<tr>
+<td align="left"><strong>コスト</strong></td>
+<td align="left">非常に高価</td>
+<td align="left">比較的安価</td>
+</tr>
+<tr>
+<td align="left"><strong>結果</strong></td>
+<td align="left">汎用的な基盤モデル（Foundation Model）</td>
+<td align="left">特定タスクに特化した高性能モデル</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left">GPT-3/4、LLaMAの初期学習</td>
+<td align="left">医療分野特化LLM、社内FAQ応答LLMの作成</td>
+</tr>
+</tbody></table></div>
+<h3 id="serving-サービング">Serving (サービング)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 学習済みのモデルを、外部のアプリケーションやユーザーが利用できるようにデプロイし、推論リクエストに応答するシステム。</li>
+<li><strong>何のカテゴリか</strong>: モデルの運用フェーズ。</li>
+<li><strong>何に使うのか</strong>: モデルをAPIとして公開し、Webアプリケーションやモバイルアプリから利用できるようにする。</li>
+<li><strong>代表例</strong>: OpenAIのAPI、Google Cloud AI Platform Prediction。</li>
+<li><strong>よく混同される用語</strong>: Inference。Servingは推論を実行するための「環境やサービス」を指し、Inferenceはその環境で行われる「計算行為」を指します。</li>
+<li><strong>初心者向け注意点</strong>: Servingには、スケーラビリティ、レイテンシ、コスト、セキュリティなどの考慮が必要です。</li>
+</ul>
+<h3 id="api-application-programming-interface">API (Application Programming Interface)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ソフトウェアコンポーネントが互いに通信するための規約やインターフェース。</li>
+<li><strong>何のカテゴリか</strong>: ソフトウェア連携の手段。</li>
+<li><strong>何に使うのか</strong>: プログラムからLLMなどのサービスを呼び出し、機能を利用する。</li>
+<li><strong>代表例</strong>: OpenAI API、Google Maps API。</li>
+<li><strong>よく混同される用語</strong>: ライブラリ、SDK。APIは「呼び出し方」の規約ですが、ライブラリやSDKはそのAPIを簡単に利用するための「ツールキット」です。</li>
+<li><strong>初心者向け注意点</strong>: APIを利用することで、モデルの内部実装を知らなくても、その強力な機能を自分のアプリケーションに組み込むことができます。</li>
+</ul>
+<h3 id="runtime-ランタイム">Runtime (ランタイム)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: プログラムやモデルが実行される環境。</li>
+<li><strong>何のカテゴリか</strong>: 実行環境。</li>
+<li><strong>何に使うのか</strong>: モデルの推論や学習を効率的に実行するためのソフトウェアやハードウェアの組み合わせ。</li>
+<li><strong>代表例</strong>: Pythonインタープリタ、CUDA (GPUランタイム)、ONNX Runtime。</li>
+<li><strong>よく混同される用語</strong>: Model file。Model fileはモデルの重みや構造を保存したデータですが、Runtimeはそのモデルファイルを読み込んで実行するための「エンジン」です。</li>
+<li><strong>初心者向け注意点</strong>: Runtimeの選択は、モデルの実行速度や必要なハードウェアリソースに直結します。</li>
+</ul>
+<h4 id="llmエコシステムの主要要素間の関係">LLMエコシステムの主要要素間の関係</h4>
+<pre class="mermaid">graph TD
+    A["データ収集 & 前処理"] --> B["Training (学習)"]
+    B --> C["Pre-trained Model (基盤モデル)"]
+    C --> D["Fine-tuning (微調整)"]
+    D --> E["Fine-tuned Model (特化モデル)"]
+    E --> F["Serving (デプロイ)"]
+    F --> G["API (インターフェース)"]
+    G --> H["アプリケーション"]
+
+    subgraph "モデル開発フェーズ"
+        A --- B
+        B --- C
+        C --- D
+        D --- E
+    end
+
+    subgraph "モデル運用フェーズ"
+        E --- F
+        F --- G
+        G --- H
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#cfc,stroke:#333,stroke-width:2px
+    style C fill:#ccf,stroke:#333,stroke-width:2px
+    style D fill:#cfc,stroke:#333,stroke-width:2px
+    style E fill:#ccf,stroke:#333,stroke-width:2px
+    style F fill:#ffc,stroke:#333,stroke-width:2px
+    style G fill:#fcc,stroke:#333,stroke-width:2px
+    style H fill:#f9f,stroke:#333,stroke-width:2px</pre>
+<p>この図は、LLMが開発され、最終的にアプリケーションで利用されるまでの主要なステップと要素の関係を示しています。データ収集から始まり、学習、モデルのデプロイ、そしてAPIを介したアプリケーション連携へと流れていきます。</p>
+<h2 id="具体例">具体例</h2>
+<p>LLMが質問に答えるまでの流れを具体的に見てみましょう。</p>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B(質問テキスト入力)
+    B --> C{API Gateway}
+    C --> D[Serving System]
+    D --> E[Tokenizer]
+    E --> F[トークンID列]
+    F --> G["LLM (Model + Weights)"]
+    G --> H["推論 (Inference)"]
+    H --> I[出力トークンID列]
+    I --> J["Tokenizer (逆変換)"]
+    J --> K[回答テキスト]
+    K --> L[Serving System]
+    L --> M{API Gateway}
+    M --> N[ユーザー]
+
+    subgraph "LLMシステム内部"
+        D --- E
+        E --- F
+        F --- G
+        G --- H
+        H --- I
+        I --- J
+        J --- K
+        K --- L
+    end
+
+    subgraph "開発フェーズ"
+        O[大量テキストデータ] --> P(Training)
+        P --> Q["Pre-trained LLM (Model + Weights)"]
+        Q --> R(Fine-tuning)
+        R --> S["Fine-tuned LLM (Model + Weights)"]
+        S --> D
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style N fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#ccf,stroke:#333,stroke-width:2px
+    style H fill:#ccf,stroke:#333,stroke-width:2px
+    style P fill:#cfc,stroke:#333,stroke-width:2px
+    style R fill:#cfc,stroke:#333,stroke-width:2px</pre>
+<ol>
+<li><strong>ユーザー (A)</strong> が「LLMとは何ですか？」と質問テキストを入力します。</li>
+<li>この質問は <strong>API Gateway (C)</strong> を通じて <strong>Serving System (D)</strong> に送られます。</li>
+<li>Serving System内で、まず <strong>Tokenizer (E)</strong> が質問テキストをモデルが理解できる数値の列（<strong>トークンID列 (F)</strong>）に変換します。</li>
+<li>このトークンID列が、学習済みの <strong>LLM (Model + Weights) (G)</strong> に入力されます。</li>
+<li>LLMは内部で <strong>推論 (Inference) (H)</strong> を実行し、次の単語（トークン）を予測し続けます。この予測の過程で、モデルの <strong>Weights</strong> が重要な役割を果たします。</li>
+<li>生成された <strong>出力トークンID列 (I)</strong> は、再び <strong>Tokenizer (J)</strong> によって人間が読める <strong>回答テキスト (K)</strong> に逆変換されます。</li>
+<li>回答テキストは <strong>Serving System (L)</strong> を経由し、<strong>API Gateway (M)</strong> を通じて <strong>ユーザー (N)</strong> に返されます。</li>
+</ol>
+<p>この一連の流れを支えるのが、事前に <strong>Training (P)</strong> や <strong>Fine-tuning (R)</strong> によって構築された <strong>LLM (Model + Weights)</strong> です。これらの学習プロセスは、大量のデータを使ってモデルの <strong>Weights</strong> を最適化し、質問応答能力を向上させます。そして、このモデルを実行するための環境が <strong>Runtime</strong> です。</p>
+<h2 id="次に読むべき章">次に読むべき章</h2>
+<p>この章でLLM周辺の基本的な概念と用語を理解しました。次の章では、これらの概念がどのように組み合わさってLLMの「知能」を形成しているのか、より具体的なアーキテクチャと仕組みについて深く掘り下げていきます。</p>
+
+      </article>
+      <nav class="page-nav">
+<a href="index.html" class="nav-prev">← 目次</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-02.html" class="nav-next">第2章 モデル・重み・トークナイザ →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

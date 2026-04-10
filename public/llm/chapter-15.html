@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第15章. KV cache / batching / paged attention - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 速度まわりの基礎概念を整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-15.html">
+  <meta property="og:title" content="第15章. KV cache / batching / paged attention - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 速度まわりの基礎概念を整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-15.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第15章. KV cache / batching / paged attention - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 速度まわりの基礎概念を整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">15 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第8部: 推論高速化</li><li aria-current="page">第15章. KV cache / batching / paged attention</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第15章-kv-cache-batching-paged-attention">第15章. KV cache / batching / paged attention</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、LLMの推論速度を向上させるための主要な技術であるKV cache、batching、そしてpaged attentionについて、その基本的な概念と仕組みを理解することを目的とします。これらの技術は、LLMを実用的な速度で動作させる上で不可欠であり、推論ランタイム（第6章、第9章参照）の性能を大きく左右します。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>KV cacheがLLMの推論においてどのようにメモリと計算を節約するか</li>
+<li>batchingがスループット向上にどのように貢献するか</li>
+<li>paged attentionがKV cacheのメモリ効率をどのように改善するか</li>
+<li>これらの技術が互いにどのように関連し、推論性能を最適化するか</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>大規模言語モデル（LLM）は、その強力な生成能力の代償として、膨大な計算リソースとメモリを必要とします。特に、ユーザーからのプロンプトを受け取り、それに対する応答を生成する「推論」の段階では、いかに高速かつ効率的に処理を行うかが実用性向上の鍵となります。</p>
+<p>これまでの章では、モデルのサイズを小さくする量子化（第10章）や、特定のハードウェアに最適化された推論ランタイム（第9章）について学んできました。本章で扱うKV cache、batching、paged attentionは、これらとは異なるアプローチで推論のボトルネックを解消し、LLMの応答速度と処理能力を飛躍的に向上させるための技術です。これらを理解することで、なぜ特定の推論ランタイムが高速なのか、また、どのような状況でどの技術が有効なのかを判断できるようになります。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="kv-cache-key-value-cache">KV cache (Key-Value Cache)</h3>
+<h4 id="ひとことで言うと">ひとことで言うと:</h4>
+<p>LLMが過去に計算したAttentionの「Key」と「Value」を保存しておき、再利用することで計算量を減らし、推論を高速化する技術です。</p>
+<h4 id="何のカテゴリか">何のカテゴリか:</h4>
+<p>推論最適化技術、メモリ最適化技術</p>
+<h4 id="何に使うのか">何に使うのか:</h4>
+<p>LLMのテキスト生成（デコーディング）フェーズにおいて、Attention機構の計算負荷を軽減し、推論速度を向上させます。</p>
+<h4 id="代表例">代表例:</h4>
+<p>Transformerベースの全てのLLM推論で利用されます。vLLMやTGIなどの高速推論ランタイムでは、KV cacheの効率的な管理が性能の要となります。</p>
+<h4 id="よく混同される用語">よく混同される用語:</h4>
+<ul>
+<li><strong>Attention機構そのもの</strong>: KV cacheはAttention機構の一部であるKeyとValueをキャッシュするものであり、Attention機構そのものではありません。</li>
+<li><strong>通常のCPU/GPUキャッシュ</strong>: 一般的なハードウェアキャッシュとは異なり、LLMの特定の計算結果をソフトウェア的に管理するものです。</li>
+</ul>
+<h4 id="初心者向け注意点">初心者向け注意点:</h4>
+<p>KV cacheはメモリを消費します。特に長いテキストを生成する場合、大量のKeyとValueがキャッシュされるため、GPUメモリの消費量が大きくなる点に注意が必要です。</p>
+<h4 id="詳細説明">詳細説明:</h4>
+<p>TransformerモデルのAttention機構（第1章参照）は、入力シーケンスの各トークンに対して、他の全てのトークンとの関連度を計算します。この計算には、Query (Q)、Key (K)、Value (V) という3つのベクトルが使われます。</p>
+<p>テキスト生成（デコーディング）の際、LLMは一度に1トークンずつ生成していくのが一般的です。例えば、「こんにちは、元気ですか？」という応答を生成する場合、</p>
+<ol>
+<li>「こんにちは」を生成する。</li>
+<li>「こんにちは」を考慮して「、」を生成する。</li>
+<li>「こんにちは、」を考慮して「元気」を生成する。
+...
+というように、生成済みのトークン列全体を考慮して次のトークンを生成します。</li>
+</ol>
+<p>ここで問題となるのが、各ステップでAttention計算を行う際に、<strong>既に計算済みのトークンに対するKeyとValueの計算を毎回繰り返してしまう</strong>ことです。これは非常に非効率です。</p>
+<p>KV cacheは、この無駄を省くために導入されました。一度計算されたKeyとValueのベクトルをGPUメモリ上に保存（キャッシュ）しておき、次のトークンを生成する際には、新しく入力されたトークン（Query）と、キャッシュされた過去のKey/Value、そして新しいトークン自身のKey/Valueを使ってAttention計算を行います。これにより、過去のトークンに対するKey/Valueの再計算が不要となり、計算量が大幅に削減されます。</p>
+<p><strong>KV cacheがない場合:</strong>
+各生成ステップで、入力シーケンス全体のQ, K, Vを計算し、Attentionを適用。シーケンス長が長くなるほど計算量が二次関数的に増加。</p>
+<p><strong>KV cacheがある場合:</strong>
+各生成ステップで、新しいトークンのQ, K, Vのみを計算。過去のK, Vはキャッシュから取得。Attentionは新しいQと、キャッシュされたK/V + 新しいK/Vに対して適用。計算量が大幅に削減される。</p>
+<pre class="mermaid">graph TD
+    A[プロンプト入力] --> B{トークン1生成}
+    B -- Q1, K1, V1 --> C[Attention計算]
+    C -- K1, V1をキャッシュ --> D{トークン2生成}
+    D -- Q2, K2, V2 --> E["Attention計算 (Q2とK1,V1,K2,V2)"]
+    E -- K2, V2をキャッシュ --> F{トークン3生成}
+    F -- Q3, K3, V3 --> G["Attention計算 (Q3とK1,V1,K2,V2,K3,V3)"]
+    G -- K3, V3をキャッシュ --> H[...]</pre>
+<p><em>図15.1: KV cacheの動作原理</em></p>
+<p>KV cacheの導入による計算量の削減は、特にシーケンス長 $L$ が長くなるにつれて顕著になります。Attention計算の計算量は通常 $O(L^2)$ ですが、KV cacheを使用することで、各生成ステップでの計算量は $O(L)$ に削減されます。</p>
+<p>$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$
+<em>式15.1: Attention機構の基本式。ここで $Q, K, V$ はそれぞれQuery, Key, Value行列、$d_k$ はKeyベクトルの次元です。KV cacheは、この $K$ と $V$ を過去のステップから再利用することで、計算負荷を軽減します。</em></p>
+<h3 id="batching-バッチ処理">Batching (バッチ処理)</h3>
+<h4 id="ひとことで言うと-1">ひとことで言うと:</h4>
+<p>複数の独立したリクエスト（プロンプト）をまとめて同時に処理することで、GPUの利用効率を高め、全体のスループットを向上させる技術です。</p>
+<h4 id="何のカテゴリか-1">何のカテゴリか:</h4>
+<p>推論最適化技術、スループット向上技術</p>
+<h4 id="何に使うのか-1">何に使うのか:</h4>
+<p>複数のユーザーからのリクエストや、大量のテキストを並行して処理する必要がある場合に、LLMの推論サーバーの処理能力を最大化します。</p>
+<h4 id="代表例-1">代表例:</h4>
+<p>Web APIとしてLLMを提供するサービス（OpenAI APIなど）や、vLLM、TGIといった推論ランタイムで広く利用されています。</p>
+<h4 id="よく混同される用語-1">よく混同される用語:</h4>
+<ul>
+<li><strong>KV cache</strong>: KV cacheは単一のリクエスト内の計算を最適化するのに対し、batchingは複数のリクエストをまとめて処理します。両者は併用されます。</li>
+<li><strong>並列処理</strong>: batchingは一種の並列処理ですが、特に「複数の独立した入力データをまとめて一つの大きな入力として処理する」という点で特徴的です。</li>
+</ul>
+<h4 id="初心者向け注意点-1">初心者向け注意点:</h4>
+<p>batchingはスループットを向上させますが、個々のリクエストのレイテンシ（応答時間）は、バッチサイズが大きくなるとわずかに増加する可能性があります。これは、バッチ内の最も長いシーケンスに合わせて処理時間が決まるためです。</p>
+<h4 id="詳細説明-1">詳細説明:</h4>
+<p>GPUは、大量の並列計算を得意とするハードウェアです。しかし、単一の小さな計算タスクだけでは、GPUの計算リソースを十分に活用しきれないことがあります。LLMの推論においても、1つのプロンプトだけを処理する場合、GPUのコアの多くがアイドル状態になることがあります。</p>
+<p>Batchingは、この問題を解決するために、複数のユーザーからのプロンプトや、複数のテキスト生成タスクを一つの「バッチ」としてまとめ、GPUに一度に投入する手法です。これにより、GPUはより多くの計算を並行して実行できるようになり、全体としての処理能力（スループット）が向上します。</p>
+<p>例えば、3人のユーザーが同時にLLMに質問を投げたとします。</p>
+<ul>
+<li><strong>Batchingなしの場合:</strong>
+ユーザーAの質問を処理 → ユーザーBの質問を処理 → ユーザーCの質問を処理
+（各処理の間でGPUがアイドル状態になる可能性あり）</li>
+<li><strong>Batchingありの場合:</strong>
+ユーザーA, B, Cの質問をまとめて一つのバッチとしてGPUに投入 → 3つの質問を同時に処理
+（GPUの利用率が向上し、全体として早く処理が完了）</li>
+</ul>
+<pre class="mermaid">graph TD
+    A[ユーザー1リクエスト] --> B{バッチキュー}
+    C[ユーザー2リクエスト] --> B
+    D[ユーザー3リクエスト] --> B
+    B -- バッチサイズNに達したら --> E[LLM推論エンジン]
+    E -- 並列処理 --> F[ユーザー1応答]
+    E -- 並列処理 --> G[ユーザー2応答]
+    E -- 並列処理 --> H[ユーザー3応答]</pre>
+<p><em>図15.2: Batchingの動作原理</em></p>
+<p>Batchingには、静的バッチング（固定サイズのバッチで処理）と動的バッチング（リアルタイムで到着するリクエストに応じてバッチサイズを調整）があります。特にLLMの推論では、リクエストごとにプロンプト長や生成する応答長が異なるため、動的バッチングが非常に重要になります。</p>
+<h3 id="paged-attention-ページドアテンション">Paged Attention (ページド・アテンション)</h3>
+<h4 id="ひとことで言うと-1">ひとことで言うと:</h4>
+<p>KV cacheのメモリ管理を、オペレーティングシステムの仮想メモリ管理（ページング）に似た方法で行うことで、メモリの断片化を解消し、より効率的にKV cacheを利用する技術です。</p>
+<h4 id="何のカテゴリか-1">何のカテゴリか:</h4>
+<p>推論最適化技術、メモリ管理技術、KV cache最適化技術</p>
+<h4 id="何に使うのか-1">何に使うのか:</h4>
+<p>特に動的バッチングと組み合わせることで、可変長のシーケンスを持つ複数のリクエストを効率的に処理し、GPUメモリを最大限に活用してスループットを向上させます。</p>
+<h4 id="代表例-1">代表例:</h4>
+<p>vLLMがこの技術を初めて導入し、その高いスループット性能の主要因となっています。</p>
+<h4 id="よく混同される用語-1">よく混同される用語:</h4>
+<ul>
+<li><strong>KV cache</strong>: Paged attentionはKV cacheのメモリ管理方法であり、KV cacheそのものではありません。KV cacheをより賢く使うための技術です。</li>
+<li><strong>仮想メモリ/ページング</strong>: オペレーティングシステムの概念をLLMのKV cache管理に応用したものであり、OSの仮想メモリそのものではありません。</li>
+</ul>
+<h4 id="初心者向け注意点-1">初心者向け注意点:</h4>
+<p>Paged attentionは、KV cacheのメモリ効率を劇的に改善しますが、その恩恵は主に複数のリクエストを同時に処理する（バッチ処理する）場合に顕著です。単一のリクエストを処理するだけでは、その効果は限定的です。</p>
+<h4 id="詳細説明-1">詳細説明:</h4>
+<p>前述の通り、KV cacheはLLMの推論を高速化しますが、メモリを大量に消費します。特に、複数のリクエストをバッチ処理する場合、各リクエストのプロンプト長や生成する応答長はバラバラです。</p>
+<p>従来のKV cache管理では、各リクエストに対してKV cache用の連続したメモリ領域を事前に確保していました。この方法にはいくつかの問題があります。</p>
+<ol>
+<li><strong>メモリの断片化</strong>: リクエストの完了やキャンセルによって解放されたメモリ領域が、次に到着するリクエストのサイズに合わない場合、その領域が再利用されず、メモリが断片化して無駄が生じます。</li>
+<li><strong>メモリの過剰確保</strong>: 最大のシーケンス長に合わせてメモリを確保する必要があるため、短いシーケンスのリクエストでは多くのメモリが無駄になります。</li>
+<li><strong>連続メモリの要件</strong>: GPUメモリは連続した領域を確保するのが難しく、特に大規模なバッチ処理では制約となります。</li>
+</ol>
+<p>Paged attentionは、これらの問題を解決するために、オペレーティングシステムの仮想メモリ管理（ページング）の概念をKV cacheに応用します。</p>
+<ul>
+<li>KV cacheのメモリを固定サイズの「ブロック（ページ）」に分割します。</li>
+<li>各リクエストのKV cacheは、連続したメモリ領域ではなく、これらのブロックを不連続に割り当てて構成されます。</li>
+<li>物理メモリ上のブロックと、論理的なKV cacheシーケンスの対応付けは、「ブロックテーブル」と呼ばれるマッピングによって管理されます。</li>
+</ul>
+<pre class="mermaid">graph TD
+    subgraph "リクエスト1のKV cache"
+        R1_B1[ブロック1]
+        R1_B2[ブロック2]
+        R1_B3[ブロック3]
+    end
+
+    subgraph "リクエスト2のKV cache"
+        R2_B1[ブロック4]
+        R2_B2[ブロック5]
+    end
+
+    subgraph "GPU物理メモリ"
+        P_B1[物理ブロックA]
+        P_B2[物理ブロックB]
+        P_B3[物理ブロックC]
+        P_B4[物理ブロックD]
+        P_B5[物理ブロックE]
+    end
+
+    R1_B1 --> P_B1
+    R1_B2 --> P_B3
+    R1_B3 --> P_B5
+
+    R2_B1 --> P_B2
+    R2_B2 --> P_B4
+
+    subgraph "ブロックテーブル (マッピング)"
+        T1[リクエスト1: [A, C, E]]
+        T2[リクエスト2: [B, D]]
+    end
+
+    R1_B1 -- 論理 --> T1
+    R2_B1 -- 論理 --> T2</pre>
+<p><em>図15.3: Paged Attentionの概念図</em></p>
+<p>この方式により、以下のメリットが得られます。</p>
+<ul>
+<li><strong>メモリの断片化解消</strong>: 空いているブロックを柔軟に割り当てられるため、メモリの断片化が起こりにくくなります。</li>
+<li><strong>メモリの有効活用</strong>: 必要な分だけブロックを割り当てられるため、メモリの過剰確保が減り、GPUメモリをより多くのリクエストで共有できます。</li>
+<li><strong>Copy-on-Writeの実現</strong>: 複数のリクエストが同じプロンプトを共有する場合（例: 共通のシステムプロンプト）、その部分のKV cacheブロックを共有し、書き込みが必要になったときに初めてコピーを作成する「Copy-on-Write」が可能になります。これにより、さらにメモリ効率が向上します。</li>
+</ul>
+<p>Paged attentionは、特に動的バッチングと組み合わせることで、GPUメモリを最大限に活用し、LLM推論のスループットを大幅に向上させる画期的な技術です。</p>
+<p>KV cacheのメモリ消費量 $M_{KV}$ は、通常、以下の式で近似できます。</p>
+<p>$$
+M_{KV} = 2 \times N_{layers} \times N_{heads} \times d_{head} \times L \times \text{dtype_size}
+$$
+<em>式15.2: KV cacheのメモリ消費量。$N_{layers}$ はTransformer層の数、$N_{heads}$ はAttentionヘッドの数、$d_{head}$ は各ヘッドの次元、$L$ はシーケンス長、$\text{dtype_size}$ はデータ型（例: fp16なら2バイト）のサイズです。Paged Attentionは、この $L$ の部分を動的に管理し、メモリの無駄を削減します。</em></p>
+<h2 id="具体例">具体例</h2>
+<h3 id="kv-cacheの例">KV cacheの例</h3>
+<p>LLMが「日本の首都は」というプロンプトに対して「東京」と生成するプロセスを考えます。</p>
+<ol>
+<li><p><strong>プロンプト処理フェーズ</strong>: 「日本」「の」「首都」「は」の各トークンが入力されます。</p>
+<ul>
+<li>各トークンに対してQ, K, Vベクトルが計算され、Attentionが適用されます。</li>
+<li>このとき計算されたK, VベクトルはKV cacheに保存されます。</li>
+<li>最初の出力トークンとして「東」が生成されます。</li>
+</ul>
+</li>
+<li><p><strong>生成フェーズ (1トークン目)</strong>:</p>
+<ul>
+<li>新しく生成された「東」のQ, K, Vベクトルが計算されます。</li>
+<li>Attention計算では、「東」のQベクトルと、KV cacheに保存されている「日本」「の」「首都」「は」のK, Vベクトル、そして「東」自身のK, Vベクトルが使われます。</li>
+<li>計算後、「東」のK, VベクトルもKV cacheに追加されます。</li>
+<li>次の出力トークンとして「京」が生成されます。</li>
+</ul>
+</li>
+<li><p><strong>生成フェーズ (2トークン目)</strong>:</p>
+<ul>
+<li>新しく生成された「京」のQ, K, Vベクトルが計算されます。</li>
+<li>Attention計算では、「京」のQベクトルと、KV cacheに保存されている「日本」「の」「首都」「は」「東」のK, Vベクトル、そして「京」自身のK, Vベクトルが使われます。</li>
+<li>計算後、「京」のK, VベクトルもKV cacheに追加されます。</li>
+<li>応答が完了します。</li>
+</ul>
+</li>
+</ol>
+<p>このように、KV cacheがあることで、生成フェーズにおいて過去のトークンに対するK, Vベクトルの再計算が不要になり、計算量が大幅に削減されます。</p>
+<h3 id="batchingの例">Batchingの例</h3>
+<p>WebサービスでLLM APIを提供している状況を想定します。</p>
+<ul>
+<li><strong>ユーザーA</strong>: 「今日の天気は？」</li>
+<li><strong>ユーザーB</strong>: 「おすすめのレストランを教えて」</li>
+<li><strong>ユーザーC</strong>: 「PythonでFizzBuzzを書いて」</li>
+</ul>
+<p>これらのリクエストがほぼ同時に到着した場合、推論ランタイムは以下のように処理します。</p>
+<ol>
+<li><strong>リクエストのキューイング</strong>: 各リクエストは推論ランタイムのキューに格納されます。</li>
+<li><strong>バッチの形成</strong>: キューから複数のリクエストが選択され、一つのバッチとしてまとめられます。例えば、上記3つのリクエストが1つのバッチになります。</li>
+<li><strong>パディング</strong>: 各リクエストのプロンプト長が異なるため、バッチ内の最長プロンプトに合わせて短いプロンプトにはパディングトークンが追加され、同じ長さになります。</li>
+<li><strong>並列推論</strong>: 形成されたバッチがLLMに一度に投入され、GPU上で並列に処理されます。</li>
+<li><strong>結果の分離</strong>: LLMからの出力は、元のリクエストごとに分離され、各ユーザーに返されます。</li>
+</ol>
+<p>これにより、GPUは常に高い稼働率を維持し、個々のリクエストを順番に処理するよりもはるかに高い全体スループットを実現します。</p>
+<h3 id="paged-attentionの例">Paged Attentionの例</h3>
+<p>Batchingの例で、さらに生成される応答の長さもバラバラだとします。</p>
+<ul>
+<li><strong>ユーザーA</strong>: 「今日の天気は？」 → 「晴れです。」（短い）</li>
+<li><strong>ユーザーB</strong>: 「おすすめのレストランを教えて」 → 「新宿にあるイタリアンレストラン『ラ・パスタ』がおすすめです。特にランチのコースは...」（中くらい）</li>
+<li><strong>ユーザーC</strong>: 「PythonでFizzBuzzを書いて」 → 「はい、承知いたしました。以下にPythonでFizzBuzzを実装したコードを示します。<code>python ... </code>」（長い）</li>
+</ul>
+<p>従来のKV cache管理では、各リクエストに対して最大生成長を考慮した連続メモリを確保する必要があり、短い応答のリクエストではメモリが無駄になります。</p>
+<p>Paged attentionでは、</p>
+<ol>
+<li>各リクエストのKV cacheは、固定サイズのブロック（例: 256トークン分のK, Vベクトルを格納できるブロック）に分割されます。</li>
+<li>リクエストAには1ブロック、リクエストBには3ブロック、リクエストCには5ブロックといったように、必要な分だけ不連続な物理メモリブロックが割り当てられます。</li>
+<li>これらのブロックの物理的な位置は、各リクエストの「ブロックテーブル」に記録されます。</li>
+<li>リクエストAが完了し、そのKV cacheブロックが解放されると、そのブロックはすぐに他のリクエストに再利用可能になります。メモリの断片化が起こりにくく、GPUメモリをより効率的に共有できます。</li>
+</ol>
+<p>これにより、同じGPUメモリ量で、より多くのリクエストを同時に処理したり、より長い応答を生成したりすることが可能になります。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">KV cache</th>
+<th align="left">Batching</th>
+<th align="left">Paged Attention</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">単一リクエスト内のAttention計算を高速化</td>
+<td align="left">複数リクエストのスループットを向上</td>
+<td align="left">KV cacheのメモリ効率を向上</td>
+</tr>
+<tr>
+<td align="left"><strong>対象</strong></td>
+<td align="left">TransformerのAttention計算</td>
+<td align="left">複数の独立した推論リクエスト</td>
+<td align="left">KV cacheのメモリ管理</td>
+</tr>
+<tr>
+<td align="left"><strong>仕組み</strong></td>
+<td align="left">過去のK, Vベクトルをメモリに保存し再利用</td>
+<td align="left">複数のリクエストをまとめて並列処理</td>
+<td align="left">KV cacheを固定サイズのブロックで管理</td>
+</tr>
+<tr>
+<td align="left"><strong>効果</strong></td>
+<td align="left">推論レイテンシの削減、計算量削減</td>
+<td align="left">全体スループットの向上、GPU利用率向上</td>
+<td align="left">メモリ断片化の解消、メモリ利用効率向上</td>
+</tr>
+<tr>
+<td align="left"><strong>単独効果</strong></td>
+<td align="left">単一リクエストでも効果あり</td>
+<td align="left">複数リクエストがないと効果なし</td>
+<td align="left">主に複数リクエストで効果あり</td>
+</tr>
+<tr>
+<td align="left"><strong>関連性</strong></td>
+<td align="left">BatchingやPaged Attentionと併用される</td>
+<td align="left">KV cacheやPaged Attentionと併用される</td>
+<td align="left">KV cacheの最適化であり、Batchingと相乗効果</td>
+</tr>
+</tbody></table></div>
+<p><em>表15.1: KV cache, Batching, Paged Attentionの比較</em></p>
+<pre class="mermaid">graph TD
+    subgraph "推論最適化技術"
+        A[KV Cache] --> B{計算量削減}
+        C[Batching] --> D{スループット向上}
+        E[Paged Attention] --> F{メモリ効率向上}
+    end
+
+    A -- 依存 --> G[Transformer推論]
+    C -- 適用 --> G
+    E -- KV Cacheの管理 --> A
+
+    D -- 恩恵を受ける --> F
+    F -- 恩恵を受ける --> D
+
+    G -- 最終目標 --> H[高速・効率的なLLM推論]</pre>
+<p><em>図15.4: LLM推論最適化技術の関係性</em></p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>これらの技術は、LLMを実用的なアプリケーションに組み込む上で不可欠な要素です。</p>
+<ul>
+<li><strong>KV cache</strong>: ほとんど全てのLLM推論ランタイムで標準的に実装されており、単一のプロンプトに対する応答速度（レイテンシ）に直接影響します。これがなければ、LLMの生成速度は非常に遅くなります。</li>
+<li><strong>Batching</strong>: LLMをAPIサービスとして提供したり、大量のテキストを処理するバックエンドシステムで利用する際に、サーバーのスループットを最大化するために必須です。これにより、より多くのユーザーを同時に捌けるようになります。</li>
+<li><strong>Paged Attention</strong>: 特にvLLMのような高性能な推論ランタイムの核となる技術であり、動的バッチングと組み合わせることで、限られたGPUメモリで最大限のスループットを引き出すことを可能にします。これにより、より安価なGPUでより多くのリクエストを処理できるようになり、運用コストの削減にも貢献します。</li>
+</ul>
+<p>これらの技術は、それぞれが独立して機能するだけでなく、互いに組み合わさることで相乗効果を発揮します。例えば、vLLMはKV cacheをPaged Attentionで効率的に管理しながら、動的バッチングによって高いスループットを実現しています。推論ランタイム（第9章参照）を選ぶ際には、これらの技術がどのように実装され、最適化されているかを理解することが重要です。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li><strong>KV cache</strong>は、LLMが過去に計算したAttentionのKeyとValueを保存し再利用することで、推論時の計算量を減らし、応答速度を向上させます。</li>
+<li><strong>Batching</strong>は、複数のリクエストをまとめてGPUに投入することで、GPUの利用効率を高め、LLMサーバーの全体スループットを向上させます。</li>
+<li><strong>Paged Attention</strong>は、KV cacheのメモリ管理をOSのページングのように行うことで、メモリの断片化を解消し、特にバッチ処理時のKV cacheのメモリ効率を劇的に改善します。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li>KV cacheとAttention機構そのもの</li>
+<li>Batchingと単なる並列処理</li>
+<li>Paged AttentionとKV cacheそのもの、またはOSの仮想メモリ</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<p>本章で推論高速化の基礎的な概念を理解しました。これらの技術がどのように実装されているか、より具体的な推論ランタイムの内部構造に興味がある場合は、第9章「vLLM / TGI / TensorRT-LLM」を再読すると、より深く理解できるでしょう。また、モデルのサイズを小さくする量子化（第10章）と組み合わせることで、さらに効率的な推論が可能になります。</p>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-14.html" class="nav-prev">← 第14章 学習ツール群</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-16.html" class="nav-next">第16章 speculative decoding / EAGLE / DFlash →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

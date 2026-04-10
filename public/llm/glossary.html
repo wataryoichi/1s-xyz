@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用語集 - LLM周辺用語 教科書</title>
+  <meta name="description" content="LLM周辺用語 教科書 用語集">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/glossary.html">
+  <meta property="og:title" content="用語集 - LLM周辺用語 教科書">
+  <meta property="og:description" content="LLM周辺用語 教科書 用語集">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/glossary.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="用語集 - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="LLM周辺用語 教科書 用語集">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">用語集</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h2 id="llm用語集">LLM用語集</h2>
+<h3 id="1-bit">1-bit</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 情報を1ビット（0か1）だけで表現する、極端に軽量なモデルの重み表現方法です。</li>
+<li><strong>カテゴリ</strong>: 量子化、低ビット化</li>
+<li><strong>何に使うのか</strong>: モデルサイズと計算量を大幅に削減し、非常に限られたリソースのデバイスでもLLMを動かすことを目指します。</li>
+<li><strong>よく混同される用語</strong>: BitNet, ternary</li>
+<li><strong>初出の章</strong>: 第11章</li>
+</ul>
+<h3 id="158-bit">1.58-bit</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: BitNetで採用されている、1ビットより少しだけ多くの情報（1.58ビット）を使ってモデルの重みを表現する技術です。</li>
+<li><strong>カテゴリ</strong>: 量子化、低ビット化</li>
+<li><strong>何に使うのか</strong>: 1ビットでは表現しきれない細かな情報を保持しつつ、モデルを極めて軽量に保ちます。</li>
+<li><strong>よく混同される用語</strong>: BitNet, 1-bit</li>
+<li><strong>初出の章</strong>: 第11章</li>
+</ul>
+<h3 id="4bit">4bit</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの重みを4ビットの精度で表現する量子化手法です。</li>
+<li><strong>カテゴリ</strong>: 量子化</li>
+<li><strong>何に使うのか</strong>: モデルサイズとメモリ使用量を大幅に削減し、より少ないGPUメモリでLLMを実行できるようにします。</li>
+<li><strong>よく混同される用語</strong>: Q4, INT8</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="accelerate">accelerate</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: PyTorchの学習コードを、シングルGPU、マルチGPU、CPUなど様々な環境で簡単に分散学習できるようにするHugging Faceのライブラリです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール</li>
+<li><strong>何に使うのか</strong>: 大規模モデルの学習やファインチューニングを効率的に行います。</li>
+<li><strong>よく混同される用語</strong>: transformers, deepspeed, FSDP</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="adapter">adapter</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）の既存の構造に、小さな新しい層（アダプター）を追加して、特定のタスクに合わせてモデルを微調整する技術です。</li>
+<li><strong>カテゴリ</strong>: ファインチューニング、PEFT</li>
+<li><strong>何に使うのか</strong>: モデル全体を再学習するよりも少ない計算リソースで、LLMを特定のタスクに適応させます。</li>
+<li><strong>よく混同される用語</strong>: LoRA, QLoRA</li>
+<li><strong>初出の章</strong>: 第13章</li>
+</ul>
+<h3 id="agent">agent</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）が、目標を達成するために自律的に計画を立て、ツールを使い、行動する能力を持つシステムのことです。</li>
+<li><strong>カテゴリ</strong>: LLM応用、AIシステム</li>
+<li><strong>何に使うのか</strong>: 複雑なタスクを自動化したり、ユーザーの指示に基づいて複数のステップを実行したりします。</li>
+<li><strong>よく混同される用語</strong>: tool calling, function calling</li>
+<li><strong>初出の章</strong>: 第20章</li>
+</ul>
+<h3 id="alignment">alignment</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）が、人間の意図や価値観、倫理観に沿った振る舞いをするように調整するプロセスです。</li>
+<li><strong>カテゴリ</strong>: 学習、倫理</li>
+<li><strong>何に使うのか</strong>: LLMが有害な内容を生成したり、誤った情報を拡散したりするのを防ぎ、より安全で有用なAIにするために行われます。</li>
+<li><strong>よく混同される用語</strong>: RLHF, DPO, SFT</li>
+<li><strong>初出の章</strong>: 第12章</li>
+</ul>
+<h3 id="api">API</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ソフトウェア同士が情報をやり取りするための窓口やルールのようなものです。</li>
+<li><strong>カテゴリ</strong>: ソフトウェア連携</li>
+<li><strong>何に使うのか</strong>: 自分のプログラムからLLMの機能（テキスト生成など）を呼び出して利用するために使います。</li>
+<li><strong>よく混同される用語</strong>: runtime</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="architecture">architecture</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）の内部構造や設計図のことです。どのような層がどのように積み重なっているかなどを指します。</li>
+<li><strong>カテゴリ</strong>: モデル構造</li>
+<li><strong>何に使うのか</strong>: モデルの性能や特性を理解し、新しいモデルを設計する際の基礎となります。</li>
+<li><strong>よく混同される用語</strong>: model, parameters</li>
+<li><strong>初出の章</strong>: 第2章</li>
+</ul>
+<h3 id="awq">AWQ</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMの量子化手法の一つで、モデルの重みの中から重要な部分を特定し、それらを高精度に保ちつつ、他の部分を低精度に量子化することで、性能低下を抑えながら軽量化を実現します。</li>
+<li><strong>カテゴリ</strong>: 量子化</li>
+<li><strong>何に使うのか</strong>: 量子化されたモデルの推論速度を向上させ、メモリ使用量を削減します。</li>
+<li><strong>よく混同される用語</strong>: GPTQ, quantization</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="axolotl">Axolotl</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）のファインチューニングを簡単に行うための、設定ファイルベースのツールキットです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール</li>
+<li><strong>何に使うのか</strong>: ユーザーが独自のデータセットを使って、LoRAなどの手法でLLMを効率的にファインチューニングする際に利用します。</li>
+<li><strong>よく混同される用語</strong>: LLaMA-Factory, unsloth</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="backend">backend</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ソフトウェアの裏側で、実際の処理（計算やデータ管理など）を行う部分のことです。</li>
+<li><strong>カテゴリ</strong>: ソフトウェアアーキテクチャ</li>
+<li><strong>何に使うのか</strong>: LLMの推論ランタイムにおいて、GPUなどのハードウェアと連携して計算を実行する役割を担います。</li>
+<li><strong>よく混同される用語</strong>: inference engine, kernel</li>
+<li><strong>初出の章</strong>: 第6章</li>
+</ul>
+<h3 id="batch">batch</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 複数の入力をまとめて一度に処理すること、またはその入力のまとまりのことです。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: LLMの推論において、GPUなどの計算リソースを効率的に利用し、スループット（単位時間あたりの処理量）を向上させます。</li>
+<li><strong>よく混同される用語</strong>: batching</li>
+<li><strong>初出の章</strong>: 第7章</li>
+</ul>
+<h3 id="batching">batching</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 複数のリクエスト（入力）をまとめて一度に処理する技術です。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: LLMの推論において、GPUなどのハードウェアを効率的に利用し、全体の処理速度（スループット）を向上させます。</li>
+<li><strong>よく混同される用語</strong>: batch</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="bf16">BF16</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「BFloat16」の略で、浮動小数点数を16ビットで表現する形式の一つです。FP16よりも広い範囲の数値を表現できます。</li>
+<li><strong>カテゴリ</strong>: データ型、量子化</li>
+<li><strong>何に使うのか</strong>: 大規模モデルの学習や推論において、FP32よりもメモリ使用量と計算量を削減しつつ、精度低下を抑えるために使われます。</li>
+<li><strong>よく混同される用語</strong>: FP16, FP32</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="bitnet">BitNet</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの重みを極めて低いビット数（例: 1ビットや1.58ビット）で表現する、新しいタイプの低ビットLLMアーキテクチャです。</li>
+<li><strong>カテゴリ</strong>: 量子化、低ビット化</li>
+<li><strong>何に使うのか</strong>: モデルサイズと計算量を劇的に削減し、より少ないリソースでLLMを動かすことを可能にします。</li>
+<li><strong>よく混同される用語</strong>: 1-bit, ternary</li>
+<li><strong>初出の章</strong>: 第11章</li>
+</ul>
+<h3 id="bitnetcpp">bitnet.cpp</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: BitNetモデルをC++で効率的に実行するための実装プロジェクトです。</li>
+<li><strong>カテゴリ</strong>: 低ビット化、ランタイム</li>
+<li><strong>何に使うのか</strong>: BitNetのような極端に軽量なモデルを、様々なデバイスで高速に推論するために利用されます。</li>
+<li><strong>よく混同される用語</strong>: llama.cpp</li>
+<li><strong>初出の章</strong>: 第11章</li>
+</ul>
+<h3 id="bitsandbytes">bitsandbytes</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: PyTorchモデルの量子化や低精度学習をサポートするPythonライブラリです。</li>
+<li><strong>カテゴリ</strong>: 量子化、学習ツール</li>
+<li><strong>何に使うのか</strong>: LLMのメモリ使用量を削減し、より少ないGPUメモリで学習や推論を行えるようにします。</li>
+<li><strong>よく混同される用語</strong>: quantization, QLoRA</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="checkpoint">checkpoint</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの学習途中の状態（重み、最適化器の状態など）を保存したファイルのことです。</li>
+<li><strong>カテゴリ</strong>: モデル管理</li>
+<li><strong>何に使うのか</strong>: 学習を中断した場所から再開したり、異なるタスクでモデルを微調整したりするために使われます。</li>
+<li><strong>よく混同される用語</strong>: model, weights</li>
+<li><strong>初出の章</strong>: 第2章</li>
+</ul>
+<h3 id="chunking">chunking</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 長いテキストを、LLMが一度に処理できる適切なサイズの小さな塊（チャンク）に分割する処理です。</li>
+<li><strong>カテゴリ</strong>: RAG、前処理</li>
+<li><strong>何に使うのか</strong>: RAGシステムで、大量のドキュメントから関連情報を効率的に検索し、LLMの入力制限（コンテキスト長）に収まるようにします。</li>
+<li><strong>よく混同される用語</strong>: context length</li>
+<li><strong>初出の章</strong>: 第19章</li>
+</ul>
+<h3 id="context">context</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）がテキストを生成する際に考慮する、直前の入力や会話の履歴のことです。</li>
+<li><strong>カテゴリ</strong>: LLMの動作</li>
+<li><strong>何に使うのか</strong>: LLMが文脈に合った、より自然で一貫性のある応答を生成するために重要です。</li>
+<li><strong>よく混同される用語</strong>: context length</li>
+<li><strong>初出の章</strong>: 第7章</li>
+</ul>
+<h3 id="context-length">context length</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）が一度に処理できるテキストの最大長（トークン数）のことです。</li>
+<li><strong>カテゴリ</strong>: モデルの制約</li>
+<li><strong>何に使うのか</strong>: LLMがどれだけの情報を記憶し、考慮しながらテキストを生成できるかを示します。長いほど複雑なタスクに対応できますが、計算コストも増えます。</li>
+<li><strong>よく混同される用語</strong>: vocab, chunking</li>
+<li><strong>初出の章</strong>: 第2章</li>
+</ul>
+<h3 id="continued-pretraining">continued pretraining</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 既存の事前学習済みLLMを、特定のドメインや新しいデータでさらに学習させることです。</li>
+<li><strong>カテゴリ</strong>: 学習</li>
+<li><strong>何に使うのか</strong>: モデルに新しい知識や専門分野の情報を追加したり、特定のタスクへの適応能力を高めたりします。</li>
+<li><strong>よく混同される用語</strong>: fine-tuning, LoRA</li>
+<li><strong>初出の章</strong>: 第12章</li>
+</ul>
+<h3 id="cuda">CUDA</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: NVIDIA社が提供する、GPU上で並列計算を行うための開発プラットフォームです。</li>
+<li><strong>カテゴリ</strong>: GPUアクセラレーション</li>
+<li><strong>何に使うのか</strong>: LLMの学習や推論といった、大量の並列計算が必要な処理を高速に実行するために使われます。</li>
+<li><strong>よく混同される用語</strong>: ROCm, Metal, DirectML</li>
+<li><strong>初出の章</strong>: 第18章</li>
+</ul>
+<h3 id="dataset">dataset</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの学習や評価に使われる、整理されたデータの集まりです。</li>
+<li><strong>カテゴリ</strong>: データ</li>
+<li><strong>何に使うのか</strong>: LLMの学習やファインチューニング、性能評価のために不可欠です。</li>
+<li><strong>よく混同される用語</strong>: repository</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="deepspeed">deepspeed</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Microsoftが開発した、大規模モデルの学習を効率化するための最適化ライブラリです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール</li>
+<li><strong>何に使うのか</strong>: 巨大なLLMを、より少ないGPUメモリで、より高速に学習できるようにします。</li>
+<li><strong>よく混同される用語</strong>: FSDP, accelerate</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="dflash">DFlash</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: KVキャッシュの効率を向上させるための技術で、特に推論時のメモリ使用量を削減し、速度を向上させます。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: LLMの推論速度と効率を高め、より長いコンテキスト長を扱えるようにします。</li>
+<li><strong>よく混同される用語</strong>: speculative decoding, KV cache</li>
+<li><strong>初出の章</strong>: 第16章</li>
+</ul>
+<h3 id="directml">DirectML</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Microsoftが提供する、Windows上でGPUアクセラレーションを利用するためのAPIです。</li>
+<li><strong>カテゴリ</strong>: GPUアクセラレーション</li>
+<li><strong>何に使うのか</strong>: NVIDIA以外のGPU（AMD, Intelなど）を搭載したWindows PCで、LLMの推論などを高速化するために使われます。</li>
+<li><strong>よく混同される用語</strong>: CUDA, ROCm, Metal</li>
+<li><strong>初出の章</strong>: 第18章</li>
+</ul>
+<h3 id="diffusion-draft">diffusion draft</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: speculative decodingのドラフトモデルとして、拡散モデル（Diffusion Model）を利用する手法です。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: より高品質なドラフトを生成することで、speculative decodingの効率をさらに向上させ、推論速度を高めます。</li>
+<li><strong>よく混同される用語</strong>: speculative decoding, draft model</li>
+<li><strong>初出の章</strong>: 第16章</li>
+</ul>
+<h3 id="dpo">DPO</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Direct Preference Optimization」の略で、人間の好み（どちらの応答が良いか）を直接モデルに学習させることで、LLMをアラインメントする手法です。</li>
+<li><strong>カテゴリ</strong>: 学習、アラインメント</li>
+<li><strong>何に使うのか</strong>: RLHF（強化学習）よりもシンプルかつ安定して、LLMを人間の意図に沿った振る舞いに調整します。</li>
+<li><strong>よく混同される用語</strong>: RLHF, SFT, alignment</li>
+<li><strong>初出の章</strong>: 第12章</li>
+</ul>
+<h3 id="draft-model">draft model</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: speculative decodingにおいて、高速だが精度が低い応答を素早く生成する、軽量なモデルです。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: 高精度なメインモデルの計算量を減らし、LLM全体の推論速度を向上させます。</li>
+<li><strong>よく混同される用語</strong>: speculative decoding, verifier</li>
+<li><strong>初出の章</strong>: 第16章</li>
+</ul>
+<h3 id="eagle">EAGLE</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: speculative decodingをさらに効率化し、より高速な推論を実現するための技術です。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: LLMの応答速度を向上させ、リアルタイム性が求められるアプリケーションでの利用を可能にします。</li>
+<li><strong>よく混同される用語</strong>: speculative decoding</li>
+<li><strong>初出の章</strong>: 第16章</li>
+</ul>
+<h3 id="embedding">embedding</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 単語や文章などのテキスト情報を、意味的な特徴を保ったまま数値のベクトル（多次元の点）に変換したものです。</li>
+<li><strong>カテゴリ</strong>: 自然言語処理、RAG</li>
+<li><strong>何に使うのか</strong>: テキスト間の意味的な類似度を計算したり、機械学習モデルの入力として使われたりします。RAGでは、関連文書の検索に不可欠です。</li>
+<li><strong>よく混同される用語</strong>: vector DB</li>
+<li><strong>初出の章</strong>: 第2章</li>
+</ul>
+<h3 id="fine-tuning">fine-tuning</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 事前学習済みのLLMを、特定のタスクやデータセットに合わせてさらに学習させることです。</li>
+<li><strong>カテゴリ</strong>: 学習</li>
+<li><strong>何に使うのか</strong>: モデルの性能を向上させたり、特定の用途に適応させたりします。</li>
+<li><strong>よく混同される用語</strong>: LoRA, continued pretraining</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="fp16">FP16</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Half-precision floating-point」の略で、浮動小数点数を16ビットで表現する形式です。</li>
+<li><strong>カテゴリ</strong>: データ型、量子化</li>
+<li><strong>何に使うのか</strong>: FP32よりもメモリ使用量と計算量を削減し、大規模モデルの学習や推論を高速化します。</li>
+<li><strong>よく混同される用語</strong>: FP32, BF16</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="fp32">FP32</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Single-precision floating-point」の略で、浮動小数点数を32ビットで表現する形式です。多くの計算で標準的に使われます。</li>
+<li><strong>カテゴリ</strong>: データ型</li>
+<li><strong>何に使うのか</strong>: モデルの重みや計算の中間結果を高い精度で保持するために使われます。</li>
+<li><strong>よく混同される用語</strong>: FP16, BF16</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="fp8">FP8</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 浮動小数点数を8ビットで表現する形式です。FP16やBF16よりもさらにメモリ使用量と計算量を削減できます。</li>
+<li><strong>カテゴリ</strong>: データ型、量子化</li>
+<li><strong>何に使うのか</strong>: 極めて大規模なモデルの学習や推論において、リソース効率を最大化するために研究・利用されています。</li>
+<li><strong>よく混同される用語</strong>: INT8, 4bit</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="fsdp">FSDP</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Fully Sharded Data Parallel」の略で、大規模モデルの学習において、モデルの重み、勾配、最適化器の状態などを複数のGPUに分散して保存・計算する技術です。</li>
+<li><strong>カテゴリ</strong>: 学習ツール、分散学習</li>
+<li><strong>何に使うのか</strong>: 巨大なLLMを、より少ないGPUメモリで、より高速に学習できるようにします。</li>
+<li><strong>よく混同される用語</strong>: deepspeed, accelerate</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="function-calling">function calling</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）が、ユーザーの指示に基づいて外部のツールやAPIの関数を呼び出すための機能です。</li>
+<li><strong>カテゴリ</strong>: LLM応用、ツール利用</li>
+<li><strong>何に使うのか</strong>: LLMがリアルタイム情報にアクセスしたり、計算を実行したり、外部システムを操作したりすることを可能にします。</li>
+<li><strong>よく混同される用語</strong>: tool calling, agent</li>
+<li><strong>初出の章</strong>: 第20章</li>
+</ul>
+<h3 id="gguf">GGUF</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ローカル環境でのLLM実行に特化した、効率的なモデルファイル形式です。量子化された重みやメタデータを含みます。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: CPUや一般的なGPUでLLMを効率的に動かすために使われます。特にllama.cppで広く採用されています。</li>
+<li><strong>よく混同される用語</strong>: safetensors, quantization, model architecture</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="gptq">GPTQ</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMの量子化手法の一つで、モデルの重みを4ビットなどの低精度に変換する際に、元のモデルの性能をできるだけ維持するように最適化します。</li>
+<li><strong>カテゴリ</strong>: 量子化</li>
+<li><strong>何に使うのか</strong>: 量子化されたモデルの推論速度を向上させ、メモリ使用量を削減します。</li>
+<li><strong>よく混同される用語</strong>: AWQ, quantization</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="hub">Hub</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Faceが提供する、モデル、データセット、デモスペースなどを共有・発見できるプラットフォームです。</li>
+<li><strong>カテゴリ</strong>: プラットフォーム</li>
+<li><strong>何に使うのか</strong>: 世界中のAI開発者がLLMや関連リソースを公開・利用するために使われます。</li>
+<li><strong>よく混同される用語</strong>: Hugging Face, repository</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="hugging-face">Hugging Face</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）を中心としたAI技術のオープンソース開発を推進する企業であり、そのプラットフォームです。</li>
+<li><strong>カテゴリ</strong>: プラットフォーム、企業</li>
+<li><strong>何に使うのか</strong>: モデルの共有、学習ツールの提供、デモスペースのホスティングなど、LLM開発のあらゆる側面をサポートします。</li>
+<li><strong>よく混同される用語</strong>: transformers</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="hybrid-search">hybrid search</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: キーワード検索（伝統的な検索）とベクトル検索（意味的な類似度検索）を組み合わせて、より関連性の高い情報を探し出す検索手法です。</li>
+<li><strong>カテゴリ</strong>: RAG、検索技術</li>
+<li><strong>何に使うのか</strong>: RAGシステムにおいて、検索の精度を向上させ、LLMに提供する情報の質を高めます。</li>
+<li><strong>よく混同される用語</strong>: retrieval, vector DB</li>
+<li><strong>初出の章</strong>: 第19章</li>
+</ul>
+<h3 id="inference">inference</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 学習済みのモデルに新しいデータ（入力）を与えて、予測や生成などの結果を得るプロセスです。</li>
+<li><strong>カテゴリ</strong>: LLMの利用</li>
+<li><strong>何に使うのか</strong>: LLMに質問を投げかけたり、テキストを生成させたりする際に、実際にモデルが動いて結果を出すことです。</li>
+<li><strong>よく混同される用語</strong>: serving, training</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="inference-engine">inference engine</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの推論（inference）を効率的に実行するためのソフトウェアコンポーネントです。</li>
+<li><strong>カテゴリ</strong>: 推論ランタイム</li>
+<li><strong>何に使うのか</strong>: モデルファイルを読み込み、GPUなどのハードウェアを最大限に活用して、高速に推論結果を生成します。</li>
+<li><strong>よく混同される用語</strong>: backend, runtime</li>
+<li><strong>初出の章</strong>: 第6章</li>
+</ul>
+<h3 id="int8">INT8</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 整数を8ビットで表現する形式です。浮動小数点数よりもメモリ使用量と計算量を大幅に削減できます。</li>
+<li><strong>カテゴリ</strong>: データ型、量子化</li>
+<li><strong>何に使うのか</strong>: 量子化されたモデルの推論において、高速化とメモリ削減を実現します。</li>
+<li><strong>よく混同される用語</strong>: FP8, 4bit</li>
+<li><strong>初出の章</strong>: 第10章</li>
+</ul>
+<h3 id="kernel">kernel</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: GPUなどのハードウェア上で実行される、並列処理に特化した小さなプログラムのことです。</li>
+<li><strong>カテゴリ</strong>: GPUアクセラレーション</li>
+<li><strong>何に使うのか</strong>: LLMの計算（行列積など）を高速に実行するために、CUDAなどのプラットフォームを通じて呼び出されます。</li>
+<li><strong>よく混同される用語</strong>: backend</li>
+<li><strong>初出の章</strong>: 第18章</li>
+</ul>
+<h3 id="k-quants">K-quants</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: GGUF形式で使われる、量子化手法の一種です。モデルの重みをグループ分けし、それぞれのグループに最適な量子化方法を適用することで、効率と精度を両立させます。</li>
+<li><strong>カテゴリ</strong>: 量子化、GGUF</li>
+<li><strong>何に使うのか</strong>: GGUFモデルのファイルサイズを小さくし、CPUや一般的なGPUでの実行性能を向上させます。</li>
+<li><strong>よく混同される用語</strong>: quantization, GGUF</li>
+<li><strong>初出の章</strong>: 第5章</li>
+</ul>
+<h3 id="kv-cache">KV cache</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）がテキストを生成する際に、以前に計算した「Key」と「Value」の情報を一時的に保存しておくメモリ領域です。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: 同じ情報を繰り返し計算するのを避け、LLMのテキスト生成速度を大幅に向上させます。</li>
+<li><strong>よく混同される用語</strong>: paged attention</li>
+<li><strong>初出の章</strong>: 第6章</li>
+</ul>
+<h3 id="latency">latency</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: リクエストが送信されてから、その応答が返ってくるまでの時間のことです。</li>
+<li><strong>カテゴリ</strong>: 性能指標</li>
+<li><strong>何に使うのか</strong>: LLMの応答速度を示す指標で、ユーザー体験に直結します。低いほど良いとされます。</li>
+<li><strong>よく混同される用語</strong>: throughput</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="llama-factory">LLaMA-Factory</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）のファインチューニングを簡単に行うための、Web UIも備えたツールキットです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール</li>
+<li><strong>何に使うのか</strong>: ユーザーが独自のデータセットを使って、LoRAなどの手法でLLMを効率的にファインチューニングする際に利用します。</li>
+<li><strong>よく混同される用語</strong>: Axolotl, unsloth</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="llamacpp">llama.cpp</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: C++で書かれた、GGUF形式のLLMをCPUや一般的なGPUで高速に実行するための推論エンジンです。</li>
+<li><strong>カテゴリ</strong>: 推論ランタイム</li>
+<li><strong>何に使うのか</strong>: ローカルPCでLLMを動かす際のデファクトスタンダード的なツールです。</li>
+<li><strong>よく混同される用語</strong>: Ollama, vLLM, transformers</li>
+<li><strong>初出の章</strong>: 第7章</li>
+</ul>
+<h3 id="llm">LLM</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大量のテキストデータで学習された、人間のような自然な言葉を理解し、生成できる巨大なAIモデルです。</li>
+<li><strong>カテゴリ</strong>: AIモデル</li>
+<li><strong>何に使うのか</strong>: 文章の生成、質問応答、翻訳、要約など、様々な言語タスクに利用されます。</li>
+<li><strong>よく混同される用語</strong>: model</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="lm-studio">LM Studio</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ローカルPCでLLMを簡単にダウンロード、実行、チャットできるデスクトップアプリケーションです。</li>
+<li><strong>カテゴリ</strong>: ローカルLLMツール</li>
+<li><strong>何に使うのか</strong>: 技術的な知識が少なくても、手軽にローカルLLMを試したい場合に利用します。</li>
+<li><strong>よく混同される用語</strong>: Ollama, llama.cpp</li>
+<li><strong>初出の章</strong>: 第8章</li>
+</ul>
+<h3 id="local-server">local server</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 自分のPC上で動作し、外部からのリクエストを受け付けて処理を行うプログラムのことです。</li>
+<li><strong>カテゴリ</strong>: ソフトウェアアーキテクチャ</li>
+<li><strong>何に使うのか</strong>: ローカルLLMツール（Ollamaなど）が、LLMの推論機能を提供するために使われます。</li>
+<li><strong>よく混同される用語</strong>: serving</li>
+<li><strong>初出の章</strong>: 第8章</li>
+</ul>
+<h3 id="lora">LoRA</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Low-Rank Adaptation」の略で、大規模言語モデル（LLM）を効率的にファインチューニングする技術です。</li>
+<li><strong>カテゴリ</strong>: ファインチューニング、PEFT</li>
+<li><strong>何に使うのか</strong>: モデル全体を再学習するよりも少ない計算リソースとメモリで、LLMを特定のタスクに適応させます。</li>
+<li><strong>よく混同される用語</strong>: fine-tuning, QLoRA, continued pretraining</li>
+<li><strong>初出の章</strong>: 第13章</li>
+</ul>
+<h3 id="mcp">MCP</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Multi-modal Co-Pilot」の略で、複数の種類の情報（テキスト、画像、音声など）を統合して処理し、ユーザーを支援するAIシステムです。</li>
+<li><strong>カテゴリ</strong>: LLM応用、マルチモーダルAI</li>
+<li><strong>何に使うのか</strong>: より複雑で現実世界に近いタスクを、LLMが多様な情報源を活用して解決できるようにします。</li>
+<li><strong>よく混同される用語</strong>: agent, tool calling</li>
+<li><strong>初出の章</strong>: 第20章</li>
+</ul>
+<h3 id="merge">merge</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LoRAなどのアダプター（追加学習した小さな重み）を、元のモデルの重みに統合する処理です。</li>
+<li><strong>カテゴリ</strong>: ファインチューニング</li>
+<li><strong>何に使うのか</strong>: ファインチューニングされたモデルを単一のファイルとして保存し、推論時にアダプターを別途読み込む必要をなくします。</li>
+<li><strong>よく混同される用語</strong>: LoRA</li>
+<li><strong>初出の章</strong>: 第13章</li>
+</ul>
+<h3 id="metal">Metal</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Apple社が提供する、macOSやiOSデバイス上でGPUアクセラレーションを利用するためのAPIです。</li>
+<li><strong>カテゴリ</strong>: GPUアクセラレーション</li>
+<li><strong>何に使うのか</strong>: Apple Silicon搭載のMacなどで、LLMの推論などを高速化するために使われます。</li>
+<li><strong>よく混同される用語</strong>: CUDA, ROCm, DirectML</li>
+<li><strong>初出の章</strong>: 第18章</li>
+</ul>
+<h3 id="metadata">metadata</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: データそのものではなく、データに関する情報（データの種類、作成日時、設定など）のことです。</li>
+<li><strong>カテゴリ</strong>: データ管理</li>
+<li><strong>何に使うのか</strong>: GGUFファイルでは、モデルの量子化設定やコンテキスト長などの情報がメタデータとして含まれ、ランタイムがモデルを正しく解釈するために使われます。</li>
+<li><strong>よく混同される用語</strong>:</li>
+<li><strong>初出の章</strong>: 第5章</li>
+</ul>
+<h3 id="mlx-format必要なら">MLX format（必要なら）</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Appleが開発した機械学習フレームワークMLXで使われるモデルファイル形式です。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: Apple Silicon搭載デバイスでMLXフレームワークを使ってLLMを効率的に実行するために使われます。</li>
+<li><strong>よく混同される用語</strong>: GGUF, safetensors</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="model">model</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 学習によって特定のタスクを実行できるように訓練されたAIプログラムのことで、主にその内部の数値データ（重み）を指します。</li>
+<li><strong>カテゴリ</strong>: AIモデル</li>
+<li><strong>何に使うのか</strong>: テキスト生成、画像認識、翻訳など、様々なAIタスクを実行するために使われます。</li>
+<li><strong>よく混同される用語</strong>: LLM, weights</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="model-card">model card</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Face Hubなどで公開されているモデルに関する詳細情報（モデルの目的、学習データ、性能、制限事項など）をまとめた説明書です。</li>
+<li><strong>カテゴリ</strong>: モデル管理</li>
+<li><strong>何に使うのか</strong>: モデルの利用者が、そのモデルの特性や適切な使い方を理解するために参照します。</li>
+<li><strong>よく混同される用語</strong>: repository</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="model-manager">model manager</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ローカルLLMツールにおいて、モデルのダウンロード、インストール、管理を行う機能やコンポーネントです。</li>
+<li><strong>カテゴリ</strong>: ローカルLLMツール</li>
+<li><strong>何に使うのか</strong>: ユーザーが様々なLLMを簡単に試したり、切り替えたりできるようにします。</li>
+<li><strong>よく混同される用語</strong>: Ollama, LM Studio</li>
+<li><strong>初出の章</strong>: 第8章</li>
+</ul>
+<h3 id="model-file">model file</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 学習済みのモデルの重みや構造などの情報が保存されたファイルです。</li>
+<li><strong>カテゴリ</strong>: モデル管理</li>
+<li><strong>何に使うのか</strong>: モデルをロードして推論を実行したり、他のユーザーと共有したりするために使われます。</li>
+<li><strong>よく混同される用語</strong>: runtime, checkpoint</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="native-low-bit-training">native low-bit training</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの学習段階から重みを低ビット（例: 1ビット）で表現し、その精度で学習を進める手法です。</li>
+<li><strong>カテゴリ</strong>: 低ビット化、学習</li>
+<li><strong>何に使うのか</strong>: 低ビットモデルの性能を最大限に引き出し、学習後の量子化による精度低下を避けることを目指します。</li>
+<li><strong>よく混同される用語</strong>: quantization, BitNet</li>
+<li><strong>初出の章</strong>: 第11章</li>
+</ul>
+<h3 id="offload">offload</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 計算の一部を、より高速なデバイス（例: CPUからGPU）に任せることです。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: llama.cppなどで、モデルの一部をGPUに配置することで、CPUのみで実行するよりも推論速度を向上させます。</li>
+<li><strong>よく混同される用語</strong>:</li>
+<li><strong>初出の章</strong>: 第7章</li>
+</ul>
+<h3 id="ollama">Ollama</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: ローカルPCでLLMを簡単に実行・管理できるツールで、GGUF形式のモデルをダウンロードして動かすことができます。</li>
+<li><strong>カテゴリ</strong>: ローカルLLMツール</li>
+<li><strong>何に使うのか</strong>: コマンドラインやAPIを通じて、手軽にローカルLLMを試したり、アプリケーションに組み込んだりします。</li>
+<li><strong>よく混同される用語</strong>: llama.cpp, LM Studio</li>
+<li><strong>初出の章</strong>: 第8章</li>
+</ul>
+<h3 id="onnx">ONNX</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Open Neural Network Exchange」の略で、異なる機械学習フレームワーク間でモデルを交換するためのオープンな形式です。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: PyTorchやTensorFlowで学習したモデルを、ONNX Runtimeなどの推論エンジンで効率的に実行するために使われます。</li>
+<li><strong>よく混同される用語</strong>: safetensors, GGUF</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="openai-compatible-api">OpenAI-compatible API</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: OpenAIが提供するAPIと同じ形式でリクエストを受け付け、応答を返すAPIのことです。</li>
+<li><strong>カテゴリ</strong>: API</li>
+<li><strong>何に使うのか</strong>: OpenAIのAPIを利用するアプリケーションを、コードを変更せずにローカルLLM（Ollamaなど）に接続できるようにします。</li>
+<li><strong>よく混同される用語</strong>: API</li>
+<li><strong>初出の章</strong>: 第8章</li>
+</ul>
+<h3 id="open-webui">Open WebUI</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: OllamaなどのローカルLLMサーバーと連携して、Webブラウザ上でチャットインターフェースを提供するツールです。</li>
+<li><strong>カテゴリ</strong>: ローカルLLMツール</li>
+<li><strong>何に使うのか</strong>: ローカルで動いているLLMと、視覚的に分かりやすい形で対話するために使われます。</li>
+<li><strong>よく混同される用語</strong>: Ollama, LM Studio</li>
+<li><strong>初出の章</strong>: 第8章</li>
+</ul>
+<h3 id="orchestration">orchestration</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 複数の独立したコンポーネントやサービス（例: LLM、ツール、データベース）を連携させ、複雑なワークフロー全体を管理・調整することです。</li>
+<li><strong>カテゴリ</strong>: AIシステム、ワークフロー</li>
+<li><strong>何に使うのか</strong>: エージェントシステムや複雑なAIアプリケーションにおいて、各ステップが適切に実行されるように制御します。</li>
+<li><strong>よく混同される用語</strong>: workflow, agent</li>
+<li><strong>初出の章</strong>: 第20章</li>
+</ul>
+<h3 id="paged-attention">paged attention</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMのKVキャッシュを効率的に管理するための技術で、メモリをページ単位で割り当てることで、断片化を防ぎ、より多くのリクエストを同時に処理できるようにします。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: LLMの推論スループットを大幅に向上させ、特にvLLMなどの高性能推論サーバーで利用されます。</li>
+<li><strong>よく混同される用語</strong>: KV cache, batching</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="parameters">parameters</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの学習可能な部分、つまり重み（weights）やバイアスなどの数値の集まりです。</li>
+<li><strong>カテゴリ</strong>: モデル構造</li>
+<li><strong>何に使うのか</strong>: モデルが入力データからパターンを学習し、予測や生成を行うために使われます。モデルの規模を示す指標でもあります。</li>
+<li><strong>よく混同される用語</strong>: weights, architecture</li>
+<li><strong>初出の章</strong>: 第2章</li>
+</ul>
+<h3 id="peft">PEFT</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Parameter-Efficient Fine-Tuning」の略で、大規模言語モデル（LLM）を効率的にファインチューニングするための手法群をまとめたライブラリです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール、ファインチューニング</li>
+<li><strong>何に使うのか</strong>: LoRAやQLoRAなどの技術を簡単に実装し、少ない計算リソースでLLMをカスタマイズします。</li>
+<li><strong>よく混同される用語</strong>: LoRA, QLoRA</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="pretraining">pretraining</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大量の汎用的なテキストデータ（インターネット上の文章など）を使って、大規模言語モデル（LLM）の基本的な言語能力を学習させる最初の段階です。</li>
+<li><strong>カテゴリ</strong>: 学習</li>
+<li><strong>何に使うのか</strong>: モデルが幅広い知識と一般的な言語理解能力を獲得するための土台を築きます。</li>
+<li><strong>よく混同される用語</strong>: fine-tuning, continued pretraining</li>
+<li><strong>初出の章</strong>: 第12章</li>
+</ul>
+<h3 id="pytorch-checkpoint">PyTorch checkpoint</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: PyTorchフレームワークで学習されたモデルの重みや、学習の状態（最適化器の状態など）を保存したファイル形式です。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: PyTorchでモデルを学習・開発する際に、学習の途中経過を保存したり、モデルを再開したりするために使われます。</li>
+<li><strong>よく混同される用語</strong>: safetensors, GGUF</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="q4-q5-q6-q8">Q4 / Q5 / Q6 / Q8</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: GGUF形式で使われる量子化のレベルを示す表記で、それぞれ4ビット、5ビット、6ビット、8ビットの精度でモデルの重みを表現します。</li>
+<li><strong>カテゴリ</strong>: 量子化、GGUF</li>
+<li><strong>何に使うのか</strong>: モデルのファイルサイズと推論速度、そして精度とのバランスを取るために、目的に応じて選択されます。数字が小さいほど軽量ですが、精度が落ちる可能性があります。</li>
+<li><strong>よく混同される用語</strong>: quantization, GGUF</li>
+<li><strong>初出の章</strong>: 第5章</li>
+</ul>
+<h3 id="qlora">QLoRA</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LoRAをさらに進化させ、モデルの重みを量子化（4ビットなど）した状態でLoRAアダプターを学習させる技術です。</li>
+<li><strong>カテゴリ</strong>: ファインチューニング、PEFT</li>
+<li><strong>何に使うのか</strong>: LoRAよりもさらに少ないGPUメモリで、大規模LLMのファインチューニングを可能にします。</li>
+<li><strong>よく混同される用語</strong>: LoRA, GGUF quantization</li>
+<li><strong>初出の章</strong>: 第13章</li>
+</ul>
+<h3 id="quantized-model-file">quantized model file</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの重みが低精度（例: 4ビット、8ビット）に変換されて保存されたファイルです。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: モデルのファイルサイズとメモリ使用量を削減し、より少ないリソースでLLMを動かすために使われます。</li>
+<li><strong>よく混同される用語</strong>: GGUF, safetensors</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="quantization">quantization</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの重みなどの数値を、より少ないビット数（低精度）で表現するように変換する技術です。</li>
+<li><strong>カテゴリ</strong>: モデル軽量化</li>
+<li><strong>何に使うのか</strong>: モデルのファイルサイズ、メモリ使用量、計算量を削減し、推論速度を向上させます。</li>
+<li><strong>よく混同される用語</strong>: GGUF</li>
+<li><strong>初出の章</strong>: 第5章</li>
+</ul>
+<h3 id="rag">RAG</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Retrieval-Augmented Generation」の略で、外部の知識源から関連情報を検索し、それを元にLLMが応答を生成する技術です。</li>
+<li><strong>カテゴリ</strong>: LLM応用</li>
+<li><strong>何に使うのか</strong>: LLMが学習データにない最新情報や専門知識を扱えるようにし、ハルシネーション（でたらめな情報生成）を減らします。</li>
+<li><strong>よく混同される用語</strong>: SFT</li>
+<li><strong>初出の章</strong>: 第19章</li>
+</ul>
+<h3 id="rank">rank</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LoRAにおいて、追加されるアダプター層の「表現力」や「次元」を示す数値です。</li>
+<li><strong>カテゴリ</strong>: ファインチューニング、LoRA</li>
+<li><strong>何に使うのか</strong>: rankの値を調整することで、LoRAアダプターのサイズと、元のモデルの性能をどれだけ維持できるかのバランスを制御します。</li>
+<li><strong>よく混同される用語</strong>: LoRA</li>
+<li><strong>初出の章</strong>: 第13章</li>
+</ul>
+<h3 id="repository">repository</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Face Hubなどで、モデルやデータセット、コードなどが一式で管理されている場所（フォルダのようなもの）です。</li>
+<li><strong>カテゴリ</strong>: モデル管理</li>
+<li><strong>何に使うのか</strong>: 特定のモデルやデータセットに関連するすべてのファイルをまとめて共有・管理するために使われます。</li>
+<li><strong>よく混同される用語</strong>: Hub, model card</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="reranker">reranker</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: RAGシステムにおいて、検索で得られた複数の文書の中から、LLMにとって最も関連性の高いものを再評価し、順序を付け直すモデルです。</li>
+<li><strong>カテゴリ</strong>: RAG、検索技術</li>
+<li><strong>何に使うのか</strong>: LLMに提供する情報の質をさらに向上させ、より正確で適切な応答を生成できるようにします。</li>
+<li><strong>よく混同される用語</strong>: retrieval, RAG</li>
+<li><strong>初出の章</strong>: 第19章</li>
+</ul>
+<h3 id="retrieval">retrieval</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: データベースや文書コレクションの中から、特定のクエリ（質問）に関連する情報を探し出すプロセスです。</li>
+<li><strong>カテゴリ</strong>: RAG、検索技術</li>
+<li><strong>何に使うのか</strong>: RAGシステムにおいて、LLMが応答を生成するための根拠となる外部情報を取得するために行われます。</li>
+<li><strong>よく混同される用語</strong>: hybrid search, reranker</li>
+<li><strong>初出の章</strong>: 第19章</li>
+</ul>
+<h3 id="rlhf">RLHF</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Reinforcement Learning from Human Feedback」の略で、人間の評価（フィードバック）を元に、強化学習を使ってLLMを調整する手法です。</li>
+<li><strong>カテゴリ</strong>: 学習、アラインメント</li>
+<li><strong>何に使うのか</strong>: LLMが人間の意図や好みに沿った、より有用で安全な応答を生成できるようにします。</li>
+<li><strong>よく混同される用語</strong>: DPO, SFT, alignment</li>
+<li><strong>初出の章</strong>: 第12章</li>
+</ul>
+<h3 id="rocm">ROCm</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: AMD社が提供する、GPU上で並列計算を行うための開発プラットフォームです。</li>
+<li><strong>カテゴリ</strong>: GPUアクセラレーション</li>
+<li><strong>何に使うのか</strong>: AMD製GPUを搭載したシステムで、LLMの学習や推論を高速に実行するために使われます。</li>
+<li><strong>よく混同される用語</strong>: CUDA, Metal, DirectML</li>
+<li><strong>初出の章</strong>: 第18章</li>
+</ul>
+<h3 id="rope-scaling必要に応じて">rope scaling（必要に応じて）</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMの「RoPE (Rotary Positional Embedding)」という位置エンコーディング技術を調整し、モデルが学習時よりも長いコンテキスト長を扱えるようにする手法です。</li>
+<li><strong>カテゴリ</strong>: モデル拡張</li>
+<li><strong>何に使うのか</strong>: モデルのコンテキスト長を拡張し、より長い文章や会話を処理できるようにします。</li>
+<li><strong>よく混同される用語</strong>: context length</li>
+<li><strong>初出の章</strong>: 第5章</li>
+</ul>
+<h3 id="runtime">runtime</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: プログラムを実行するための環境やソフトウェアのことです。</li>
+<li><strong>カテゴリ</strong>: ソフトウェア</li>
+<li><strong>何に使うのか</strong>: モデルファイル（データ）を読み込み、実際に計算を実行して結果を生成するために必要です。</li>
+<li><strong>よく混同される用語</strong>: model file, inference engine</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="safetensors">safetensors</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 機械学習モデルの重みを保存するための、安全で高速なファイル形式です。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: 悪意のあるコードの埋め込みを防ぎつつ、モデルのロード時間を短縮するために使われます。</li>
+<li><strong>よく混同される用語</strong>: GGUF, PyTorch checkpoint</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="scheduler">scheduler</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 複数のタスクやリクエストの実行順序やリソースの割り当てを管理するコンポーネントです。</li>
+<li><strong>カテゴリ</strong>: 推論ランタイム</li>
+<li><strong>何に使うのか</strong>: LLMの推論ランタイムにおいて、複数のユーザーからのリクエストを効率的に処理し、GPUなどのリソースを最適に利用します。</li>
+<li><strong>よく混同される用語</strong>: batching</li>
+<li><strong>初出の章</strong>: 第6章</li>
+</ul>
+<h3 id="serving">serving</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 学習済みのモデルを、他のアプリケーションやユーザーが利用できるように、サーバーとして公開し、リクエストに応じて推論結果を提供するプロセスです。</li>
+<li><strong>カテゴリ</strong>: LLMの利用</li>
+<li><strong>何に使うのか</strong>: LLMをWebサービスやAPIとして提供し、多くのユーザーが利用できるようにします。</li>
+<li><strong>よく混同される用語</strong>: inference, local server</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="sft">SFT</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Supervised Fine-Tuning」の略で、特定のタスクの入出力ペア（質問と模範解答など）を使って、LLMを教師あり学習でファインチューニングする手法です。</li>
+<li><strong>カテゴリ</strong>: 学習</li>
+<li><strong>何に使うのか</strong>: モデルを特定のタスク（例: チャットボット、要約）に特化させ、望ましい振る舞いを学習させます。</li>
+<li><strong>よく混同される用語</strong>: RAG, RLHF</li>
+<li><strong>初出の章</strong>: 第12章</li>
+</ul>
+<h3 id="spaces">Spaces</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Faceが提供する、機械学習モデルのデモやアプリケーションをホストできるプラットフォームです。</li>
+<li><strong>カテゴリ</strong>: プラットフォーム</li>
+<li><strong>何に使うのか</strong>: 開発者が自分のモデルを簡単に公開し、他のユーザーがブラウザから試せるようにするために使われます。</li>
+<li><strong>よく混同される用語</strong>: Hugging Face Hub</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="speculative-decoding">speculative decoding</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMの推論速度を向上させる技術で、軽量な「ドラフトモデル」が素早く生成したテキストを、高精度な「検証モデル」がまとめてチェックすることで、高速化を実現します。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: LLMの応答速度を大幅に向上させ、リアルタイム性が求められるアプリケーションでの利用を可能にします。</li>
+<li><strong>よく混同される用語</strong>: draft model, verifier</li>
+<li><strong>初出の章</strong>: 第16章</li>
+</ul>
+<h3 id="target-modules">target modules</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LoRAなどのPEFT手法において、アダプターを適用するモデル内の特定の層（モジュール）のことです。</li>
+<li><strong>カテゴリ</strong>: ファインチューニング、LoRA</li>
+<li><strong>何に使うのか</strong>: モデルのどの部分を微調整するかを指定することで、効率的な学習と性能向上を図ります。</li>
+<li><strong>よく混同される用語</strong>: LoRA</li>
+<li><strong>初出の章</strong>: 第13章</li>
+</ul>
+<h3 id="tgi">TGI</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「Text Generation Inference」の略で、Hugging Faceが開発した、大規模言語モデル（LLM）を効率的にサービングするための推論サーバーです。</li>
+<li><strong>カテゴリ</strong>: 推論ランタイム</li>
+<li><strong>何に使うのか</strong>: 高いスループットと低いレイテンシーで、LLMを本番環境で運用するために使われます。</li>
+<li><strong>よく混同される用語</strong>: vLLM, transformers</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="tensorrt-engine">TensorRT engine</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: NVIDIAのTensorRTという最適化ツールによって、特定のGPU向けに最適化された推論エンジンファイルです。</li>
+<li><strong>カテゴリ</strong>: モデルファイル形式</li>
+<li><strong>何に使うのか</strong>: NVIDIA GPU上でLLMの推論を最大限に高速化するために使われます。</li>
+<li><strong>よく混同される用語</strong>: ONNX, GGUF</li>
+<li><strong>初出の章</strong>: 第4章</li>
+</ul>
+<h3 id="tensorrt-llm">TensorRT-LLM</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: NVIDIAが開発した、大規模言語モデル（LLM）の推論をNVIDIA GPU上で最大限に高速化するためのライブラリです。</li>
+<li><strong>カテゴリ</strong>: 推論ランタイム</li>
+<li><strong>何に使うのか</strong>: LLMの推論性能を最適化し、高いスループットと低いレイテンシーを実現します。</li>
+<li><strong>よく混同される用語</strong>: vLLM, TGI</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="ternary">ternary</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 情報を3つの値（例: -1, 0, 1）で表現する、低ビット化の手法です。</li>
+<li><strong>カテゴリ</strong>: 量子化、低ビット化</li>
+<li><strong>何に使うのか</strong>: モデルサイズと計算量を削減し、特にBitNetのような極端な低ビットモデルで利用されます。</li>
+<li><strong>よく混同される用語</strong>: 1-bit, BitNet</li>
+<li><strong>初出の章</strong>: 第11章</li>
+</ul>
+<h3 id="throughput">throughput</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 単位時間あたりに処理できるリクエストやデータの量のことです。</li>
+<li><strong>カテゴリ</strong>: 性能指標</li>
+<li><strong>何に使うのか</strong>: LLMの推論サーバーの処理能力を示す指標で、高いほど多くのユーザーやリクエストを同時に処理できます。</li>
+<li><strong>よく混同される用語</strong>: latency</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="tokenizer">tokenizer</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: テキストを、モデルが理解できる小さな単位（トークン）に分割するプログラムです。</li>
+<li><strong>カテゴリ</strong>: 自然言語処理</li>
+<li><strong>何に使うのか</strong>: LLMにテキストを入力する前処理として、またモデルが出力したトークンを元のテキストに戻す後処理として使われます。</li>
+<li><strong>よく混同される用語</strong>: vocabulary</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="tool-calling">tool calling</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）が、特定のタスクを実行するために外部のツール（API、関数など）を呼び出す能力です。</li>
+<li><strong>カテゴリ</strong>: LLM応用、エージェント</li>
+<li><strong>何に使うのか</strong>: LLMがリアルタイム情報にアクセスしたり、計算を実行したり、外部システムを操作したりすることを可能にします。</li>
+<li><strong>よく混同される用語</strong>: function calling, agent</li>
+<li><strong>初出の章</strong>: 第20章</li>
+</ul>
+<h3 id="torchtune">torchtune</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: PyTorchベースで、大規模言語モデル（LLM）のファインチューニングを効率的に行うためのライブラリです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール</li>
+<li><strong>何に使うのか</strong>: LoRAなどのPEFT手法を使って、LLMを特定のタスクやデータセットに適応させる際に利用します。</li>
+<li><strong>よく混同される用語</strong>: PEFT, accelerate</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="training">training</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルにデータを与えて学習させ、特定のタスクを実行できるように調整するプロセスです。</li>
+<li><strong>カテゴリ</strong>: LLMの学習</li>
+<li><strong>何に使うのか</strong>: モデルが知識を獲得し、パターンを認識し、予測や生成ができるようにするために行われます。</li>
+<li><strong>よく混同される用語</strong>: fine-tuning, inference</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="transformers">transformers</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Faceが提供する、Transformerベースのモデル（LLMなど）を簡単に利用・学習できるPythonライブラリです。</li>
+<li><strong>カテゴリ</strong>: ライブラリ</li>
+<li><strong>何に使うのか</strong>: 事前学習済みモデルのダウンロード、ファインチューニング、推論など、LLM開発の主要なタスクをサポートします。</li>
+<li><strong>よく混同される用語</strong>: Hugging Face, llama.cpp</li>
+<li><strong>初出の章</strong>: 第3章</li>
+</ul>
+<h3 id="unsloth">unsloth</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LoRAなどのファインチューニングを高速化し、メモリ効率を向上させるためのライブラリです。</li>
+<li><strong>カテゴリ</strong>: 学習ツール</li>
+<li><strong>何に使うのか</strong>: 大規模LLMのファインチューニングを、より少ないGPUメモリと時間で実行できるようにします。</li>
+<li><strong>よく混同される用語</strong>: PEFT, accelerate</li>
+<li><strong>初出の章</strong>: 第14章</li>
+</ul>
+<h3 id="vector-db">vector DB</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: テキストの「embedding」（数値ベクトル）を効率的に保存し、類似度に基づいて高速に検索できるデータベースです。</li>
+<li><strong>カテゴリ</strong>: RAG、データベース</li>
+<li><strong>何に使うのか</strong>: RAGシステムにおいて、ユーザーの質問と意味的に関連性の高い文書を大量のデータの中から素早く探し出すために使われます。</li>
+<li><strong>よく混同される用語</strong>: embedding, RAG</li>
+<li><strong>初出の章</strong>: 第19章</li>
+</ul>
+<h3 id="verifier">verifier</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: speculative decodingにおいて、ドラフトモデルが生成したテキストが正しいかどうかを検証する、高精度なメインモデルです。</li>
+<li><strong>カテゴリ</strong>: 推論最適化</li>
+<li><strong>何に使うのか</strong>: ドラフトモデルの高速性と、メインモデルの精度を組み合わせることで、高速かつ正確なテキスト生成を実現します。</li>
+<li><strong>よく混同される用語</strong>: speculative decoding, draft model</li>
+<li><strong>初出の章</strong>: 第16章</li>
+</ul>
+<h3 id="vllm">vLLM</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 大規模言語モデル（LLM）のサービング（提供）に特化した、高性能な推論エンジンです。</li>
+<li><strong>カテゴリ</strong>: 推論ランタイム</li>
+<li><strong>何に使うのか</strong>: paged attentionなどの技術を使って、高いスループットと低いレイテンシーでLLMを運用し、多くのユーザーにサービスを提供します。</li>
+<li><strong>よく混同される用語</strong>: llama.cpp, TGI, transformers</li>
+<li><strong>初出の章</strong>: 第9章</li>
+</ul>
+<h3 id="vocab">vocab</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 「vocabulary」の略で、トークナイザーが認識できるすべての単語やサブワードのリストです。</li>
+<li><strong>カテゴリ</strong>: 自然言語処理</li>
+<li><strong>何に使うのか</strong>: テキストをトークンに変換する際の辞書として機能し、モデルがテキストを数値として処理できるようにします。</li>
+<li><strong>よく混同される用語</strong>: tokenizer, context length</li>
+<li><strong>初出の章</strong>: 第2章</li>
+</ul>
+<h3 id="weights">weights</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: モデルの学習によって調整される、内部の数値データのことです。</li>
+<li><strong>カテゴリ</strong>: モデル構造</li>
+<li><strong>何に使うのか</strong>: モデルが入力データからパターンを学習し、予測や生成を行うための「知識」が詰まっています。</li>
+<li><strong>よく混同される用語</strong>: parameters, model</li>
+<li><strong>初出の章</strong>: 第1章</li>
+</ul>
+<h3 id="workflow">workflow</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: 特定の目標を達成するために、一連のタスクやステップが順序立てて実行されるプロセスのことです。</li>
+<li><strong>カテゴリ</strong>: AIシステム、エージェント</li>
+<li><strong>何に使うのか</strong>: エージェントシステムにおいて、LLMが複数のツールを使い、複雑なタスクを段階的に解決していく手順</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-25.html" class="nav-prev">← 第25章 学習順ガイド</a>
+<a href="index.html" class="nav-toc">目次</a>
+<div></div>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

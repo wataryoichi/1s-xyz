@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第20章. エージェント / ツール利用 / MCP - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 最近のAIアプリ文脈の頻出語を整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-20.html">
+  <meta property="og:title" content="第20章. エージェント / ツール利用 / MCP - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 最近のAIアプリ文脈の頻出語を整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-20.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第20章. エージェント / ツール利用 / MCP - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 最近のAIアプリ文脈の頻出語を整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">20 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第10部: データ・検索・周辺システム</li><li aria-current="page">第20章. エージェント / ツール利用 / MCP</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第20章-エージェント-ツール利用-mcp">第20章. エージェント / ツール利用 / MCP</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>本章では、大規模言語モデル（LLM）を単なるテキスト生成器としてではなく、より複雑なタスクを実行するための「知的な主体」として活用する上で不可欠な概念である「エージェント」「ツール利用」「マルチモーダル連携（MCP）」について深く掘り下げます。これらの概念は、LLMの応用範囲を飛躍的に広げ、現実世界の課題解決に役立つAIアプリケーションを構築するための基盤となります。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>エージェントの基本的な考え方と、それがLLMとどのように連携するか。</li>
+<li>ツール利用（Tool Calling / Function Calling）がLLMの能力をどのように拡張するか。</li>
+<li>MCP（Multi-modal Co-Pilot）がマルチモーダル情報をどのように統合し、活用するか。</li>
+<li>ワークフローとオーケストレーションが、複雑なAIシステムをどのように構築・管理するか。</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMは驚くべき言語理解と生成能力を持っていますが、それ単体ではインターネット検索やデータベース操作、外部APIの呼び出しといった特定のアクションを実行することはできません。しかし、これらの外部機能をLLMに「道具」として与えることで、LLMはより高度で実用的なタスクを自律的にこなせるようになります。この「道具を使うLLM」という考え方が「エージェント」であり、「ツール利用」はその実現手段です。さらに、テキストだけでなく画像や音声といった多様な情報を扱う「マルチモーダル」なAIシステムを構築する上で、「MCP」という概念が重要になります。本章では、これらの概念がどのように連携し、現代のAIアプリケーションを形作っているのかを解説します。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="エージェント-agent">エージェント (Agent)</h3>
+<p>ひとことで言うと: 目標達成のために自律的に思考し、行動するAIシステム。
+何のカテゴリか: AIシステム、LLM応用アーキテクチャ
+何に使うのか: 複雑なタスクの自動化、人間とのインタラクションを通じた問題解決
+代表例: AutoGPT, BabyAGI, LangChain Agents
+よく混同される用語: LLM、チャットボット
+初心者向け注意点: エージェントはLLMそのものではなく、LLMを「脳」として利用し、外部ツールや記憶、計画能力などを組み合わせた上位のシステムです。</p>
+<p>エージェントは、特定の目標を達成するために、環境を観察し、思考し、行動を計画し、実行する能力を持つAIシステムを指します。LLMはエージェントの「脳」として機能し、自然言語による指示を理解し、次の行動を決定します。エージェントは通常、以下の要素で構成されます。</p>
+<ol>
+<li><strong>プロンプト（Prompt）</strong>: エージェントの目標や役割、利用可能なツールなどを定義する。</li>
+<li><strong>LLM（Large Language Model）</strong>: 思考、計画、ツール選択、応答生成を行う。</li>
+<li><strong>ツール（Tools）</strong>: 外部システムやAPIと連携し、特定のアクションを実行する機能（例: 検索エンジン、計算機、コード実行環境）。</li>
+<li><strong>記憶（Memory）</strong>: 過去の対話履歴や学習内容を保持し、長期的なコンテキストを維持する。</li>
+<li><strong>プランニング（Planning）</strong>: 複雑なタスクを小さなステップに分解し、実行順序を決定する。</li>
+<li><strong>リフレクション（Reflection）</strong>: 自身の行動結果を評価し、次の行動や計画を改善する。</li>
+</ol>
+<p>エージェントの動作は、ReAct (Reasoning and Acting) や CoT (Chain-of-Thought) といったプロンプティング技術と密接に関連しており、LLMが思考プロセスを言語化することで、より複雑な推論や行動選択を可能にします。</p>
+<p>エージェントの構成要素とフロー:</p>
+<pre class="mermaid">graph TD
+    subgraph "Agent System"
+        A[ユーザープロンプト/目標] --> B(LLM: 脳)
+        B -- "思考/計画" --> C{プランニング}
+        C -- 行動決定 --> D[ツール選択]
+        D -- ツール呼び出し --> E[ツール実行]
+        E -- 実行結果 --> F[記憶]
+        F -- 過去の経験 --> B
+        E -- 実行結果 --> B
+        B -- 応答生成 --> G[最終応答]
+        G --> A
+    end</pre>
+<p>この図は、エージェントがユーザーからのプロンプト（目標）を受け取り、LLMを「脳」として思考・計画し、ツールを利用して行動し、その結果を記憶に保存しつつ、最終的な応答を生成する一連のプロセスを示しています。</p>
+<h3 id="ツール利用-tool-calling-function-calling">ツール利用 (Tool Calling / Function Calling)</h3>
+<p>ひとことで言うと: LLMが外部の機能やAPIを呼び出して利用する能力。
+何のカテゴリか: LLMの拡張機能、API連携技術
+何に使うのか: LLMにリアルタイム情報検索、計算、データ操作などの外部機能を使わせる
+代表例: OpenAI Function Calling, Google Gemini Tool Calling, LangChain Tools
+よく混同される用語: API呼び出し、プラグイン
+初心者向け注意点: LLMが直接コードを実行するわけではなく、LLMが「どのツールを、どのような引数で使うべきか」を判断し、その情報をアプリケーションが受け取って実際のツール実行を行うのが一般的です。</p>
+<p>ツール利用は、LLMが自身の知識範囲外の情報を取得したり、特定の操作を実行したりするために、外部の「ツール」を呼び出すメカニズムです。これは、LLMが特定の形式（通常はJSON）でツール名と引数を生成し、その出力をアプリケーションが解析して実際のツールを実行する、という流れで実現されます。</p>
+<h4 id="function-calling">Function Calling</h4>
+<p>Function Callingは、ツール利用の一種であり、特にLLMが利用可能な関数（APIエンドポイントなど）の定義を受け取り、ユーザーのプロンプトに基づいて最適な関数とその引数を生成する能力を指します。</p>
+<p><strong>Function Callingの仕組み:</strong></p>
+<ol>
+<li><strong>関数定義の提供</strong>: 開発者は、LLMに利用させたい関数の名前、説明、引数のスキーマ（JSON Schema形式など）をLLMに提供します。</li>
+<li><strong>ユーザープロンプト</strong>: ユーザーがLLMに質問や指示を与えます。</li>
+<li><strong>LLMの判断</strong>: LLMはプロンプトと関数定義を基に、どの関数を呼び出すべきか、どのような引数を渡すべきかを判断し、JSON形式でその情報を出力します。</li>
+<li><strong>アプリケーションの実行</strong>: アプリケーションはこのJSON出力を解析し、実際にその関数を実行します。</li>
+<li><strong>結果のフィードバック</strong>: 関数の実行結果をLLMに再度入力し、LLMがその結果に基づいて最終的な応答を生成します。</li>
+</ol>
+<p>Mermaid図でのFunction Callingのフロー:</p>
+<pre class="mermaid">graph TD
+    A[ユーザープロンプト] --> B{LLM}
+    B -- 関数定義 --> C[LLMの判断]
+    C -- "JSON出力 (関数名, 引数)" --> D[アプリケーション]
+    D -- 関数実行 --> E[外部ツール/API]
+    E -- 実行結果 --> D
+    D -- 実行結果 --> B
+    B -- 最終応答 --> F[ユーザー]</pre>
+<p>Function CallingにおけるLLMの役割は、与えられたプロンプト $P$ と利用可能な関数定義 $F = {f_1, f_2, ..., f_n}$ から、最適な関数 $f_i$ とその引数 $args_i$ を選択することです。これは、条件付き確率 $P(f_i, args_i | P, F)$ を最大化する問題として捉えることができます。
+$$
+(f^<em>, args^</em>) = \underset{f_i \in F, args_i}{\operatorname{argmax}} P(f_i, args_i | P, F)
+$$
+ここで、$f^<em>$ は選択された関数、$args^</em>$ はその引数です。LLMはこの確率に基づいて、JSON形式の出力を生成します。</p>
+<h3 id="mcp-multi-modal-co-pilot">MCP (Multi-modal Co-Pilot)</h3>
+<p>ひとことで言うと: 複数のモダリティ（テキスト、画像、音声など）を統合的に理解・生成し、ユーザーを支援するAIシステム。
+何のカテゴリか: マルチモーダルAI、アシスタントシステム
+何に使うのか: 複雑なマルチモーダル情報の分析、デザイン支援、医療診断支援など
+代表例: Google Gemini, OpenAI GPT-4V, Microsoft Co-Pilot
+よく混同される用語: マルチモーダルLLM、エージェント
+初心者向け注意点: MCPは単に複数のモダリティを扱えるだけでなく、それらを統合的に理解し、ユーザーの意図を汲み取って協調的に作業を進める「コパイロット」としての役割を強調します。</p>
+<p>MCPは、テキストだけでなく、画像、音声、動画などの複数のモダリティ（情報形式）を同時に処理し、理解し、生成する能力を持つAIシステムです。特に「Co-Pilot」という名称が示すように、ユーザーの隣に座って協調的に作業を進めるアシスタントとしての役割を重視します。</p>
+<p><strong>MCPの主な特徴:</strong></p>
+<ul>
+<li><strong>マルチモーダル理解</strong>: テキストと画像を同時に分析し、両者の関係性を理解する。</li>
+<li><strong>マルチモーダル生成</strong>: テキスト指示に基づいて画像を生成したり、画像の内容を説明するテキストを生成したりする。</li>
+<li><strong>コンテキスト認識</strong>: ユーザーの作業内容や意図を複数のモダリティから推測し、適切な支援を提供する。</li>
+<li><strong>協調的インタラクション</strong>: ユーザーとの対話を通じて、タスクの進捗に合わせて柔軟に支援内容を調整する。</li>
+</ul>
+<p>MCPのアーキテクチャ概要:</p>
+<pre class="mermaid">graph TD
+    subgraph "User Interaction"
+        A[テキスト入力] --> B(MCP Core)
+        C[画像入力] --> B
+        D[音声入力] --> B
+    end
+
+    subgraph "MCP Core"
+        B -- 統合理解 --> E(マルチモーダルLLM)
+        E -- "意思決定/計画" --> F(ツール/API)
+        F -- "外部情報/アクション" --> G(外部システム)
+        G -- 結果 --> E
+        E -- 応答生成 --> H(テキスト出力)
+        E -- 応答生成 --> I(画像生成)
+        E -- 応答生成 --> J(音声出力)
+    end</pre>
+<p>この図は、MCPがテキスト、画像、音声などの複数のモダリティからの入力を受け取り、マルチモーダルLLMを中核として統合的に理解し、必要に応じて外部ツールやAPIと連携して情報を取得・処理し、最終的に複数のモダリティで応答を生成するプロセスを示しています。</p>
+<h3 id="ワークフロー-workflow">ワークフロー (Workflow)</h3>
+<p>ひとことで言うと: 特定のタスクを達成するための一連のステップや処理の流れ。
+何のカテゴリか: プロセス管理、システム設計
+何に使うのか: 複雑なタスクの自動化、処理の標準化、エラーハンドリング
+代表例: データ処理パイプライン、ビジネスプロセス自動化、AIエージェントのタスク実行手順
+よく混同される用語: プログラム、アルゴリズム
+初心者向け注意点: ワークフローは単なるコードの羅列ではなく、各ステップの目的、入力、出力、条件分岐、エラー処理などを含む、より高レベルな処理の設計図です。</p>
+<p>ワークフローは、ある目標を達成するために必要な一連の活動やステップを定義したものです。AIの文脈では、特にエージェントが複雑なタスクをこなす際に、どのような順序でツールを呼び出し、情報を処理し、意思決定を行うかを示す設計図として機能します。</p>
+<p><strong>ワークフローの要素:</strong></p>
+<ul>
+<li><strong>ステップ（Tasks）</strong>: ワークフローを構成する個々の処理単位。</li>
+<li><strong>順序（Sequence）</strong>: ステップが実行される順番。</li>
+<li><strong>条件分岐（Conditional Logic）</strong>: 特定の条件に基づいて異なるパスに進む。</li>
+<li><strong>ループ（Loops）</strong>: 特定のステップを繰り返し実行する。</li>
+<li><strong>入力と出力（Inputs/Outputs）</strong>: 各ステップが受け取る情報と生成する情報。</li>
+<li><strong>エラーハンドリング（Error Handling）</strong>: 予期せぬ問題が発生した場合の対処方法。</li>
+</ul>
+<h3 id="オーケストレーション-orchestration">オーケストレーション (Orchestration)</h3>
+<p>ひとことで言うと: 複数の独立したコンポーネントやサービスを連携させ、全体として一つの目標を達成するように調整・管理すること。
+何のカテゴリか: システム管理、分散システム
+何に使うのか: 複雑なAIシステムやマイクロサービスアーキテクチャの構築と運用
+代表例: Kubernetes, Apache Airflow, LangChain Orchestrator
+よく混同される用語: ワークフロー、自動化
+初心者向け注意点: オーケストレーションはワークフローを実行するための「指揮者」のような役割です。ワークフローが「何をすべきか」を定義するのに対し、オーケストレーションは「どのようにそれを実行し、管理するか」を扱います。</p>
+<p>オーケストレーションは、複数の独立したサービスやコンポーネント（例えば、LLM、データベース、外部API、ツールなど）を統合し、それらが協調して動作するように調整・管理するプロセスです。AIシステムにおいては、エージェントが複数のツールやモデル、記憶モジュールなどを組み合わせて複雑なタスクを実行する際に、これらのコンポーネント間の連携を円滑に行う役割を担います。</p>
+<p><strong>オーケストレーションの主な機能:</strong></p>
+<ul>
+<li><strong>コンポーネント管理</strong>: どのコンポーネントが利用可能か、どのように呼び出すかを管理する。</li>
+<li><strong>ワークフロー実行</strong>: 定義されたワークフローに従って、各ステップを適切な順序で実行する。</li>
+<li><strong>状態管理</strong>: ワークフローの現在の状態や、各コンポーネントの実行結果を追跡する。</li>
+<li><strong>エラーリカバリ</strong>: コンポーネントの障害やエラー発生時に、適切なリカバリ処理を実行する。</li>
+<li><strong>スケーラビリティ</strong>: システム全体の負荷に応じて、コンポーネントの数を調整する。</li>
+</ul>
+<h2 id="具体例">具体例</h2>
+<h3 id="エージェントとツール利用の具体例-旅行計画アシスタント">エージェントとツール利用の具体例: 旅行計画アシスタント</h3>
+<p>ユーザーが「来月、東京で桜が見たいんだけど、おすすめのホテルと交通手段を教えて。予算は1泊2万円までで、新幹線で行きたいな。」と指示したとします。</p>
+<ol>
+<li><strong>エージェントの起動</strong>: 旅行計画エージェントがユーザーのプロンプトを受け取ります。</li>
+<li><strong>LLMの思考</strong>: LLMはプロンプトを解析し、「桜の開花時期」「東京のホテル検索」「新幹線予約」という複数のタスクが必要だと判断します。</li>
+<li><strong>ツール利用（Function Calling）</strong>:<ul>
+<li><strong>ステップ1: 桜の開花時期検索</strong>: LLMは「桜の開花時期を検索するツール」を呼び出す必要があると判断し、<code>search_web(query=&quot;東京 桜 開花時期 来月&quot;)</code> のようなJSONを生成します。</li>
+<li><strong>アプリケーションの実行</strong>: アプリケーションがこのJSONを受け取り、実際にウェブ検索ツールを実行します。結果として「東京の桜は3月下旬から4月上旬が見頃」という情報が得られます。</li>
+<li><strong>結果のフィードバック</strong>: この情報がLLMに返されます。</li>
+<li><strong>ステップ2: ホテル検索</strong>: LLMは「東京、4月上旬、1泊2万円以下、桜スポットに近い」という条件でホテルを検索する必要があると判断し、<code>search_hotel(location=&quot;東京&quot;, check_in=&quot;2024-04-05&quot;, check_out=&quot;2024-04-06&quot;, max_price=20000, amenities=[&quot;桜スポットに近い&quot;])</code> のようなJSONを生成します。</li>
+<li><strong>アプリケーションの実行</strong>: アプリケーションがホテル予約APIを呼び出し、結果としていくつかのホテル候補（例: 上野公園近くのホテルA、千鳥ヶ淵近くのホテルB）が得られます。</li>
+<li><strong>結果のフィードバック</strong>: この情報がLLMに返されます。</li>
+<li><strong>ステップ3: 新幹線予約情報検索</strong>: LLMは「東京までの新幹線予約方法」を検索する必要があると判断し、<code>search_web(query=&quot;新幹線 東京 予約方法&quot;)</code> のようなJSONを生成します。</li>
+<li><strong>アプリケーションの実行</strong>: アプリケーションがウェブ検索ツールを実行し、結果として「JR東海のウェブサイトや駅の窓口で予約可能」といった情報が得られます。</li>
+<li><strong>結果のフィードバック</strong>: この情報がLLMに返されます。</li>
+</ul>
+</li>
+<li><strong>最終応答の生成</strong>: LLMは得られたすべての情報（桜の見頃、ホテル候補、新幹線予約方法）を統合し、ユーザーに対して自然な言葉で旅行計画を提案します。</li>
+</ol>
+<h3 id="mcpの具体例-画像からの情報抽出と質問応答">MCPの具体例: 画像からの情報抽出と質問応答</h3>
+<p>ユーザーが「この写真に写っている植物の名前と、その育て方を教えて」と、植物の画像と共に質問したとします。</p>
+<ol>
+<li><strong>MCPの入力</strong>: MCPシステムは、ユーザーのテキストプロンプトと植物の画像を同時に受け取ります。</li>
+<li><strong>マルチモーダル理解</strong>:<ul>
+<li><strong>画像分析モジュール</strong>: 画像から植物の特徴（葉の形、花の色、全体の形状など）を抽出し、植物の種類を特定します（例: 「サクラソウ」）。</li>
+<li><strong>テキスト理解モジュール</strong>: テキストプロンプトから「植物の名前」「育て方」という質問意図を抽出します。</li>
+<li><strong>統合モジュール</strong>: 画像分析の結果とテキストの質問意図を統合し、「サクラソウの育て方」に関する情報が必要だと判断します。</li>
+</ul>
+</li>
+<li><strong>情報検索と生成</strong>:<ul>
+<li><strong>ツール利用</strong>: MCPは「植物データベース検索ツール」や「ウェブ検索ツール」を呼び出し、特定された植物（サクラソウ）の育て方に関する情報を収集します。</li>
+<li><strong>LLMの生成</strong>: 収集した情報を基に、LLMがサクラソウの育て方（水やり、日当たり、肥料など）を分かりやすく説明するテキストを生成します。</li>
+</ul>
+</li>
+<li><strong>最終応答</strong>: MCPシステムは、特定された植物の名前と、その育て方に関する詳細な説明をユーザーに提供します。</li>
+</ol>
+<h3 id="ワークフローとオーケストレーションの具体例-データ分析パイプライン">ワークフローとオーケストレーションの具体例: データ分析パイプライン</h3>
+<p>ある企業が、顧客からのフィードバック（テキストデータ）を分析し、感情分析とキーワード抽出を行い、結果をダッシュボードに表示するシステムを構築するとします。</p>
+<ol>
+<li><p><strong>ワークフローの定義</strong>:</p>
+<ul>
+<li>ステップ1: 顧客フィードバックの収集（データベースから取得）</li>
+<li>ステップ2: テキストの前処理（クリーニング、正規化）</li>
+<li>ステップ3: 感情分析（ポジティブ/ネガティブ/中立）</li>
+<li>ステップ4: キーワード抽出（主要なトピックの特定）</li>
+<li>ステップ5: 結果の集計と保存（データベースに書き込み）</li>
+<li>ステップ6: ダッシュボードの更新（BIツールAPIを呼び出し）</li>
+</ul>
+</li>
+<li><p><strong>オーケストレーションの役割</strong>:</p>
+<ul>
+<li><strong>トリガー</strong>: 新しいフィードバックがデータベースに追加されたことを検知し、ワークフローを開始します。
+<strong>コンポーネント呼び出し</strong>:<ul>
+<li>ステップ1では、データベース接続ツールを呼び出してデータを取得します。</li>
+<li>ステップ2では、テキスト処理ライブラリを実行します。</li>
+<li>ステップ3では、感情分析LLM（またはAPI）を呼び出します。</li>
+<li>ステップ4では、キーワード抽出LLM（またはAPI）を呼び出します。</li>
+<li>ステップ5では、データベース書き込みツールを呼び出して結果を保存します。</li>
+<li>ステップ6では、BIツールのAPIを呼び出してダッシュボードを更新します。</li>
+</ul>
+</li>
+<li><strong>状態管理</strong>: 各ステップの実行状況（成功、失敗、進行中）を監視し、ログを記録します。</li>
+<li><strong>エラーハンドリング</strong>: 感情分析LLMの呼び出しが失敗した場合、自動的に再試行したり、管理者に通知したりします。</li>
+<li><strong>並列処理</strong>: 複数のフィードバックが同時に発生した場合、複数のワークフローインスタンスを並列で実行し、処理能力を最大化します。</li>
+</ul>
+</li>
+</ol>
+<p>この例では、ワークフローが「何をすべきか」を定義し、オーケストレーションが「それをどのように効率的かつ堅牢に実行するか」を管理していることがわかります。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">用語</th>
+<th align="left">ひとことで言うと</th>
+<th align="left">LLMとの関係性</th>
+<th align="left">主な目的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>エージェント</strong></td>
+<td align="left">目標達成のために自律的に思考し、行動するAIシステム。</td>
+<td align="left">LLMを「脳」として利用し、思考・計画・行動決定を行う。</td>
+<td align="left">複雑なタスクの自動化、自律的な問題解決</td>
+</tr>
+<tr>
+<td align="left"><strong>LLM</strong></td>
+<td align="left">大規模なテキストデータで学習された言語モデル。</td>
+<td align="left">エージェントのコアコンポーネント。ツール利用の判断や応答生成を行う。</td>
+<td align="left">自然言語理解・生成、推論</td>
+</tr>
+<tr>
+<td align="left"><strong>ツール利用</strong></td>
+<td align="left">LLMが外部の機能やAPIを呼び出して利用する能力。</td>
+<td align="left">LLMが外部ツールを呼び出すためのメカニズム。エージェントの「手足」。</td>
+<td align="left">LLMの能力拡張、リアルタイム情報アクセス、外部操作</td>
+</tr>
+<tr>
+<td align="left"><strong>Function Calling</strong></td>
+<td align="left">ツール利用の一種で、LLMが関数名と引数を生成する。</td>
+<td align="left">ツール利用の具体的な実装方法。LLMがツール呼び出しの意図を構造化する。</td>
+<td align="left">外部APIとのシームレスな連携</td>
+</tr>
+<tr>
+<td align="left"><strong>MCP</strong></td>
+<td align="left">複数のモダリティを統合的に理解・生成し、ユーザーを支援するAIシステム。</td>
+<td align="left">マルチモーダルLLMを中核に、複数のモダリティを統合的に扱う。</td>
+<td align="left">マルチモーダル情報の分析・生成、協調的作業支援</td>
+</tr>
+<tr>
+<td align="left"><strong>ワークフロー</strong></td>
+<td align="left">特定のタスクを達成するための一連のステップや処理の流れ。</td>
+<td align="left">エージェントが実行するタスクの計画や手順を定義する。</td>
+<td align="left">処理の標準化、タスクの構造化</td>
+</tr>
+<tr>
+<td align="left"><strong>オーケストレーション</strong></td>
+<td align="left">複数の独立したコンポーネントを連携させ、全体を調整・管理すること。</td>
+<td align="left">エージェントシステム内の各コンポーネント（LLM、ツール、記憶など）の連携を管理する。</td>
+<td align="left">複雑なシステムの構築・運用、堅牢性の確保</td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>これらの概念は、現代のAIアプリケーション開発において中心的な役割を担っています。</p>
+<ul>
+<li><strong>エージェント</strong>: カスタマーサポートの自動化、データ分析の自動化、ソフトウェア開発支援など、自律的な意思決定と行動が求められる場面で活用されます。例えば、ユーザーの質問に応じて適切な情報を検索し、必要であれば外部システムに問い合わせて回答を生成するようなチャットボットは、エージェントの一種と言えます。</li>
+<li><strong>ツール利用/Function Calling</strong>: LLMの能力を現実世界に接続するための「橋渡し」として不可欠です。これにより、LLMは最新の情報を取得したり、計算を実行したり、外部サービス（カレンダー、メール、CRMなど）を操作したりできるようになります。これにより、LLMは単なる情報提供者から、具体的なアクションを実行できる「実行者」へと進化します。</li>
+<li><strong>MCP</strong>: テキストだけでなく、画像や音声、動画といった多様な情報を扱う必要があるアプリケーションで重要ですす。例えば、医療画像診断支援、デザインレビュー、物理世界の監視と応答など、よりリッチなインタラクションと理解が求められる分野でその真価を発揮します。</li>
+<li><strong>ワークフローとオーケストレーション</strong>: 複雑なAIシステムを構築し、運用するための基盤技術です。特に、複数のLLM、ツール、データベース、APIなどが連携する大規模なAIアプリケーションでは、ワークフローで処理の流れを定義し、オーケストレーションでその実行を管理することが不可欠となります。これにより、システムの堅牢性、スケーラビリティ、保守性が向上します。</li>
+</ul>
+<p>これらの技術を組み合わせることで、LLMは単なる言語モデルの枠を超え、現実世界の複雑な問題を解決するための強力なプラットフォームへと変貌を遂げます。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ol>
+<li><strong>エージェント</strong>はLLMを「脳」として、外部<strong>ツール</strong>を「手足」として利用し、自律的に目標達成を目指すAIシステムです。</li>
+<li>**ツール利用（Function Calling）**は、LLMが外部APIを呼び出す具体的なメカニズムであり、LLMの能力を現実世界に接続します。</li>
+<li><strong>MCP</strong>はマルチモーダルな情報を統合的に扱い、ユーザーを協調的に支援するシステムであり、<strong>ワークフロー</strong>と<strong>オーケストレーション</strong>は、これらの複雑なAIシステムの設計と実行を管理する基盤技術です。</li>
+</ol>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li>エージェントとLLM: エージェントはLLMを含む上位システム。</li>
+<li>ツール利用とAPI呼び出し: ツール利用はLLMがAPI呼び出しを「判断・指示」する能力。</li>
+<li>ワークフローとオーケストレーション: ワークフローは「手順」、オーケストレーションは「手順の実行管理」。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第19章: RAG / embedding / vector DB (エージェントが情報を検索する際の基盤技術)</li>
+<li>第21章: プロンプトエンジニアリングの応用 (エージェントの思考やツール利用を制御する技術)</li>
+<li>第22章: LLMアプリケーションフレームワーク (LangChain, LlamaIndexなど、エージェントやツール利用を実装するためのフレームワーク)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-19.html" class="nav-prev">← 第19章 RAG / embedding / vector DB</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-21.html" class="nav-next">第21章 よく混同される用語まとめ →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

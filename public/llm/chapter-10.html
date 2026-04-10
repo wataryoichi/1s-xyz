@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第10章. 量子化（Quantization） - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: FP16/BF16/INT8/4bit などの意味を整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-10.html">
+  <meta property="og:title" content="第10章. 量子化（Quantization） - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: FP16/BF16/INT8/4bit などの意味を整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-10.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第10章. 量子化（Quantization） - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: FP16/BF16/INT8/4bit などの意味を整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">10 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第6部: どうやって軽くするのか</li><li aria-current="page">第10章. 量子化（Quantization）</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第10章-量子化quantization">第10章. 量子化（Quantization）</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）の軽量化技術の一つである「量子化（Quantization）」について深く掘り下げます。特に、FP16、BF16、INT8、4bitといった様々なデータ型が何を意味し、どのようにLLMの性能とリソース消費に影響を与えるのかを理解することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>量子化の基本的な概念と、それがLLMの軽量化にどのように貢献するか</li>
+<li>FP32、FP16、BF16、FP8、INT8、4bitなどの主要なデータ型の特徴と使い分け</li>
+<li>推論時量子化の代表的な手法であるAWQとGPTQの仕組み</li>
+<li>量子化と圧縮の違い</li>
+<li><code>bitsandbytes</code>のような量子化ライブラリの役割</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>大規模言語モデル（LLM）は、その強力な性能と汎用性で注目を集めていますが、同時に膨大な計算リソースとメモリを必要とします。特に、モデルの「重み（weights）」は数GBから数百GBにも及び、これを効率的に扱うことが、より多くのユーザーがLLMを利用できるかどうかの鍵となります。</p>
+<p>そこで登場するのが「量子化（Quantization）」という技術です。量子化は、モデルの重みや活性化値（activations）を、より少ないビット数で表現することで、モデルのサイズを削減し、推論速度を向上させる手法です。これにより、限られたGPUメモリでもより大きなモデルを動かしたり、CPU上での推論を高速化したりすることが可能になります。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="量子化とは">量子化とは</h3>
+<p>ひとことで言うと: モデルの重みや活性化値を、より少ないビット数で表現する技術。
+何のカテゴリか: モデル軽量化技術、データ型変換。
+何に使うのか: LLMのメモリ使用量削減、推論速度向上、消費電力削減。
+代表例: FP32からFP16/BF16/INT8/4bitへの変換。
+よく混同される用語: 圧縮、GGUF。
+初心者向け注意点: 量子化は情報の一部を失う非可逆な処理であり、モデルの精度に影響を与える可能性があります。</p>
+<p>量子化は、LLMの重み（通常は32ビット浮動小数点数、FP32で表現される）を、例えば16ビット浮動小数点数（FP16）、8ビット整数（INT8）、あるいはさらに少ない4ビット整数といった、より低精度なデータ型に変換するプロセスです。これにより、各重みが占めるメモリ量が減少し、結果としてモデル全体のサイズが小さくなります。</p>
+<p>メモリ使用量の削減は、GPUにロードできるモデルの最大サイズを増やすだけでなく、データ転送の帯域幅要件も低減するため、推論速度の向上にもつながります。</p>
+<h3 id="データ型dtypeの種類">データ型（Dtype）の種類</h3>
+<p>LLMでよく使われるデータ型をいくつか見ていきましょう。</p>
+<h4 id="fp32-single-precision-floating-point">FP32 (Single-precision floating-point)</h4>
+<p>ひとことで言うと: 標準的な32ビット浮動小数点数。
+何のカテゴリか: 浮動小数点数データ型。
+何に使うのか: モデルの学習、高精度な推論。
+代表例: PyTorchの<code>torch.float32</code>。
+よく混同される用語: なし。
+初心者向け注意点: ほとんどのモデルはFP32で学習されますが、推論時にはより低精度なデータ型に量子化されることが多いです。</p>
+<p>FP32は、32ビット（4バイト）を使って数値を表現します。符号部1ビット、指数部8ビット、仮数部23ビットで構成され、広範囲の数値を高い精度で表現できます。LLMの学習は通常FP32で行われ、最も高い精度を提供しますが、その分メモリ消費も大きくなります。</p>
+<h4 id="fp16-half-precision-floating-point">FP16 (Half-precision floating-point)</h4>
+<p>ひとことで言うと: 16ビット浮動小数点数。
+何のカテゴリか: 浮動小数点数データ型。
+何に使うのか: 混合精度学習、推論時のメモリ削減と高速化。
+代表例: PyTorchの<code>torch.float16</code>。
+よく混同される用語: BF16。
+初心者向け注意点: FP32に比べて精度が落ちるため、モデルによっては性能がわずかに低下する可能性があります。</p>
+<p>FP16は、16ビット（2バイト）を使って数値を表現します。符号部1ビット、指数部5ビット、仮数部10ビットで構成されます。FP32の半分のメモリで済むため、メモリ消費を大幅に削減できます。NVIDIAのGPUではFP16の演算を高速化するTensor Coreが搭載されており、推論速度の向上にも寄与します。多くのLLMはFP16で十分な精度を保ちつつ推論が可能です。</p>
+<h4 id="bf16-bfloat16">BF16 (Bfloat16)</h4>
+<p>ひとことで言うと: Googleが開発した16ビット浮動小数点数。
+何のカテゴリか: 浮動小数点数データ型。
+何に使うのか: 混合精度学習、推論時のメモリ削減と高速化。特に学習時の安定性に優れる。
+代表例: PyTorchの<code>torch.bfloat16</code>。
+よく混同される用語: FP16。
+初心者向け注意点: FP16とは指数部と仮数部の割り当てが異なるため、互換性はありません。ハードウェアサポートが必要です。</p>
+<p>BF16も16ビット（2バイト）を使いますが、FP32と同じ指数部8ビットを持ち、仮数部が7ビットに削減されています。これにより、FP32と同じ数値範囲をカバーしつつ、FP16よりも大きな数値を表現できます。学習時の勾配がオーバーフローしにくいという利点があり、混合精度学習でFP32の代替としてよく使われます。推論でもFP16と同様にメモリ削減と高速化に貢献します。</p>
+<h4 id="fp8-8-bit-floating-point">FP8 (8-bit floating-point)</h4>
+<p>ひとことで言うと: 8ビット浮動小数点数。
+何のカテゴリか: 浮動小数点数データ型。
+何に使うのか: さらなるメモリ削減と高速化。
+代表例: NVIDIA Hopperアーキテクチャ以降のGPUでサポート。
+よく混同される用語: INT8。
+初心者向け注意点: まだ比較的新しい技術であり、ハードウェアサポートやソフトウェア実装が限定的です。精度低下のリスクも高まります。</p>
+<p>FP8は、8ビット（1バイト）で数値を表現します。FP8にはE4M3（指数部4ビット、仮数部3ビット）とE5M2（指数部5ビット、仮数部2ビット）の2つのフォーマットがあります。FP16やBF16よりもさらにメモリを削減できますが、その分表現できる数値の範囲や精度が大きく制限されます。最新のGPUアーキテクチャでサポートが始まり、今後の普及が期待されています。</p>
+<h4 id="int8-8-bit-integer">INT8 (8-bit integer)</h4>
+<p>ひとことで言うと: 8ビット整数。
+何のカテゴリか: 整数データ型。
+何に使うのか: 推論時の極限的なメモリ削減と高速化。
+代表例: NVIDIA TensorRT、ONNX Runtimeなどでの量子化。
+よく混同される用語: FP8。
+初心者向け注意点: 浮動小数点数を整数に変換するため、量子化手法によっては精度低下が顕著になることがあります。</p>
+<p>INT8は、8ビット（1バイト）を使って整数を表現します。浮動小数点数を整数に変換する際には、スケーリング係数とゼロ点（offset）を用いて、元の浮動小数点数の範囲を8ビット整数の範囲（-128から127、または0から255）にマッピングします。これにより、メモリ使用量をFP32の1/4に削減できます。整数演算は浮動小数点演算よりも高速なため、推論速度も向上します。</p>
+<p>浮動小数点数 $x$ を $b$-bit 整数 $q$ に量子化する基本的な式は以下のようになります。
+$$ q = \text{round}\left(\frac{x - Z}{S}\right) $$
+ここで、$S$ はスケーリング係数、$Z$ はゼロ点（zero-point）です。この式は、浮動小数点数の範囲を整数の範囲に線形にマッピングするものです。</p>
+<h4 id="4bit-4-bit-integer">4bit (4-bit integer)</h4>
+<p>ひとことで言うと: 4ビット整数。
+何のカテゴリか: 整数データ型。
+何に使うのか: 究極のメモリ削減、特に大規模モデルのCPU/低VRAM GPUでの実行。
+代表例: GPTQ、AWQなどの量子化手法。
+よく混同される用語: なし。
+初心者向け注意点: 精度低下のリスクが最も高く、専用の量子化手法とランタイムが必要です。</p>
+<p>4bitは、4ビット（0.5バイト）を使って整数を表現します。これはFP32の1/8のメモリ使用量であり、LLMの重みを極限まで軽量化するのに役立ちます。例えば、70Bパラメータのモデルを4bit量子化すると、約35GBのメモリで実行可能になります。しかし、表現できる数値の範囲が非常に狭くなるため、精度を維持するためには高度な量子化手法が不可欠です。</p>
+<h3 id="データ型の比較表">データ型の比較表</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">データ型</th>
+<th align="left">ビット数</th>
+<th align="left">メモリ (バイト)</th>
+<th align="left">表現範囲</th>
+<th align="left">精度</th>
+<th align="left">主な用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">FP32</td>
+<td align="left">32</td>
+<td align="left">4</td>
+<td align="left">広</td>
+<td align="left">高</td>
+<td align="left">学習、高精度推論</td>
+</tr>
+<tr>
+<td align="left">FP16</td>
+<td align="left">16</td>
+<td align="left">2</td>
+<td align="left">中</td>
+<td align="left">中</td>
+<td align="left">混合精度学習、推論</td>
+</tr>
+<tr>
+<td align="left">BF16</td>
+<td align="left">16</td>
+<td align="left">2</td>
+<td align="left">広</td>
+<td align="left">中</td>
+<td align="left">混合精度学習、推論</td>
+</tr>
+<tr>
+<td align="left">FP8</td>
+<td align="left">8</td>
+<td align="left">1</td>
+<td align="left">狭</td>
+<td align="left">低</td>
+<td align="left">推論 (最新GPU)</td>
+</tr>
+<tr>
+<td align="left">INT8</td>
+<td align="left">8</td>
+<td align="left">1</td>
+<td align="left">狭</td>
+<td align="left">低</td>
+<td align="left">推論 (量子化)</td>
+</tr>
+<tr>
+<td align="left">4bit</td>
+<td align="left">4</td>
+<td align="left">0.5</td>
+<td align="left">極めて狭</td>
+<td align="left">極低</td>
+<td align="left">推論 (極限量子化)</td>
+</tr>
+</tbody></table></div>
+<h2 id="具体例">具体例</h2>
+<p>ここでは、量子化の具体的な手法と、それらを実装するライブラリについて見ていきます。</p>
+<h3 id="推論時量子化-post-training-quantization-ptq">推論時量子化 (Post-Training Quantization, PTQ)</h3>
+<p>LLMの量子化は、主に学習済みのモデルに対して行われる「推論時量子化（Post-Training Quantization, PTQ）」が主流です。これは、モデルを再学習させることなく、重みを低精度に変換する手法です。</p>
+<h4 id="awq-activation-aware-weight-quantization">AWQ (Activation-aware Weight Quantization)</h4>
+<p>ひとことで言うと: 活性化値の重要度に基づいて重みを量子化する手法。
+何のカテゴリか: 推論時量子化手法。
+何に使うのか: 4bit/INT8量子化時の精度維持。
+代表例: <code>AutoAWQ</code>ライブラリ。
+よく混同される用語: GPTQ。
+初心者向け注意点: 量子化には少量のキャリブレーションデータ（代表的な入力データ）が必要です。</p>
+<p>AWQは、重みだけでなく、モデルの活性化値（各層の出力）の分布を考慮して量子化を行う手法です。特に、活性化値の分布が広い（外れ値が多い）重みは、量子化による精度低下の影響を受けやすいため、AWQではこれらの重みを保護するように量子化を行います。これにより、4bitのような極端な低ビット量子化でも高い精度を維持できるとされています。</p>
+<h4 id="gptq-generative-pre-trained-transformer-quantization">GPTQ (Generative Pre-trained Transformer Quantization)</h4>
+<p>ひとことで言うと: 勾配情報を用いて重みを最適に量子化する手法。
+何のカテゴリか: 推論時量子化手法。
+何に使うのか: 4bit/INT8量子化時の精度維持。
+代表例: <code>GPTQ</code>ライブラリ、<code>AutoGPTQ</code>ライブラリ。
+よく混同される用語: AWQ。
+初心者向け注意点: AWQと同様に、量子化には少量のキャリブレーションデータが必要です。</p>
+<p>GPTQは、各重み層を独立して量子化する際に、量子化誤差がモデルの出力に与える影響を最小化するように、重みを最適化する手法です。具体的には、ヘッセ行列（二階微分）の情報を用いて、どの重みを量子化すべきか、どのように量子化すべきかを決定します。AWQと同様に、4bit量子化で高い精度を達成できることで知られています。</p>
+<p>GPTQでは、重み行列 $W$ を量子化された行列 $W_q$ に変換する際に、元の行列との誤差を最小化します。これは、各層の重み $W$ と入力活性化値 $X$ が与えられたとき、量子化された重み $W_q$ を見つける問題として定式化されます。
+$$ \min_{W_q} | W X - W_q X |_2^2 $$
+この最適化問題は、ヘッセ行列の逆行列を用いて効率的に解かれます。</p>
+<h3 id="bitsandbytes">`bitsandbytes`</h3>
+<p>ひとことで言うと: GPU上で効率的な量子化演算を提供するライブラリ。
+何のカテゴリか: 量子化ライブラリ、GPUユーティリティ。
+何に使うのか: 4bit/8bit量子化モデルのロードと推論、QLoRA学習。
+代表例: Hugging Face Transformersライブラリと連携。
+よく混同される用語: なし。
+初心者向け注意点: GPU環境が必須です。</p>
+<p><code>bitsandbytes</code>は、NVIDIA GPU上で低精度（特に8bitと4bit）の行列演算を効率的に実行するためのPythonライブラリです。Hugging Face Transformersライブラリと密接に統合されており、数行のコードでFP32モデルを4bitや8bitに量子化してロードし、推論を実行できます。また、QLoRAのような低ビット学習手法の基盤としても利用されています。</p>
+<pre class="mermaid">graph TD
+    A[FP32モデル] --> B{量子化手法}
+    B -- "AWQ/GPTQ" --> C[キャリブレーションデータ]
+    B -- bitsandbytes --> D[GPU]
+    C --> E["量子化済みモデル (例: 4bit)"]
+    D --> E
+    E --> F[推論]</pre>
+<p><em>図10.1: 量子化の一般的なフロー</em></p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<h3 id="量子化-vs-圧縮">量子化 vs 圧縮</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">量子化 (Quantization)</th>
+<th align="left">圧縮 (Compression)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">目的</td>
+<td align="left">データ型を低精度に変換し、メモリ削減と高速化</td>
+<td align="left">データ冗長性を排除し、ファイルサイズを削減</td>
+</tr>
+<tr>
+<td align="left">処理内容</td>
+<td align="left">浮動小数点数を整数や低ビット浮動小数点数にマッピング</td>
+<td align="left">ハフマン符号化、LZ77/LZ78、スパース化など</td>
+</tr>
+<tr>
+<td align="left">可逆性</td>
+<td align="left">基本的に非可逆 (情報が失われる)</td>
+<td align="left">可逆圧縮と非可逆圧縮がある (モデル圧縮は非可逆が多い)</td>
+</tr>
+<tr>
+<td align="left">影響</td>
+<td align="left">精度と性能に直接影響</td>
+<td align="left">ファイルサイズに影響、解凍時に元のデータに戻す</td>
+</tr>
+<tr>
+<td align="left">LLMでの利用</td>
+<td align="left">重みや活性化値のデータ型変換</td>
+<td align="left">モデルファイルのサイズ削減 (例: GGUFの圧縮)</td>
+</tr>
+</tbody></table></div>
+<p>ひとことで言うと: 量子化はデータ型を変換してメモリを減らすこと、圧縮はデータの冗長性を排除してファイルサイズを減らすこと。
+初心者向け注意点: GGUFファイルは量子化された重みを持つことがありますが、GGUF自体はファイル形式であり、その中に圧縮技術も含まれることがあります。量子化と圧縮は異なる概念ですが、軽量化という共通の目的のために併用されることが多いです。</p>
+<h3 id="gguf-quantization-vs-gptq-awq">GGUF quantization vs GPTQ / AWQ</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">GGUF quantization</th>
+<th align="left">GPTQ / AWQ</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">目的</td>
+<td align="left"><code>llama.cpp</code>エコシステムでの効率的な推論</td>
+<td align="left">汎用的な4bit/INT8量子化手法</td>
+</tr>
+<tr>
+<td align="left">適用対象</td>
+<td align="left">GGUFファイル形式のモデル</td>
+<td align="left">PyTorchなどのフレームワークで学習されたモデル</td>
+</tr>
+<tr>
+<td align="left">量子化プロセス</td>
+<td align="left">GGUF変換ツール (<code>llama.cpp/quantize</code>) で実行</td>
+<td align="left">専用ライブラリ (<code>AutoGPTQ</code>, <code>AutoAWQ</code>) で実行</td>
+</tr>
+<tr>
+<td align="left">結果</td>
+<td align="left">GGUF形式の量子化済みファイル</td>
+<td align="left">量子化済み重みを持つPyTorchモデル (通常はsafetensors形式)</td>
+</tr>
+<tr>
+<td align="left">ランタイム</td>
+<td align="left"><code>llama.cpp</code>、Ollama、LM Studioなど</td>
+<td align="left">Hugging Face Transformers + bitsandbytesなど</td>
+</tr>
+<tr>
+<td align="left">精度</td>
+<td align="left">GGUF独自の量子化アルゴリズム (Q4_K_Mなど)</td>
+<td align="left">GPTQ/AWQアルゴリズム</td>
+</tr>
+</tbody></table></div>
+<p>ひとことで言うと: GGUF quantizationは<code>llama.cpp</code>エコシステムに特化した量子化形式とツールであり、GPTQ/AWQはより汎用的な量子化アルゴリズムそのもの。
+初心者向け注意点: GGUFファイルは、その内部で様々な量子化レベル（Q4_K_M, Q5_K_Sなど）をサポートしています。これらの量子化は、GPTQやAWQとは異なる独自のアルゴリズムに基づいていることが多いです。</p>
+<h3 id="学習時量子化-vs-推論時量子化">学習時量子化 vs 推論時量子化</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">学習時量子化 (Quantization-Aware Training, QAT)</th>
+<th align="left">推論時量子化 (Post-Training Quantization, PTQ)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">実行タイミング</td>
+<td align="left">モデルの学習中</td>
+<td align="left">モデルの学習後</td>
+</tr>
+<tr>
+<td align="left">精度</td>
+<td align="left">高い (量子化誤差を学習で補償できるため)</td>
+<td align="left">中程度 (学習済みモデルを変換するため、誤差が生じやすい)</td>
+</tr>
+<tr>
+<td align="left">複雑さ</td>
+<td align="left">高い (学習プロセスを変更する必要がある)</td>
+<td align="left">低い (学習済みモデルを変換するだけ)</td>
+</tr>
+<tr>
+<td align="left">計算コスト</td>
+<td align="left">高い (追加の学習が必要)</td>
+<td align="left">低い (変換処理のみ)</td>
+</tr>
+<tr>
+<td align="left">LLMでの利用</td>
+<td align="left">まだ一般的ではない (計算コストが高いため)</td>
+<td align="left">主流 (GPTQ, AWQなど)</td>
+</tr>
+</tbody></table></div>
+<p>ひとことで言うと: 学習時量子化は学習中に量子化を考慮することで高精度を目指す手法、推論時量子化は学習済みのモデルを後から量子化する手法。
+初心者向け注意点: LLMにおいては、推論時量子化が手軽さと効果のバランスから広く採用されています。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>量子化は、LLMを実運用する上で非常に重要な技術です。</p>
+<ol>
+<li><strong>リソース制約のある環境での実行</strong>: GPUメモリが限られている場合（例: 消費者向けGPU、エッジデバイス）、量子化はより大きなモデルを実行するための唯一の手段となることがあります。</li>
+<li><strong>推論コストの削減</strong>: メモリ使用量と計算量が減ることで、GPUの利用効率が向上し、クラウドでの推論コストを削減できます。</li>
+<li><strong>推論速度の向上</strong>: 低精度演算は高速に実行できるため、ユーザーへの応答時間を短縮できます。</li>
+<li><strong>モデル配布の効率化</strong>: モデルファイルが小さくなるため、ダウンロード時間やストレージコストが削減されます。</li>
+</ol>
+<p>特に、Hugging Face Transformersと<code>bitsandbytes</code>の組み合わせは、数行のコードで4bit量子化モデルをロードし、推論できるため、LLMの民主化に大きく貢献しています。また、<code>llama.cpp</code>とそのGGUF形式は、CPU環境やMacのMetal GPUなど、多様な環境でLLMを動かすためのデファクトスタンダードとなっています。</p>
+<pre class="mermaid">graph TD
+    A[LLM開発者] --> B{学習済みFP32モデル}
+    B --> C["推論時量子化 (GPTQ/AWQ)"]
+    C --> D["量子化済みモデル (例: 4bit/INT8)"]
+    D --> E[bitsandbytes]
+    D --> F[GGUF変換ツール]
+    E --> G[Hugging Face Transformers + GPU]
+    F --> H[GGUFファイル]
+    H --> I[llama.cpp / Ollama / LM Studio]
+    G --> J[高速・低メモリ推論]
+    I --> J
+    J --> K[エンドユーザー]
+
+    subgraph "量子化プロセス"
+        C; D; E; F
+    end
+
+    subgraph "推論ランタイム"
+        G; I
+    end</pre>
+<p><em>図10.2: 量子化されたLLMがエンドユーザーに届くまでの流れ</em></p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>量子化は、LLMの重みを低精度データ型（FP16, INT8, 4bitなど）に変換し、メモリ使用量と計算量を削減する技術です。</li>
+<li>FP16/BF16は精度と性能のバランスが良く、INT8/4bitは極限の軽量化を目指しますが、専用の量子化手法（GPTQ, AWQ）が必要です。</li>
+<li><code>bitsandbytes</code>はGPU上での量子化推論を、GGUF形式はCPUやMac環境での量子化推論を可能にし、LLMの利用を広げています。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>量子化</strong>と<strong>圧縮</strong>: 量子化はデータ型変換、圧縮は冗長性排除。目的は似ていますが、技術的なアプローチが異なります。</li>
+<li><strong>GGUF quantization</strong>と<strong>GPTQ/AWQ</strong>: GGUF quantizationは<code>llama.cpp</code>エコシステムに特化した量子化形式、GPTQ/AWQは汎用的な量子化アルゴリズム。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第11章: LoRA/QLoRA (量子化されたモデルを効率的にファインチューニングする技術について学びます)</li>
+<li>第12章: プロンプトエンジニアリング (量子化モデルの精度低下をプロンプトで補う方法について考えるヒントが得られるかもしれません)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-09.html" class="nav-prev">← 第9章 vLLM / TGI / TensorRT-LLM</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-11.html" class="nav-next">第11章 BitNet / ternary / 1-bit系 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

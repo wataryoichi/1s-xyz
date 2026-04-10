@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第8章. Ollama / LM Studio / Open WebUI / Jan など - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 実行エンジンとUIツールの違いを整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-08.html">
+  <meta property="og:title" content="第8章. Ollama / LM Studio / Open WebUI / Jan など - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 実行エンジンとUIツールの違いを整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-08.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第8章. Ollama / LM Studio / Open WebUI / Jan など - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 実行エンジンとUIツールの違いを整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">8 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第5部: どうやってモデルを動かすのか</li><li aria-current="page">第8章. Ollama / LM Studio / Open WebUI / Jan など</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第8章-ollama-lm-studio-open-webui-jan-など">第8章. Ollama / LM Studio / Open WebUI / Jan など</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、ローカル環境で大規模言語モデル（LLM）を実行するための主要なツールであるOllama、LM Studio、Open WebUI、Janなどに焦点を当て、それぞれの役割と特徴を理解することを目的とします。特に、これらのツールがどのように推論エンジン（例: llama.cpp）と連携し、ユーザーにLLM利用体験を提供しているのかを明確に区別できるようになります。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>Ollama、LM Studio、Open WebUI、Janといったツールの基本的な機能と役割</li>
+<li>「推論エンジン」「ローカルサーバー」「UIツール」の概念とそれぞれの関係性</li>
+<li>OpenAI互換APIの重要性と、それがローカルLLM環境でどのように活用されるか</li>
+<li>各ツールの得意なことと、利用シーンに応じた選び方</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>前章までで、LLMのモデルファイル形式（GGUFなど）や、それを動かすための推論ランタイム（llama.cppなど）について学びました。しかし、これらの技術を直接操作してLLMと対話するのは、コマンドライン操作に慣れていないと少しハードルが高いかもしれません。</p>
+<p>そこで登場するのが、Ollama、LM Studio、Open WebUI、Janといったツール群です。これらは、複雑な技術的な詳細を隠蔽し、より簡単に、そして快適にローカルLLMを利用できるように設計されています。しかし、これらのツールはそれぞれ異なる役割を担っており、しばしば混同されがちです。本章では、これらのツールの違いを明確にし、あなたのニーズに合ったツールを選べるようになることを目指します。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>ローカルLLM環境を構築する際、いくつかの異なる役割を持つコンポーネントが存在します。これらを理解することが、各ツールの違いを把握する鍵となります。</p>
+<h3 id="推論エンジン-inference-engine">推論エンジン (Inference Engine)</h3>
+<p>ひとことで言うと: LLMの計算を実行する「頭脳」
+何のカテゴリか: LLM推論ランタイム
+何に使うのか: モデルファイル（GGUFなど）を読み込み、ユーザーの入力（プロンプト）から応答を生成する計算処理を行う。
+代表例: llama.cpp, vLLM, TensorRT-LLM
+よく混同される用語: ローカルサーバー、UIツール
+初心者向け注意点: 推論エンジン自体は、通常、直接ユーザーインターフェースを持たないコマンドラインツールやライブラリです。</p>
+<h3 id="ローカルサーバー-local-server">ローカルサーバー (Local Server)</h3>
+<p>ひとことで言うと: 推論エンジンを「API」として提供する「仲介役」
+何のカテゴリか: APIサーバー、バックエンドサービス
+何に使うのか: 推論エンジンをHTTPなどのプロトコルで外部から利用できるようにラップし、APIエンドポイントを提供します。これにより、他のアプリケーション（UIツールなど）が推論エンジンと通信できるようになります。
+代表例: Ollamaのバックエンド、LM Studioのサーバー機能、llama.cppの<code>server</code>コマンド
+よく混同される用語: 推論エンジン、UIツール
+初心者向け注意点: ローカルサーバーは、推論エンジンが生成した結果を整形し、外部に提供する役割を担います。</p>
+<h3 id="uiツール-user-interface-tool">UIツール (User Interface Tool)</h3>
+<p>ひとことで言うと: ユーザーがLLMと対話するための「窓口」
+何のカテゴリか: クライアントアプリケーション、フロントエンド
+何に使うのか: ローカルサーバーが提供するAPIを呼び出し、ユーザーがプロンプトを入力したり、LLMの応答を表示したりするためのグラフィカルなインターフェースを提供します。
+代表例: Open WebUI, JanのチャットUI, LM StudioのチャットUI, OllamaのWeb UI (非公式含む)
+よく混同される用語: ローカルサーバー、推論エンジン
+初心者向け注意点: UIツールは、それ自体がLLMの推論を行うわけではありません。必ず背後にローカルサーバーと推論エンジンが必要です。</p>
+<h3 id="openai-compatible-api-openai互換api">OpenAI-compatible API (OpenAI互換API)</h3>
+<p>ひとことで言うと: OpenAIのAPIと同じ形式で、ローカルLLMを操作できる「共通言語」
+何のカテゴリか: API仕様、インターフェース標準
+何に使うのか: ローカルサーバーがOpenAIのAPIと互換性のあるエンドポイントを提供することで、OpenAI API向けに開発された多くの既存ツールやアプリケーションを、ローカルLLM環境でそのまま利用できるようになります。
+代表例: Ollama, LM Studio, llama.cppの<code>server</code>コマンドが提供するAPI
+よく混同される用語: OpenAI API (本家)
+初心者向け注意点: これはOpenAIが提供するAPIそのものではなく、その「形式」を模倣したものです。</p>
+<p>これらの関係性を図で示すと以下のようになります。</p>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B["UIツール (Open WebUI, Jan, LM Studio UI)"]
+    B --> C["ローカルサーバー (Ollama, LM Studio Server, llama.cpp server)"]
+    C --> D["推論エンジン (llama.cpp)"]
+    D --> E["モデルファイル (GGUF)"]
+
+    subgraph "ユーザー体験層"
+        A
+        B
+    end
+
+    subgraph "API層"
+        C
+    end
+
+    subgraph "実行層"
+        D
+        E
+    end
+
+    C -- OpenAI-compatible API --> B</pre>
+<p>この図は、ユーザーがUIツールを通じてローカルサーバーにリクエストを送り、ローカルサーバーが推論エンジンを介してモデルファイルから応答を生成し、それをUIツール経由でユーザーに返すという一連の流れを示しています。OpenAI互換APIは、UIツールとローカルサーバー間の標準的な通信手段として機能します。</p>
+<h2 id="具体例">具体例</h2>
+<p>それでは、主要なツールについて具体的に見ていきましょう。</p>
+<h3 id="ollama">Ollama</h3>
+<p>ひとことで言うと: モデルのダウンロードから実行までをシンプルにする「オールインワン」ツール
+何のカテゴリか: ローカルLLM実行環境、モデルマネージャー、ローカルサーバー
+何に使うのか:</p>
+<ul>
+<li>GGUF形式のモデルを簡単にダウンロード・管理</li>
+<li>ダウンロードしたモデルをバックグラウンドで実行するローカルサーバーを提供</li>
+<li>OpenAI互換APIを提供し、他のアプリケーションから利用可能</li>
+<li>コマンドラインからのチャットインターフェースも提供
+代表例: <code>ollama run llama2</code>, <code>ollama pull mistral</code>
+よく混同される用語: llama.cpp, LM Studio
+初心者向け注意点: Ollama自体が推論エンジンを持っているわけではなく、内部でllama.cppなどの推論エンジンを利用しています。</li>
+</ul>
+<p><strong>Ollamaのアーキテクチャ</strong></p>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B["Ollama CLI / Web UI (非公式)"]
+    B --> C[Ollama Server]
+    C --> D["llama.cpp (内部)"]
+    D --> E["Ollama Model Library (GGUF)"]
+
+    subgraph "Ollama Ecosystem"
+        B
+        C
+        D
+        E
+    end
+
+    C -- OpenAI-compatible API --> F["外部アプリケーション (例: Open WebUI)"]</pre>
+<p>Ollamaは、モデルの管理、ローカルサーバーの起動、そして推論エンジンの実行までを一手に引き受けることで、ユーザーにとって非常に使いやすい環境を提供します。</p>
+<h3 id="lm-studio">LM Studio</h3>
+<p>ひとことで言うと: GUIでモデルのダウンロード、サーバー起動、チャットができる「デスクトップアプリ」
+何のカテゴリか: ローカルLLM実行環境、モデルマネージャー、ローカルサーバー、UIツール
+何に使うのか:</p>
+<ul>
+<li>Hugging FaceからGGUFモデルを検索・ダウンロード</li>
+<li>ダウンロードしたモデルをGUIで選択し、ローカルサーバーを起動</li>
+<li>起動したサーバーに接続してチャットできる内蔵UI</li>
+<li>OpenAI互換APIを提供
+代表例: LM Studioデスクトップアプリケーション
+よく混同される用語: llama.cpp, Ollama
+初心者向け注意点: LM StudioもOllamaと同様に、内部でllama.cppなどの推論エンジンを利用しています。</li>
+</ul>
+<p><strong>LM Studioのアーキテクチャ</strong></p>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B["LM Studio GUI (チャット/設定)"]
+    B --> C[LM Studio Server]
+    C --> D["llama.cpp (内部)"]
+    D --> E["LM Studio Model Library (GGUF)"]
+
+    subgraph "LM Studio Application"
+        B
+        C
+        D
+        E
+    end
+
+    C -- OpenAI-compatible API --> F["外部アプリケーション (例: Open WebUI)"]</pre>
+<p>LM Studioは、特にGUIでの操作を重視しており、初心者でも直感的にローカルLLMを試せる点が強みです。</p>
+<h3 id="open-webui">Open WebUI</h3>
+<p>ひとことで言うと: ローカルLLMのための「高機能なWebチャットインターフェース」
+何のカテゴリか: UIツール、Webアプリケーション
+何に使うのか:</p>
+<ul>
+<li>OllamaやLM Studioなどが提供するOpenAI互換APIに接続し、Webブラウザ上でチャットUIを提供</li>
+<li>複数のモデルを切り替えたり、プロンプトテンプレートを管理したりする機能</li>
+<li>ストリーミング表示、マークダウン対応など、リッチなチャット体験
+代表例: Webブラウザでアクセスする<code>http://localhost:8080</code>などのURL
+よく混同される用語: Ollama, LM Studio (これらはサーバー機能も持つ)
+初心者向け注意点: Open WebUIはそれ単体ではLLMを動かせません。必ずOllamaやLM Studioなどのローカルサーバーと組み合わせて使用します。</li>
+</ul>
+<p><strong>Open WebUIのアーキテクチャ</strong></p>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B["Webブラウザ (Open WebUI)"]
+    B -- OpenAI-compatible API --> C["ローカルサーバー (Ollama / LM Studio)"]
+    C --> D["推論エンジン (llama.cpp)"]
+    D --> E["モデルファイル (GGUF)"]
+
+    subgraph "Open WebUI"
+        B
+    end</pre>
+<p>Open WebUIは、ローカルサーバーが提供するAPIを最大限に活用し、ユーザーに快適なチャット体験を提供することに特化しています。</p>
+<h3 id="jan">Jan</h3>
+<p>ひとことで言うと: デスクトップアプリとして動作する「オフラインAIアシスタント」
+何のカテゴリか: UIツール、ローカルLLM実行環境 (一部)
+何に使うのか:</p>
+<ul>
+<li>デスクトップアプリケーションとして動作し、ローカルLLMとのチャットを提供</li>
+<li>モデルのダウンロード・管理機能</li>
+<li>内部で推論エンジンを統合しているため、単体で動作可能</li>
+<li>OpenAI互換APIを提供 (クライアントとして利用、またはサーバーとして提供)
+代表例: Janデスクトップアプリケーション
+よく混同される用語: Ollama, LM Studio
+初心者向け注意点: JanはOllamaやLM Studioと似ていますが、より統合されたデスクトップアプリケーションとしての体験を目指しています。</li>
+</ul>
+<p><strong>Janのアーキテクチャ</strong></p>
+<pre class="mermaid">graph TD
+    A[ユーザー] --> B["Jan Desktop App (UI)"]
+    B --> C["Jan Engine (内部推論エンジン)"]
+    C --> D["Jan Model Library (GGUF)"]
+
+    subgraph "Jan Application"
+        B
+        C
+        D
+    end
+
+    B -- "OpenAI-compatible API (クライアント)" --> E["外部サーバー (Ollama / LM Studio)"]
+    B -- "OpenAI-compatible API (サーバー)" --> F[外部アプリケーション]</pre>
+<p>Janは、UIと推論エンジンを一つのアプリケーションにまとめることで、インストールから利用までの手間を減らしています。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<h3 id="lm-studio-vs-llamacpp">LM Studio vs llama.cpp</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">LM Studio</th>
+<th align="left">llama.cpp</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>役割</strong></td>
+<td align="left">モデル管理、ローカルサーバー、GUIチャット</td>
+<td align="left">LLM推論エンジン</td>
+</tr>
+<tr>
+<td align="left"><strong>インターフェース</strong></td>
+<td align="left">GUI (デスクトップアプリ)</td>
+<td align="left">コマンドライン、C++ライブラリ</td>
+</tr>
+<tr>
+<td align="left"><strong>モデル形式</strong></td>
+<td align="left">GGUF (Hugging Faceからダウンロード)</td>
+<td align="left">GGUF (主要な推論対象)</td>
+</tr>
+<tr>
+<td align="left"><strong>API提供</strong></td>
+<td align="left">OpenAI互換APIを提供</td>
+<td align="left"><code>server</code>コマンドでOpenAI互換APIを提供</td>
+</tr>
+<tr>
+<td align="left"><strong>内部構造</strong></td>
+<td align="left">内部でllama.cppを利用</td>
+<td align="left">LLM推論の中核</td>
+</tr>
+<tr>
+<td align="left"><strong>対象ユーザー</strong></td>
+<td align="left">初心者〜中級者、GUIで手軽に試したい人</td>
+<td align="left">開発者、技術者、カスタマイズしたい人</td>
+</tr>
+<tr>
+<td align="left"><strong>利点</strong></td>
+<td align="left">簡単なセットアップ、直感的な操作</td>
+<td align="left">高いパフォーマンス、柔軟性、広範なモデル対応</td>
+</tr>
+<tr>
+<td align="left"><strong>欠点</strong></td>
+<td align="left">GUIのオーバーヘッド、カスタマイズ性低</td>
+<td align="left">コマンドライン操作が必要、UIなし</td>
+</tr>
+</tbody></table></div>
+<p><strong>結論:</strong> LM Studioはllama.cppを「使いやすくパッケージング」したものであり、llama.cppはその「中核技術」です。</p>
+<h3 id="ollama-vs-llamacpp">Ollama vs llama.cpp</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">Ollama</th>
+<th align="left">llama.cpp</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>役割</strong></td>
+<td align="left">モデル管理、ローカルサーバー、CLIチャット</td>
+<td align="left">LLM推論エンジン</td>
+</tr>
+<tr>
+<td align="left"><strong>インターフェース</strong></td>
+<td align="left">コマンドライン、Web UI (非公式)</td>
+<td align="left">コマンドライン、C++ライブラリ</td>
+</tr>
+<tr>
+<td align="left"><strong>モデル形式</strong></td>
+<td align="left">GGUF (独自のモデルライブラリからダウンロード)</td>
+<td align="left">GGUF (主要な推論対象)</td>
+</tr>
+<tr>
+<td align="left"><strong>API提供</strong></td>
+<td align="left">OpenAI互換APIを提供</td>
+<td align="left"><code>server</code>コマンドでOpenAI互換APIを提供</td>
+</tr>
+<tr>
+<td align="left"><strong>内部構造</strong></td>
+<td align="left">内部でllama.cppを利用</td>
+<td align="left">LLM推論の中核</td>
+</tr>
+<tr>
+<td align="left"><strong>対象ユーザー</strong></td>
+<td align="left">初心者〜中級者、CLIで手軽に試したい人</td>
+<td align="left">開発者、技術者、カスタマイズしたい人</td>
+</tr>
+<tr>
+<td align="left"><strong>利点</strong></td>
+<td align="left">簡単なモデル管理、シンプルなCLI、Docker対応</td>
+<td align="left">高いパフォーマンス、柔軟性、広範なモデル対応</td>
+</tr>
+<tr>
+<td align="left"><strong>欠点</strong></td>
+<td align="left">モデルの選択肢がOllamaライブラリに限定されがち</td>
+<td align="left">コマンドライン操作が必要、UIなし</td>
+</tr>
+</tbody></table></div>
+<p><strong>結論:</strong> OllamaもLM Studioと同様に、llama.cppを「使いやすくパッケージング」したものですが、CLI中心のアプローチと独自のモデルライブラリが特徴です。</p>
+<h3 id="uiツール-vs-推論エンジン">UIツール vs 推論エンジン</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">UIツール (Open WebUI, Jan UI)</th>
+<th align="left">推論エンジン (llama.cpp)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>役割</strong></td>
+<td align="left">ユーザーインターフェース、対話管理</td>
+<td align="left">LLMの計算実行、テキスト生成</td>
+</tr>
+<tr>
+<td align="left"><strong>機能</strong></td>
+<td align="left">プロンプト入力、応答表示、チャット履歴、設定</td>
+<td align="left">モデル読み込み、トークン化、推論、デコード</td>
+</tr>
+<tr>
+<td align="left"><strong>単体動作</strong></td>
+<td align="left">不可 (必ずサーバーが必要)</td>
+<td align="left">可能 (コマンドラインで直接実行)</td>
+</tr>
+<tr>
+<td align="left"><strong>ユーザー体験</strong></td>
+<td align="left">快適なチャット体験、視覚的な操作</td>
+<td align="left">技術的な操作、プログラミング的利用</td>
+</tr>
+<tr>
+<td align="left"><strong>依存関係</strong></td>
+<td align="left">ローカルサーバー (Ollama, LM Studio) に依存</td>
+<td align="left">ハードウェア (CPU/GPU) に依存</td>
+</tr>
+<tr>
+<td align="left"><strong>開発者向け</strong></td>
+<td align="left">フロントエンド開発、ユーザー体験設計</td>
+<td align="left">バックエンド開発、アルゴリズム最適化</td>
+</tr>
+</tbody></table></div>
+<p><strong>結論:</strong> UIツールは「車の運転席」、推論エンジンは「車のエンジン」です。運転席だけでは車は動きませんし、エンジンだけでは快適に運転できません。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>これらのツールは、ローカル環境でのLLM活用において非常に重要な役割を担っています。</p>
+<ol>
+<li><p><strong>開発・検証環境:</strong></p>
+<ul>
+<li>新しいモデルを試す際や、プロンプトエンジニアリングの実験を行う際に、クラウドAPIのコストを気にせず、高速に反復作業を行えます。</li>
+<li>OpenAI互換APIを提供するため、既存のアプリケーション（例: LangChain, LlamaIndex）のバックエンドを、クラウドAPIからローカルLLMに簡単に切り替えることができます。</li>
+</ul>
+</li>
+<li><p><strong>プライバシー重視の利用:</strong></p>
+<ul>
+<li>機密性の高い情報を扱う場合でも、データが外部に送信されることなく、完全にローカル環境で処理できるため、プライバシーとセキュリティを確保できます。</li>
+</ul>
+</li>
+<li><p><strong>オフライン環境での利用:</strong></p>
+<ul>
+<li>インターネット接続がない環境でもLLMを利用できるため、フィールドワークや特定の業務環境で有用です。</li>
+</ul>
+</li>
+<li><p><strong>教育・学習:</strong></p>
+<ul>
+<li>LLMの仕組みや動作原理を理解するための実践的な学習ツールとして最適です。モデルのパラメータや推論速度の変化を直接体験できます。</li>
+</ul>
+</li>
+<li><p><strong>リソースの有効活用:</strong></p>
+<ul>
+<li>高性能なGPUを搭載したPCを持っている場合、そのリソースを最大限に活用し、クラウドサービスに依存しない形でLLMを利用できます。</li>
+</ul>
+</li>
+</ol>
+<p>これらのツールは、単にLLMを動かすだけでなく、LLMをより身近な存在にし、多様なユースケースでの活用を促進する基盤となっています。</p>
+<p>LLMの推論速度は、主にモデルのサイズと利用可能なハードウェアリソースに依存します。一般的に、推論速度は1秒あたりの生成トークン数（tokens/sec）で表されます。
+$$ \text{Tokens/sec} = \frac{\text{Total Tokens Generated}}{\text{Total Inference Time (seconds)}} $$
+この指標は、ユーザーがLLMからの応答をどれだけ速く受け取れるかを示す重要な要素です。ローカル環境では、CPUやGPUの性能、メモリ帯域幅、モデルの量子化レベルなどがこの値に大きく影響します。</p>
+<p>また、LLMの推論にかかる総時間 $T_{\text{total}}$ は、プロンプト処理時間 $T_{\text{prompt}}$ とトークン生成時間 $T_{\text{generation}}$ の合計として表せます。
+$$ T_{\text{total}} = T_{\text{prompt}} + T_{\text{generation}} $$
+ここで、$T_{\text{prompt}}$ は入力プロンプトの長さに比例し、$T_{\text{generation}}$ は生成されるトークン数に比例します。ローカルLLMツールは、これらの時間を最小化するために、推論エンジンの最適化やハードウェアアクセラレーションを最大限に活用しています。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>OllamaやLM Studioは、モデル管理、ローカルサーバー、推論エンジン（内部でllama.cppなど）を統合し、ローカルLLMを簡単に利用できる「オールインワン」ツールです。</li>
+<li>Open WebUIやJanは、これらのローカルサーバーが提供するOpenAI互換APIを利用して、快適なチャットUIを提供する「フロントエンド」または「デスクトップアプリ」です。</li>
+<li>「推論エンジン」「ローカルサーバー」「UIツール」の役割を理解することで、各ツールの機能と連携方法が明確になります。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>Ollama / LM Studio</strong> と <strong>llama.cpp</strong>: 前者は後者を内部で利用する「パッケージング」であり、後者は「中核技術」です。</li>
+<li><strong>UIツール</strong> と <strong>ローカルサーバー</strong>: UIツールはサーバーに接続して表示するだけで、サーバーがLLMの推論を行います。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第9章: LangChain / LlamaIndex とは何か<ul>
+<li>本章で学んだローカルLLM環境を、より高度なアプリケーションに組み込む方法を学びます。</li>
+</ul>
+</li>
+<li>第10章: RAG (Retrieval Augmented Generation) とは何か<ul>
+<li>ローカルLLMと外部知識を組み合わせることで、より実用的なLLMアプリケーションを構築する基礎を学びます。</li>
+</ul>
+</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-07.html" class="nav-prev">← 第7章 llama.cppとは何か</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-09.html" class="nav-next">第9章 vLLM / TGI / TensorRT-LLM →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

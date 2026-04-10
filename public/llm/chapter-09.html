@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第9章. vLLM / TGI / TensorRT-LLM - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: サーバ向け推論基盤を整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-09.html">
+  <meta property="og:title" content="第9章. vLLM / TGI / TensorRT-LLM - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: サーバ向け推論基盤を整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-09.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第9章. vLLM / TGI / TensorRT-LLM - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: サーバ向け推論基盤を整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">9 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第5部: どうやってモデルを動かすのか</li><li aria-current="page">第9章. vLLM / TGI / TensorRT-LLM</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第9章-vllm-tgi-tensorrt-llm">第9章. vLLM / TGI / TensorRT-LLM</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）を本番環境で効率的に運用するための推論基盤技術、特にvLLM、TGI、TensorRT-LLMに焦点を当てて解説します。これらの技術がどのようにしてLLMの推論性能を向上させ、スケーラブルなサービス提供を可能にするのかを理解することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>vLLM、TGI、TensorRT-LLMがそれぞれどのような特徴を持ち、どのようなユースケースに適しているか。</li>
+<li><code>paged attention</code>がLLMのメモリ管理とスループット向上にどのように貢献するか。</li>
+<li><code>throughput</code>と<code>latency</code>という二つの重要な性能指標の意味と、それらを向上させるための技術。</li>
+<li><code>batching</code>の概念と、それが推論効率に与える影響。</li>
+<li>開発環境での実行と本番環境でのサービングの違い。</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>前章までで、LLMの基本的な構成要素や、<code>llama.cpp</code>のようなローカル環境での手軽な実行方法について学んできました。しかし、これらの方法は、複数のユーザーからのリクエストを同時に処理したり、高い応答速度を維持したりする必要がある本番環境での運用には限界があります。</p>
+<p>LLMをサービスとして提供する場合、単にモデルを動かすだけでなく、いかに効率良く、多くのリクエストを、速く処理するかが重要になります。この課題を解決するために登場したのが、vLLM、TGI、TensorRT-LLMといった推論基盤です。これらは、GPUリソースを最大限に活用し、LLM推論の<code>throughput</code>（処理量）と<code>latency</code>（応答時間）を最適化するための様々な技術を組み込んでいます。</p>
+<p>本章では、これらの推論基盤がどのような課題を解決し、どのようなメカニズムで性能を向上させているのかを深掘りしていきます。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="1-vllm">1. vLLM</h3>
+<p>ひとことで言うと: LLMの推論を高速化し、GPUメモリを効率的に利用するためのオープンソースライブラリ。
+何のカテゴリか: LLM推論最適化ライブラリ、サービングフレームワーク
+何に使うのか: 大規模なLLMを本番環境で効率的にデプロイし、高いスループットと低いレイテンシで推論を提供するため。特に、可変長のシーケンス長を持つリクエストを効率的に処理するのに優れています。
+代表例: OpenAIのAPIのようなサービスを自前で構築する際のバックエンド。
+よく混同される用語: <code>llama.cpp</code> (ローカル実行向け)、<code>transformers</code>単体 (基本的な推論実行)、<code>TGI</code> (別のサービングフレームワーク)
+初心者向け注意点: vLLMはGPUを前提としており、CPUのみの環境では動作しません。また、ある程度のGPUメモリが必要となります。</p>
+<p>vLLMの最大の特徴は、<code>paged attention</code>という革新的なアテンションメカニズムを導入している点です。これにより、LLMの推論においてボトルネックとなりがちなGPUメモリの断片化を解消し、複数のリクエストを効率的にバッチ処理できるようになります。</p>
+<h3 id="2-tgi-text-generation-inference">2. TGI (Text Generation Inference)</h3>
+<p>ひとことで言うと: Hugging Faceが開発した、LLMの高速なテキスト生成に特化した推論フレームワーク。
+何のカテゴリか: LLM推論最適化ライブラリ、サービングフレームワーク
+何に使うのか: Hugging Face Hub上のモデルを簡単にデプロイし、高いスループットと低いレイテンシでテキスト生成サービスを提供するため。ストリーミング出力や、複数のモデルのロードにも対応しています。
+代表例: Hugging Face Inference Endpointsのバックエンド。
+よく混同される用語: <code>vLLM</code> (別のサービングフレームワーク)
+初心者向け注意点: TGIはDockerコンテナとして提供されることが多く、コンテナ技術の基本的な理解があると導入がスムーズです。</p>
+<p>TGIは、Rustで書かれた高性能なバックエンドを持ち、<code>FlashAttention</code>や<code>bitsandbytes</code>による量子化など、様々な最適化技術を組み込んでいます。また、OpenAPI互換のREST APIを提供し、開発者が容易にLLMサービスを構築できるように設計されています。</p>
+<h3 id="3-tensorrt-llm">3. TensorRT-LLM</h3>
+<p>ひとことで言うと: NVIDIAが提供する、LLMの推論をNVIDIA GPU上で最大限に高速化するためのライブラリ。
+何のカテゴリか: LLM推論最適化ライブラリ、コンパイラ
+何に使うのか: NVIDIA GPUのハードウェア特性を最大限に引き出し、LLMの推論性能を極限まで高めるため。特に、大規模なモデルや、超低レイテンシが求められるアプリケーションに適しています。
+代表例: NVIDIAのGPUを搭載したデータセンターでのLLM推論。
+よく混同される用語: <code>vLLM</code>や<code>TGI</code>はフレームワーク全体を指すのに対し、TensorRT-LLMはより低レベルな最適化ツールキット。
+初心者向け注意点: TensorRT-LLMはNVIDIA GPUに特化しており、他のGPUベンダーのハードウェアでは利用できません。また、モデルのコンパイルが必要となるため、導入にはある程度の専門知識が必要です。</p>
+<p>TensorRT-LLMは、モデルをNVIDIAのTensorRTフォーマットにコンパイルすることで、GPUの演算ユニットを最適に利用し、推論速度を大幅に向上させます。これには、カーネル融合、量子化、メモリ最適化など、多岐にわたる技術が含まれます。</p>
+<h3 id="4-paged-attention">4. Paged Attention</h3>
+<p>ひとことで言うと: LLMのKVキャッシュ（Key-Valueキャッシュ）をページ単位で管理するメモリ最適化技術。
+何のカテゴリか: メモリ管理技術、アテンションメカニズム
+何に使うのか: LLMの推論時に発生するGPUメモリの断片化を解消し、複数のリクエストを効率的にバッチ処理することで、スループットを向上させる。
+代表例: vLLMで採用されている主要技術。
+よく混同される用語: 通常のアテンションメカニズム (Transformerの基本要素)
+初心者向け注意点: <code>paged attention</code>は、オペレーティングシステムがメモリをページ単位で管理するのと似た概念です。これにより、可変長のシーケンス長を持つリクエストが混在しても、GPUメモリを無駄なく利用できます。</p>
+<h4 id="paged-attentionの概念図">Paged Attentionの概念図</h4>
+<pre class="mermaid">graph TD
+    A[ユーザーリクエスト1: 短いプロンプト] --> B{KVキャッシュ生成}
+    C[ユーザーリクエスト2: 長いプロンプト] --> B
+    D[ユーザーリクエスト3: 中間のプロンプト] --> B
+
+    B --> E[KVキャッシュメモリプール]
+    E -- ページ単位で割り当て --> F[GPUメモリ]
+
+    subgraph "従来のKVキャッシュ管理"
+        G[リクエストごとに連続メモリ確保]
+        H[メモリ断片化発生]
+        I[GPUメモリ利用率低下]
+    end
+
+    subgraph "Paged Attention"
+        J[KVキャッシュを固定サイズのページに分割]
+        K[ページ単位で動的に割り当て/解放]
+        L[メモリ断片化抑制]
+        M[GPUメモリ利用率向上]
+    end
+
+    F -- 従来の課題 --> H
+    F -- Paged Attentionの利点 --> M</pre>
+<p><strong>説明</strong>: 従来のKVキャッシュ管理では、各リクエストのKVキャッシュが連続したメモリ領域を占有するため、リクエストの長さが異なるとメモリの断片化が発生し、GPUメモリの利用効率が低下します。<code>paged attention</code>では、KVキャッシュを固定サイズの「ページ」に分割し、OSの仮想メモリ管理のように、必要なページを動的に割り当て・解放します。これにより、メモリの断片化が抑制され、GPUメモリをより効率的に利用できるようになります。結果として、より多くのリクエストを同時に処理できるようになり、スループットが向上します。</p>
+<h3 id="5-throughput-スループット">5. Throughput (スループット)</h3>
+<p>ひとことで言うと: 単位時間あたりに処理できるリクエストの量や生成できるトークン数。
+何のカテゴリか: 性能指標
+何に使うのか: システム全体の処理能力を評価するため。特に、多数のユーザーからのリクエストを同時に処理する必要がある本番環境で重要。
+代表例: 1秒あたりに生成できるトークン数 (Tokens/sec)、1秒あたりに処理できるリクエスト数 (Requests/sec)。
+よく混同される用語: <code>Latency</code> (応答時間)
+初心者向け注意点: スループットが高いほど、同じ時間でより多くの仕事をこなせることを意味します。</p>
+<p>スループットは、以下の式で表すことができます。
+$$ \text{Throughput} = \frac{\text{Total Tokens Generated}}{\text{Total Time}} $$
+ここで、<code>Total Tokens Generated</code>は生成されたトークンの総数、<code>Total Time</code>は推論にかかった総時間です。この値が大きいほど、システムは効率的であると言えます。</p>
+<h3 id="6-latency-レイテンシ">6. Latency (レイテンシ)</h3>
+<p>ひとことで言うと: リクエストが送信されてから、最初の応答が返ってくるまでの時間、または全ての結果が返ってくるまでの時間。
+何のカテゴリか: 性能指標
+何に使うのか: ユーザー体験の良さを評価するため。特に、リアルタイム性が求められるアプリケーションで重要。
+代表例: ユーザーがプロンプトを入力してから、LLMが最初のトークンを生成するまでの時間 (Time To First Token; TTFT)、全てのトークンを生成し終えるまでの時間 (Time To Last Token; TTLT)。
+よく混同される用語: <code>Throughput</code> (処理量)
+初心者向け注意点: レイテンシが低いほど、応答が速いことを意味します。</p>
+<p>レイテンシは、以下の式で表すことができます。
+$$ \text{Latency} = \text{Time To First Token} + (\text{Number of Output Tokens} - 1) \times \text{Time Per Output Token} $$
+ここで、<code>Time To First Token</code>は最初のトークンが生成されるまでの時間、<code>Number of Output Tokens</code>は生成されるトークンの総数、<code>Time Per Output Token</code>は各出力トークンが生成されるのにかかる平均時間です。ユーザー体験を向上させるためには、この値を最小限に抑えることが重要です。</p>
+<h3 id="7-batching-バッチ処理">7. Batching (バッチ処理)</h3>
+<p>ひとことで言うと: 複数のリクエストやデータをまとめて一度に処理する技術。
+何のカテゴリか: 処理最適化技術
+何に使うのか: GPUのような並列処理に特化したハードウェアの利用効率を高め、スループットを向上させるため。
+代表例: 複数のユーザーからのプロンプトをまとめてLLMに入力し、一度に推論を実行する。
+よく混同される用語: ストリーミング (逐次処理)
+初心者向け注意点: バッチサイズが大きすぎると、個々のリクエストのレイテンシが悪化する可能性があります。スループットとレイテンシのバランスが重要です。</p>
+<h4 id="batchingの概念図">Batchingの概念図</h4>
+<pre class="mermaid">graph TD
+    A[リクエスト1] --> C{バッチキュー}
+    B[リクエスト2] --> C
+    D[リクエスト3] --> C
+    E[リクエスト4] --> C
+
+    C -- 一定数または一定時間でまとめる --> F[バッチ]
+
+    F -- GPUに送信 --> G["LLM推論 (GPU)"]
+
+    G -- 結果を個別に返す --> H[応答1]
+    G -- 結果を個別に返す --> I[応答2]
+    G -- 結果を個別に返す --> J[応答3]
+    G -- 結果を個別に返す --> K[応答4]
+
+    subgraph "バッチ処理なし"
+        L[リクエスト1] --> M["LLM推論 (GPU)"]
+        M["LLM推論 (GPU)"] --> N[応答1]
+        O[リクエスト2] --> P["LLM推論 (GPU)"]
+        P["LLM推論 (GPU)"] --> Q[応答2]
+        R[リクエスト3] --> S["LLM推論 (GPU)"]
+        S["LLM推論 (GPU)"] --> T[応答3]
+    end
+
+    subgraph "バッチ処理あり"
+        U[リクエスト1,2,3] --> V["LLM推論 (GPU)"]
+        V["LLM推論 (GPU)"] --> W[応答1,2,3]
+    end
+
+    L -- 効率悪い --> M
+    U -- 効率良い --> V</pre>
+<p><strong>説明</strong>: GPUは並列処理に優れているため、一度に多くのデータを処理する方が効率的です。バッチ処理なしの場合、各リクエストは個別にGPUに送られ、GPUの利用効率が低下します。バッチ処理ありの場合、複数のリクエストをまとめてGPUに送ることで、GPUをより長く、より効率的に稼働させることができ、結果として全体の<code>throughput</code>が向上します。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="vllmを使ったllmサービング">vLLMを使ったLLMサービング</h3>
+<p>vLLMは、Pythonで簡単にLLMサービングAPIを立ち上げることができます。</p>
+<pre><code class="language-python"># vLLMのインストール (事前にGPU環境とCUDAがセットアップされている必要があります)
+# pip install vllm
+
+from vllm import LLM, SamplingParams
+
+# モデルのロード
+# Hugging Face Hubのモデル名を使用
+llm = LLM(model="mistralai/Mistral-7B-Instruct-v0.2")
+
+# サンプリングパラメータの設定
+sampling_params = SamplingParams(temperature=0.7, top_p=0.95, max_tokens=128)
+
+# プロンプトのリスト
+prompts = [
+    "What is the capital of France?",
+    "Write a short poem about AI.",
+    "Explain the concept of paged attention in simple terms."
+]
+
+# 推論の実行
+# vLLMは内部でpaged attentionとバッチ処理を自動的に行います
+outputs = llm.generate(prompts, sampling_params)
+
+# 結果の表示
+for prompt, output in zip(prompts, outputs):
+    generated_text = output.outputs[0].text
+    print(f"Prompt: {prompt!r}, Generated text: {generated_text!r}")
+
+# APIサーバーとして起動する場合 (別のターミナルで実行)
+# python -m vllm.entrypoints.api_server --model mistralai/Mistral-7B-Instruct-v0.2
+# 起動後、curlなどでリクエストを送信可能
+# curl http://localhost:8000/generate -H "Content-Type: application/json" -d '{
+#     "prompt": "Hello, my name is",
+#     "max_tokens": 20
+# }'</code></pre>
+<p>この例では、<code>LLM</code>クラスがモデルのロード、<code>paged attention</code>によるKVキャッシュ管理、そして複数のプロンプトに対する効率的なバッチ推論を自動的に処理します。これにより、開発者は複雑な最適化を意識することなく、高いスループットと低いレイテンシでLLMサービスを構築できます。</p>
+<h3 id="tgiを使ったllmサービング">TGIを使ったLLMサービング</h3>
+<p>TGIはDockerコンテナとして提供されることが多く、手軽にデプロイできます。</p>
+<pre><code class="language-bash"># Dockerのインストールが必要です
+
+# 1. TGI Dockerイメージのプル
+docker pull ghcr.io/huggingface/text-generation-inference:latest
+
+# 2. モデルをダウンロードするためのディレクトリを作成 (オプション)
+# mkdir -p ./models/mistral-7b-instruct-v0.2
+
+# 3. TGIコンテナの起動
+# --model-id: Hugging Face Hubのモデル名
+# --port: サービスがリッスンするポート
+# --volume: モデルをキャッシュするディレクトリ (永続化のため)
+# --gpus all: 全てのGPUを利用
+docker run --gpus all -p 8080:80 \
+    -v ~/.cache/huggingface:/data \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id mistralai/Mistral-7B-Instruct-v0.2 \
+    --max-input-length 1024 \
+    --max-total-tokens 2048
+
+# 4. 別のターミナルからAPIリクエストを送信
+curl 127.0.0.1:8080/generate -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "inputs": "What is the capital of France?",
+        "parameters": {
+            "max_new_tokens": 128,
+            "temperature": 0.7,
+            "top_p": 0.95
+        }
+    }'</code></pre>
+<p>TGIも内部で様々な最適化（FlashAttention、量子化、動的バッチ処理など）を行い、高い性能を発揮します。Dockerを使うことで、環境構築の手間を減らし、再現性の高いデプロイが可能です。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<h3 id="llm推論基盤の比較">LLM推論基盤の比較</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/項目</th>
+<th align="left">vLLM</th>
+<th align="left">TGI (Text Generation Inference)</th>
+<th align="left">TensorRT-LLM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>開発元</strong></td>
+<td align="left">UC Berkeley (オープンソース)</td>
+<td align="left">Hugging Face</td>
+<td align="left">NVIDIA</td>
+</tr>
+<tr>
+<td align="left"><strong>主な言語</strong></td>
+<td align="left">Python, CUDA</td>
+<td align="left">Rust, Python, CUDA</td>
+<td align="left">C++, CUDA</td>
+</tr>
+<tr>
+<td align="left"><strong>ターゲットハードウェア</strong></td>
+<td align="left">NVIDIA GPU</td>
+<td align="left">NVIDIA GPU</td>
+<td align="left">NVIDIA GPU</td>
+</tr>
+<tr>
+<td align="left"><strong>主要な最適化</strong></td>
+<td align="left">Paged Attention、動的バッチ処理、FlashAttention</td>
+<td align="left">FlashAttention、動的バッチ処理、量子化、Rustバックエンド</td>
+<td align="left">TensorRTコンパイル、カーネル融合、量子化、メモリ最適化</td>
+</tr>
+<tr>
+<td align="left"><strong>スループット</strong></td>
+<td align="left"><strong>非常に高い</strong></td>
+<td align="left"><strong>高い</strong></td>
+<td align="left"><strong>極めて高い</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>レイテンシ</strong></td>
+<td align="left"><strong>低い</strong></td>
+<td align="left"><strong>低い</strong></td>
+<td align="left"><strong>極めて低い</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>メモリ効率</strong></td>
+<td align="left"><strong>非常に高い</strong> (Paged Attention)</td>
+<td align="left">高い</td>
+<td align="left"><strong>極めて高い</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>導入の容易さ</strong></td>
+<td align="left">中程度 (Pythonライブラリ)</td>
+<td align="left">中程度 (Dockerコンテナ)</td>
+<td align="left">低 (モデルコンパイル、NVIDIAエコシステム)</td>
+</tr>
+<tr>
+<td align="left"><strong>ユースケース</strong></td>
+<td align="left">高スループットなAPIサービス、可変長リクエスト</td>
+<td align="left">Hugging Faceモデルのデプロイ、ストリーミング</td>
+<td align="left">超低レイテンシ、大規模モデル、NVIDIA最適化</td>
+</tr>
+<tr>
+<td align="left"><strong>エコシステム</strong></td>
+<td align="left">独立、OpenAI API互換</td>
+<td align="left">Hugging Face Hubとの連携</td>
+<td align="left">NVIDIA CUDA/TensorRTエコシステム</td>
+</tr>
+</tbody></table></div>
+<p><strong>結論</strong>:</p>
+<ul>
+<li><strong>vLLM</strong>は、柔軟なバッチ処理と優れたメモリ管理（Paged Attention）により、高いスループットと低いレイテンシを両立し、汎用的なLLMサービングに適しています。</li>
+<li><strong>TGI</strong>は、Hugging Faceモデルとの親和性が高く、Dockerベースで手軽にデプロイでき、ストリーミング出力などの機能も充実しています。</li>
+<li><strong>TensorRT-LLM</strong>は、NVIDIA GPUの性能を最大限に引き出すことに特化しており、極限の推論速度と効率を求める場合に最適です。</li>
+</ul>
+<h3 id="llamacpp-vs-vllm-vs-transformers単体">llama.cpp vs vLLM vs transformers単体</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/項目</th>
+<th align="left">llama.cpp</th>
+<th align="left">vLLM</th>
+<th align="left">transformers単体</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>主な用途</strong></td>
+<td align="left">CPUでの高速推論、ローカル環境での実行</td>
+<td align="left">GPUでの高速推論、本番サービング</td>
+<td align="left">研究開発、基本的なモデル実行、プロトタイピング</td>
+</tr>
+<tr>
+<td align="left"><strong>ターゲットハードウェア</strong></td>
+<td align="left">CPU (GPUも一部サポート)</td>
+<td align="left">GPU (NVIDIA)</td>
+<td align="left">CPU, GPU (汎用)</td>
+</tr>
+<tr>
+<td align="left"><strong>最適化技術</strong></td>
+<td align="left">量子化 (GGUF)、KVキャッシュ最適化、GGML</td>
+<td align="left">Paged Attention、動的バッチ処理、FlashAttention</td>
+<td align="left">基本的な推論、一部最適化ライブラリと連携可能</td>
+</tr>
+<tr>
+<td align="left"><strong>スループット</strong></td>
+<td align="left">中程度</td>
+<td align="left"><strong>高</strong></td>
+<td align="left">低〜中程度</td>
+</tr>
+<tr>
+<td align="left"><strong>レイテンシ</strong></td>
+<td align="left">中程度</td>
+<td align="left"><strong>低</strong></td>
+<td align="left">中程度</td>
+</tr>
+<tr>
+<td align="left"><strong>メモリ効率</strong></td>
+<td align="left">高 (特に量子化モデル)</td>
+<td align="left"><strong>高</strong> (Paged Attentionによる)</td>
+<td align="left">中程度</td>
+</tr>
+<tr>
+<td align="left"><strong>導入の容易さ</strong></td>
+<td align="left"><strong>高</strong> (GGUFモデルとCLI/Pythonバインディング)</td>
+<td align="left">中程度 (GPU環境構築が必要)</td>
+<td align="left">高 (Pythonライブラリとして)</td>
+</tr>
+<tr>
+<td align="left"><strong>本番環境適性</strong></td>
+<td align="left">限定的 (小規模サービス、エッジ)</td>
+<td align="left"><strong>高</strong> (スケーラブルなAPIサービス)</td>
+<td align="left">低 (スループット/レイテンシの課題)</td>
+</tr>
+</tbody></table></div>
+<p><strong>結論</strong>:</p>
+<ul>
+<li><code>llama.cpp</code>は、手軽にCPUでLLMを動かしたい場合や、エッジデバイスでの利用に適しています。</li>
+<li><code>transformers</code>単体は、モデルのロードや基本的な推論を手軽に試すための研究開発用途に適しています。</li>
+<li><code>vLLM</code>は、複数のユーザーからのリクエストを同時に、高速に処理する必要がある本番環境でのLLMサービングに最適です。</li>
+</ul>
+<h3 id="開発用実行-vs-本番サービング">開発用実行 vs 本番サービング</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/項目</th>
+<th align="left">開発用実行 (例: transformers単体, llama.cpp CLI)</th>
+<th align="left">本番サービング (例: vLLM, TGI, TensorRT-LLM)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">機能確認、プロトタイピング、学習</td>
+<td align="left">安定稼働、高スループット、低レイテンシ、スケーラビリティ</td>
+</tr>
+<tr>
+<td align="left"><strong>リクエスト処理</strong></td>
+<td align="left">単一リクエスト、逐次処理</td>
+<td align="left">複数リクエスト同時処理、バッチ処理、キューイング</td>
+</tr>
+<tr>
+<td align="left"><strong>性能指標</strong></td>
+<td align="left">正確性、モデルの挙動</td>
+<td align="left"><strong>スループット、レイテンシ</strong>、リソース利用効率</td>
+</tr>
+<tr>
+<td align="left"><strong>エラーハンドリング</strong></td>
+<td align="left">限定的</td>
+<td align="left">堅牢なエラー処理、ロギング、モニタリング</td>
+</tr>
+<tr>
+<td align="left"><strong>リソース利用</strong></td>
+<td align="left">必要な時に必要なだけ</td>
+<td align="left">GPUメモリ、CPU、ネットワーク帯域の最適化と最大活用</td>
+</tr>
+<tr>
+<td align="left"><strong>API提供</strong></td>
+<td align="left">なし、または簡易的なもの</td>
+<td align="left">RESTful API、gRPCなど、標準的なインターフェース</td>
+</tr>
+<tr>
+<td align="left"><strong>スケーリング</strong></td>
+<td align="left">不要</td>
+<td align="left">水平・垂直スケーリングへの対応</td>
+</tr>
+<tr>
+<td align="left"><strong>セキュリティ</strong></td>
+<td align="left">低 (ローカル実行が主)</td>
+<td align="left">高 (認証、認可、レートリミットなど)</td>
+</tr>
+</tbody></table></div>
+<p><strong>結論</strong>:
+開発用実行は、モデルの動作確認やアイデアの検証に便利ですが、本番環境で求められる性能、安定性、スケーラビリティ、セキュリティ要件を満たしません。本番サービングでは、これらの要件を満たすために、vLLMやTGIのような専用の推論基盤が必要となります。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>LLMをビジネスアプリケーションに組み込む際、推論基盤の選択は非常に重要です。</p>
+<ol>
+<li><p><strong>プロトタイピング・開発初期</strong>:</p>
+<ul>
+<li><code>transformers</code>ライブラリを使ってPythonスクリプトでモデルを動かす。</li>
+<li><code>llama.cpp</code>や<code>Ollama</code>を使ってローカルPCで手軽に試す。</li>
+<li>この段階では、機能の検証が主であり、性能は二の次です。</li>
+</ul>
+</li>
+<li><p><strong>小規模な内部ツール・エッジデバイス</strong>:</p>
+<ul>
+<li><code>llama.cpp</code> (GGUFモデル) を利用して、CPUまたは限られたGPUリソースで動作させる。</li>
+<li>コストを抑えつつ、ある程度の応答速度が求められる場合に有効です。</li>
+</ul>
+</li>
+<li><p><strong>本番環境・スケーラブルなAPIサービス</strong>:</p>
+<ul>
+<li><strong>vLLM</strong>: 複数のユーザーからのリクエストを効率的に処理し、高いスループットと低いレイテンシを実現したい場合に最適です。特に、可変長のプロンプトや生成長が多い場合に<code>paged attention</code>の恩恵が大きいでしょう。</li>
+<li><strong>TGI</strong>: Hugging Faceエコシステムとの親和性が高く、Dockerベースで手軽にデプロイしたい場合に適しています。ストリーミング出力や複数のモデルのロードにも対応しています。</li>
+<li><strong>TensorRT-LLM</strong>: NVIDIA GPUの性能を最大限に引き出し、極限まで推論速度を追求したい場合に選択します。特に、大規模モデルや超低レイテンシが求められる金融、自動運転などの分野で検討されます。</li>
+</ul>
+</li>
+</ol>
+<p>これらの推論基盤は、LLMアプリケーションのバックエンドとして、ユーザーからのリクエストを受け付け、モデルに推論させ、結果を返すという一連の処理を効率的に行います。これにより、開発者はモデルの選定やアプリケーションロジックに集中でき、インフラの最適化はこれらの基盤に任せることができます。</p>
+<h4 id="llm推論基盤のアーキテクチャ概要">LLM推論基盤のアーキテクチャ概要</h4>
+<pre class="mermaid">graph TD
+    subgraph "クライアント層"
+        A[Web/モバイルアプリ] --> B(API Gateway/ロードバランサー)
+        C[CLIツール/スクリプト] --> B
+    end
+
+    subgraph "推論サービス層"
+        B --> D{"vLLM/TGI/TensorRT-LLM サービス"}
+        D -- 動的バッチ処理 --> E[GPUクラスタ]
+        E -- "Paged Attention (vLLM)" --> F[KVキャッシュ管理]
+        E -- "TensorRT最適化 (TensorRT-LLM)" --> G[モデルコンパイル]
+    end
+
+    subgraph "データ層"
+        H["モデルストレージ (Hugging Face Hub/S3)"] --> D
+        D --> I[ログ/モニタリング]
+    end
+
+    D -- 結果を返す --> B</pre>
+<p><strong>説明</strong>: クライアントからのリクエストはAPI Gateway/ロードバランサーを経由して推論サービス層に到達します。この層では、vLLM、TGI、TensorRT-LLMなどの推論基盤が動的バッチ処理やメモリ最適化（Paged Attentionなど）を行い、GPUクラスタ上でLLMの推論を実行します。モデルはモデルストレージからロードされ、推論結果はクライアントに返されます。ログやモニタリングはシステムの健全性を監視するために重要です。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>vLLM, TGI, TensorRT-LLMは、LLMを本番環境で高速かつ効率的に運用するための推論基盤である。</li>
+<li><code>paged attention</code>や<code>batching</code>などの技術により、GPUリソースを最大限活用し、<code>throughput</code>と<code>latency</code>を最適化する。</li>
+<li>開発用実行と本番サービングでは求められる要件が大きく異なり、用途に応じた適切な推論基盤の選択が重要である。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>vLLMとllama.cpp</strong>: vLLMはGPUでの高スループットサービング、llama.cppはCPUでの手軽なローカル実行が主な用途。</li>
+<li><strong>ThroughputとLatency</strong>: Throughputは「処理量」、Latencyは「応答時間」。両者はトレードオフの関係にあることが多い。</li>
+<li><strong>BatchingとStreaming</strong>: Batchingは複数のリクエストをまとめて処理、Streamingは結果を逐次的に返す。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第10章: LLMの評価指標とベンチマーク (推論基盤の性能をどのように測るか理解するため)</li>
+<li>第11章: LLMの量子化と蒸留 (さらに推論効率を高めるための技術を学ぶため)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-08.html" class="nav-prev">← 第8章 Ollama / LM Studio / Open WebUI / Jan など</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-10.html" class="nav-next">第10章 量子化（Quantization） →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

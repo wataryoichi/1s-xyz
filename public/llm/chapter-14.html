@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第14章. 学習ツール群 - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 学習で出てくるツール名の位置づけを整理する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-14.html">
+  <meta property="og:title" content="第14章. 学習ツール群 - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 学習で出てくるツール名の位置づけを整理する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-14.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第14章. 学習ツール群 - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 学習で出てくるツール名の位置づけを整理する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">14 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第7部: 学習と微調整</li><li aria-current="page">第14章. 学習ツール群</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第14章-学習ツール群">第14章. 学習ツール群</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）の学習と微調整（ファインチューニング）において頻繁に登場する主要なツールやフレームワークについて、それぞれの役割と位置づけを明確にすることを目的とします。特に、多くのツールが乱立し、機能が重複しているように見える現状で、それぞれのツールの得意分野と利用シーンを理解し、適切なツール選択ができるようになることを目指します。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li><code>transformers</code>ライブラリがLLM学習の基盤となること。</li>
+<li><code>accelerate</code>が分散学習を容易にするための汎用的なツールであること。</li>
+<li><code>deepspeed</code>と<code>FSDP</code>が大規模モデルのメモリ効率とスケーラビリティを向上させるための技術であること。</li>
+<li><code>PEFT</code>が効率的なファインチューニング手法（LoRAなど）を実装するためのフレームワークであること。</li>
+<li><code>unsloth</code>、<code>Axolotl</code>、<code>LLaMA-Factory</code>、<code>torchtune</code>が特定の学習タスクやモデルに特化した高レベルな学習スクリプトやフレームワークであること。</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMの学習や微調整は、単にモデルを訓練するだけでなく、膨大な計算リソース、メモリ管理、そして効率的な学習手法の適用が求められる複雑なプロセスです。この複雑さを軽減し、開発者がより簡単にLLMを扱えるようにするために、多くのツールやフレームワークが開発されてきました。しかし、その多様性ゆえに、どのツールがどのような目的で使われるのか、あるいは互いにどのように関連しているのかが分かりにくいという問題も生じています。</p>
+<p>例えば、「Hugging Face <code>transformers</code>」という名前を聞くと、多くの人はモデルそのものを指すのか、それともライブラリを指すのか、あるいはTransformerアーキテクチャ全般を指すのかで混乱することがあります。また、<code>accelerate</code>や<code>deepspeed</code>、<code>FSDP</code>といったツールは、いずれも「学習を速くする」「大規模モデルを扱えるようにする」といった共通の目的を持っているように見えますが、そのアプローチや得意分野は異なります。</p>
+<p>本章では、これらの主要な学習ツール群を体系的に整理し、それぞれの役割と相互関係を明らかにすることで、読者がLLM学習のランドスケープを明確に理解できるよう導きます。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>LLMの学習ツール群は、大きく以下のカテゴリに分類できます。</p>
+<ol>
+<li><strong>基盤ライブラリ</strong>: LLMのモデルアーキテクチャ、トークナイザ、学習ループの基本的な実装を提供する。</li>
+<li><strong>分散学習・メモリ最適化</strong>: 大規模モデルを複数のGPUやノードで効率的に学習させるための技術を提供する。</li>
+<li><strong>効率的ファインチューニング</strong>: 全てのパラメータを更新するのではなく、一部のパラメータのみを更新することで、計算リソースと時間を節約する手法を提供する。</li>
+<li><strong>高レベル学習フレームワーク</strong>: 特定のモデルやタスクに特化し、上記技術を統合して学習プロセスを簡素化する。</li>
+</ol>
+<p>これらのカテゴリに属する主要なツールについて、以下に説明します。</p>
+<h3 id="transformers">transformers</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Faceが提供する、Transformerベースのモデルを扱うためのデファクトスタンダードなライブラリ。</li>
+<li><strong>何のカテゴリか</strong>: 基盤ライブラリ</li>
+<li><strong>何に使うのか</strong>: 事前学習済みモデルのロード、トークナイザの利用、モデルの学習・推論、モデルアーキテクチャの定義。</li>
+<li><strong>代表例</strong>: BERT, GPT-2, LLaMA, Mistralなど、数多くのモデルがこのライブラリを通じて利用可能。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>Transformer (アーキテクチャ)</strong>: Attentionメカニズムを基盤としたニューラルネットワークのアーキテクチャそのもの。<code>transformers</code>ライブラリはこのアーキテクチャを実装したモデルを扱う。</li>
+<li><strong>Hugging Face</strong>: <code>transformers</code>ライブラリを提供する企業およびコミュニティ。モデルハブも運営。</li>
+<li><strong>llama.cpp</strong>: 推論に特化したC++製のライブラリ。<code>transformers</code>は学習・推論両方に対応するPythonライブラリ。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: <code>transformers</code>はLLM学習の「土台」となる部分を提供します。他の多くの学習ツールやフレームワークは、この<code>transformers</code>の上に構築されています。</li>
+</ul>
+<h3 id="accelerate">accelerate</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Faceが提供する、PyTorchの分散学習を簡単に実装するためのライブラリ。</li>
+<li><strong>何のカテゴリか</strong>: 分散学習・メモリ最適化</li>
+<li><strong>何に使うのか</strong>: 複数GPU、複数ノード、混合精度学習など、複雑な分散学習設定を数行のコード変更で実現する。</li>
+<li><strong>代表例</strong>: <code>accelerate launch</code>コマンドで学習スクリプトを実行するだけで、自動的に分散環境をセットアップ。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>PyTorch Distributed</strong>: PyTorchが提供する低レベルな分散学習API。<code>accelerate</code>はこれを抽象化し、使いやすくしたもの。</li>
+<li><strong>deepspeed / FSDP</strong>: これらも分散学習・メモリ最適化技術だが、<code>accelerate</code>はこれらをバックエンドとして利用することもできる汎用的なラッパー。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: 分散学習の複雑な設定（プロセスグループの初期化、デバイス割り当てなど）を意識することなく、通常のPyTorchコードを分散環境で実行できるようにします。</li>
+</ul>
+<h3 id="deepspeed">deepspeed</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Microsoftが開発した、大規模モデルの学習を高速化し、メモリ効率を向上させるための最適化ライブラリ。</li>
+<li><strong>何のカテゴリか</strong>: 分散学習・メモリ最適化</li>
+<li><strong>何に使うのか</strong>: モデル並列、データ並列、ZeRO (Zero Redundancy Optimizer) などの技術を組み合わせて、巨大なモデルを限られたGPUメモリで学習させる。</li>
+<li><strong>代表例</strong>: ZeRO-Offload, ZeRO-Infinityなど、メモリ使用量を劇的に削減する技術。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>FSDP (Fully Sharded Data Parallel)</strong>: PyTorchが提供する同様のメモリ最適化技術。<code>deepspeed</code>はより多機能で、モデル並列などもサポート。</li>
+<li><strong>accelerate</strong>: <code>accelerate</code>は<code>deepspeed</code>をバックエンドとして利用できる。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: <code>deepspeed</code>は非常に強力ですが、設定が複雑になることがあります。<code>accelerate</code>経由で利用すると、設定が簡素化される場合があります。</li>
+</ul>
+<h3 id="fsdp-fully-sharded-data-parallel">FSDP (Fully Sharded Data Parallel)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: PyTorchが提供する、モデルのパラメータ、勾配、オプティマイザの状態をGPU間で完全にシャード（分割）することで、メモリ効率を最大化する分散学習戦略。</li>
+<li><strong>何のカテゴリか</strong>: 分散学習・メモリ最適化</li>
+<li><strong>何に使うのか</strong>: 大規模モデルを単一GPUのメモリ制限を超えて学習させる。各GPUがモデル全体の一部のみを保持するため、メモリ使用量が大幅に削減される。</li>
+<li><strong>代表例</strong>: PyTorch 1.10以降で利用可能。<code>torch.distributed.fsdp.FullyShardedDataParallel</code>クラスを使用。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>deepspeed ZeRO</strong>: <code>deepspeed</code>のZeRO-2/3と概念的に非常に近い。FSDPはPyTorchネイティブな実装。</li>
+<li><strong>Data Parallel (DP)</strong>: 各GPUがモデル全体のコピーを持つため、メモリ効率が悪い。FSDPはこれを改善。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: <code>deepspeed</code>と同様に大規模モデル学習の必須技術ですが、PyTorchエコシステムに深く統合されています。</li>
+</ul>
+<h3 id="peft-parameter-efficient-fine-tuning">PEFT (Parameter-Efficient Fine-Tuning)</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Hugging Faceが提供する、LoRAなどのパラメータ効率の良いファインチューニング手法を簡単に適用するためのライブラリ。</li>
+<li><strong>何のカテゴリか</strong>: 効率的ファインチューニング</li>
+<li><strong>何に使うのか</strong>: 事前学習済みLLMの全パラメータを更新することなく、少量の追加パラメータのみを学習させることで、計算コストとストレージ要件を大幅に削減する。</li>
+<li><strong>代表例</strong>: LoRA (Low-Rank Adaptation), Prefix Tuning, P-Tuning v2など。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>LoRA</strong>: PEFTライブラリが実装する具体的な手法の一つ。PEFTはLoRAだけでなく、他の効率的ファインチューニング手法もサポートするフレームワーク。</li>
+<li><strong>QLoRA</strong>: LoRAを量子化されたモデルに適用する手法。PEFTはQLoRAもサポート。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: LLMのファインチューニングを行う際に、まず検討すべきライブラリです。少ないリソースで高い性能を達成できます。</li>
+</ul>
+<p>LoRAの基本的な考え方は、事前学習済み重み行列 $W_0 \in \mathbb{R}^{d \times k}$ に対して、低ランク行列の分解 $W_0 + BA$ を導入することです。ここで $B \in \mathbb{R}^{d \times r}$、$A \in \mathbb{R}^{r \times k}$ であり、$r \ll \min(d, k)$ です。学習時には $W_0$ は固定し、$B$ と $A$ のみ更新します。
+$$ W_{new} = W_0 + BA $$
+このとき、学習対象のパラメータ数は $d \times r + r \times k = r(d+k)$ となり、元の $d \times k$ に比べて大幅に削減されます。</p>
+<h3 id="unsloth">unsloth</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LoRA/QLoRAの学習を高速化し、メモリ使用量を削減することに特化したライブラリ。</li>
+<li><strong>何のカテゴリか</strong>: 効率的ファインチューニング、高レベル学習フレームワーク</li>
+<li><strong>何に使うのか</strong>: <code>transformers</code>と<code>PEFT</code>をベースに、LoRA/QLoRAの学習をPyTorchのコンパイル機能やカスタムカーネルを用いて最適化する。</li>
+<li><strong>代表例</strong>: LLaMA-2, Mistralなどのモデルに対するLoRA/QLoRA学習を数倍高速化。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>PEFT</strong>: <code>unsloth</code>は<code>PEFT</code>の機能を拡張し、最適化されたLoRA/QLoRA学習を提供する。</li>
+<li><strong>LLaMA-Factory</strong>: 同様に高レベルな学習フレームワークだが、<code>unsloth</code>は特に高速化に焦点を当てている。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: LoRA/QLoRAでファインチューニングを行う場合、<code>unsloth</code>を使うことで学習時間を大幅に短縮できる可能性があります。</li>
+</ul>
+<h3 id="axolotl">Axolotl</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMのファインチューニングを簡素化するための高レベルな学習フレームワーク。</li>
+<li><strong>何のカテゴリか</strong>: 高レベル学習フレームワーク</li>
+<li><strong>何に使うのか</strong>: <code>transformers</code>, <code>accelerate</code>, <code>deepspeed</code>, <code>PEFT</code>などの複数のライブラリを統合し、YAML設定ファイルを通じて簡単にファインチューニングを実行できる。</li>
+<li><strong>代表例</strong>: LLaMA, Mistral, Falconなど、様々なモデルのSFT (Supervised Fine-Tuning) やDPO (Direct Preference Optimization) 学習。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>LLaMA-Factory</strong>: 同様に高レベルな学習フレームワークで、機能が重複する部分が多い。<code>Axolotl</code>はより柔軟な設定が可能とされる。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: 複数の低レベルなライブラリを自分で組み合わせるのが難しいと感じる場合に、<code>Axolotl</code>のようなフレームワークを使うと、複雑な設定をYAMLファイルで一元管理でき、学習プロセスを効率化できます。</li>
+</ul>
+<h3 id="llama-factory">LLaMA-Factory</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: LLMのファインチューニングと評価のための包括的なWeb UIとスクリプトを提供するフレームワーク。</li>
+<li><strong>何のカテゴリか</strong>: 高レベル学習フレームワーク</li>
+<li><strong>何に使うのか</strong>: LoRA/QLoRA、SFT、DPO、PPOなどの様々なファインチューニング手法を、Web UIまたはコマンドラインスクリプトを通じて簡単に実行できる。</li>
+<li><strong>代表例</strong>: LLaMA, Mistral, Qwenなど、多くのモデルに対応。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>Axolotl</strong>: 同様に高レベルな学習フレームワーク。<code>LLaMA-Factory</code>は特にWeb UIによる使いやすさに強みがある。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: Web UIで直感的にファインチューニングの設定を行いたい場合に非常に便利です。多くのモデルと手法に対応しており、手軽に試すことができます。</li>
+</ul>
+<h3 id="torchtune">torchtune</h3>
+<ul>
+<li><strong>ひとことで言うと</strong>: Metaが開発した、PyTorchネイティブなLLMファインチューニングライブラリ。</li>
+<li><strong>何のカテゴリか</strong>: 高レベル学習フレームワーク</li>
+<li><strong>何に使うのか</strong>: PyTorchの最新機能（<code>torch.compile</code>など）を活用し、効率的かつスケーラブルなLLMファインチューニングを提供する。LoRA, QLoRA, FSDPなどをサポート。</li>
+<li><strong>代表例</strong>: Llama 2, Llama 3などのMetaモデルのファインチューニング。</li>
+<li><strong>よく混同される用語</strong>:<ul>
+<li><strong>Hugging Face <code>transformers</code></strong>: <code>torchtune</code>は<code>transformers</code>に依存せず、PyTorchエコシステム内で完結することを目指している。</li>
+<li><strong>Axolotl / LLaMA-Factory</strong>: これらも高レベルフレームワークだが、<code>torchtune</code>はMetaが公式に提供し、PyTorchネイティブな最適化に強みを持つ。</li>
+</ul>
+</li>
+<li><strong>初心者向け注意点</strong>: PyTorchの最新技術を最大限に活用してファインチューニングを行いたい場合に有力な選択肢です。特にMetaのモデルを扱う際に有用です。</li>
+</ul>
+<h2 id="具体例">具体例</h2>
+<p>ここでは、これらのツールがLLMのファインチューニングにおいてどのように連携し、あるいは独立して使われるかを図で示します。</p>
+<pre class="mermaid">graph TD
+    subgraph "LLM学習プロセス"
+        A[データ準備] --> B(モデルロード)
+        B --> C(トークナイザ)
+        C --> D{学習ループ}
+        D --> E[評価]
+    end
+
+    subgraph "主要ツール群"
+        F[transformers]
+        G[accelerate]
+        H[deepspeed/FSDP]
+        I[PEFT]
+        J[unsloth]
+        K[Axolotl]
+        L[LLaMA-Factory]
+        M[torchtune]
+    end
+
+    F -- "モデル/トークナイザ提供" --> B
+    F -- 学習ループの基盤 --> D
+
+    G -- 分散学習の抽象化 --> D
+    H -- "メモリ最適化/スケーリング" --> G
+
+    I -- 効率的FT手法提供 --> D
+    J -- "LoRA/QLoRA高速化" --> I
+
+    K -- 統合フレームワーク --> F
+    K -- 統合フレームワーク --> G
+    K -- 統合フレームワーク --> H
+    K -- 統合フレームワーク --> I
+
+    L -- "統合フレームワーク/Web UI" --> F
+    L -- "統合フレームワーク/Web UI" --> G
+    L -- "統合フレームワーク/Web UI" --> H
+    L -- "統合フレームワーク/Web UI" --> I
+
+    M -- PyTorchネイティブFT --> F
+    M -- PyTorchネイティブFT --> H
+    M -- PyTorchネイティブFT --> I</pre>
+<p><strong>図14.1: LLM学習ツール群の関連性</strong></p>
+<p>この図が示すように、<code>transformers</code>は多くのモデルの基盤となり、<code>accelerate</code>、<code>deepspeed</code>、<code>FSDP</code>は分散学習とメモリ最適化を、<code>PEFT</code>は効率的なファインチューニング手法を提供します。そして、<code>unsloth</code>、<code>Axolotl</code>、<code>LLaMA-Factory</code>、<code>torchtune</code>といった高レベルフレームワークは、これらの低レベルな技術を統合し、より使いやすい形で提供することで、開発者がLLMの学習プロセスに集中できるようにします。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">用語</th>
+<th align="left">主な役割</th>
+<th align="left">連携するツール/技術</th>
+<th align="left">独立性/統合性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>transformers</strong></td>
+<td align="left">LLMモデルの基盤、トークナイザ、学習ループ</td>
+<td align="left">accelerate, deepspeed, PEFT, 各種高レベルフレームワーク</td>
+<td align="left">多くのツールの土台となるコアライブラリ</td>
+</tr>
+<tr>
+<td align="left"><strong>accelerate</strong></td>
+<td align="left">PyTorch分散学習の汎用ラッパー</td>
+<td align="left">PyTorch Distributed, deepspeed, FSDP</td>
+<td align="left">汎用性が高く、他の分散学習技術のフロントエンド</td>
+</tr>
+<tr>
+<td align="left"><strong>deepspeed</strong></td>
+<td align="left">大規模モデルのメモリ最適化、高速化</td>
+<td align="left">accelerate (バックエンドとして), transformers</td>
+<td align="left">独自の最適化技術群を提供</td>
+</tr>
+<tr>
+<td align="left"><strong>FSDP</strong></td>
+<td align="left">PyTorchネイティブなメモリ最適化</td>
+<td align="left">PyTorch, accelerate (バックエンドとして)</td>
+<td align="left">PyTorchエコシステムに深く統合</td>
+</tr>
+<tr>
+<td align="left"><strong>PEFT</strong></td>
+<td align="left">効率的ファインチューニング手法の実装</td>
+<td align="left">transformers, accelerate, unsloth, Axolotl, LLaMA-Factory</td>
+<td align="left">LoRAなどの手法を提供するライブラリ</td>
+</tr>
+<tr>
+<td align="left"><strong>unsloth</strong></td>
+<td align="left">LoRA/QLoRA学習の高速化</td>
+<td align="left">transformers, PEFT</td>
+<td align="left">PEFTの特定の機能に特化した最適化</td>
+</tr>
+<tr>
+<td align="left"><strong>Axolotl</strong></td>
+<td align="left">LLMファインチューニングの高レベルフレームワーク</td>
+<td align="left">transformers, accelerate, deepspeed, PEFT</td>
+<td align="left">複数の低レベルツールを統合し、設定を簡素化</td>
+</tr>
+<tr>
+<td align="left"><strong>LLaMA-Factory</strong></td>
+<td align="left">LLMファインチューニングのWeb UI/スクリプト</td>
+<td align="left">transformers, accelerate, deepspeed, PEFT</td>
+<td align="left">Web UIによる使いやすさに強み</td>
+</tr>
+<tr>
+<td align="left"><strong>torchtune</strong></td>
+<td align="left">PyTorchネイティブなLLMファインチューニング</td>
+<td align="left">PyTorch, FSDP, LoRA</td>
+<td align="left">PyTorchエコシステム内で完結、Meta公式</td>
+</tr>
+</tbody></table></div>
+<p><strong>表14.1: 主要な学習ツール群の比較</strong></p>
+<p>この表からわかるように、<code>transformers</code>と<code>PEFT</code>は多くのツールで共通して利用される基盤技術です。<code>accelerate</code>、<code>deepspeed</code>、<code>FSDP</code>は分散学習とメモリ効率の向上に貢献し、これらはしばin組み合わせて使用されます。そして、<code>unsloth</code>、<code>Axolotl</code>、<code>LLaMA-Factory</code>、<code>torchtune</code>は、これらの基盤技術を統合し、特定の目的（高速化、使いやすさ、PyTorchネイティブなど）に特化した高レベルな学習体験を提供します。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>LLMの学習やファインチューニングを実務で行う際、これらのツールは以下のように位置づけられます。</p>
+<ol>
+<li><strong>基本的なモデル操作</strong>: まずは<code>transformers</code>ライブラリを使って、モデルのロード、トークナイザの準備、基本的な学習ループの構築を行います。これは全てのLLM学習の出発点です。</li>
+<li><strong>リソース制約への対応</strong>:<ul>
+<li>モデルが大きすぎて単一GPUに乗らない場合や、学習を高速化したい場合は、<code>accelerate</code>を使って分散学習環境を構築します。</li>
+<li>さらにメモリ効率を追求したり、非常に大きなモデルを扱ったりする場合は、<code>deepspeed</code>や<code>FSDP</code>を<code>accelerate</code>のバックエンドとして利用することを検討します。</li>
+</ul>
+</li>
+<li><strong>効率的なファインチューニング</strong>: 全パラメータを更新するのではなく、効率的にファインチューニングを行いたい場合は、<code>PEFT</code>ライブラリを使ってLoRAなどの手法を適用します。これにより、計算リソースとストレージコストを大幅に削減できます。</li>
+<li><strong>学習プロセスの簡素化</strong>:<ul>
+<li>LoRA/QLoRAの学習を最速で行いたい場合は、<code>unsloth</code>が非常に有効です。</li>
+<li>複数のモデルや手法を試したり、複雑な設定をYAMLファイルで管理したりしたい場合は、<code>Axolotl</code>や<code>LLaMA-Factory</code>のような高レベルフレームワークが便利です。特に<code>LLaMA-Factory</code>はWeb UIがあるため、手軽に試したい場合に適しています。</li>
+<li>PyTorchの最新機能やMetaのモデルに特化して、PyTorchネイティブな環境で学習を行いたい場合は、<code>torchtune</code>が有力な選択肢となります。</li>
+</ul>
+</li>
+</ol>
+<p>実務では、これらのツールを単独で使うだけでなく、目的に応じて組み合わせて使うことが一般的です。例えば、<code>transformers</code>でモデルを定義し、<code>PEFT</code>でLoRAを適用し、<code>accelerate</code>と<code>deepspeed</code>を使って分散学習を行う、といった流れです。高レベルフレームワークは、これらの組み合わせをあらかじめ最適化された形で提供してくれるため、開発の手間を省くことができます。</p>
+<pre class="mermaid">graph TD
+    subgraph "LLM学習ワークフロー"
+        A[学習目標設定] --> B(モデル選択)
+        B --> C(データ準備)
+        C --> D{学習環境構築}
+        D --> E(ファインチューニング)
+        E --> F(評価)
+        F --> G{"デプロイ/利用"}
+    end
+
+    subgraph "ツール選択の考慮事項"
+        H[モデルサイズ/GPU数]
+        I[学習時間/コスト]
+        J[開発の容易さ]
+        K[PyTorchネイティブ志向]
+    end
+
+    H -- 影響 --> D
+    I -- 影響 --> E
+    J -- 影響 --> E
+    K -- 影響 --> E
+
+    D -- ツール例 --> D1(accelerate)
+    D -- ツール例 --> D2(deepspeed/FSDP)
+
+    E -- ツール例 --> E1(PEFT)
+    E -- ツール例 --> E2(unsloth)
+    E -- ツール例 --> E3(Axolotl)
+    E -- ツール例 --> E4(LLaMA-Factory)
+    E -- ツール例 --> E5(torchtune)</pre>
+<p><strong>図14.2: LLM学習ワークフローとツール選択</strong></p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>LLM学習ツール群は、基盤ライブラリ、分散学習・メモリ最適化、効率的ファインチューニング、高レベル学習フレームワークに分類される。</li>
+<li><code>transformers</code>は基盤となり、<code>accelerate</code>、<code>deepspeed</code>、<code>FSDP</code>は大規模学習を可能にし、<code>PEFT</code>は効率的な微調整を提供する。</li>
+<li><code>unsloth</code>、<code>Axolotl</code>、<code>LLaMA-Factory</code>、<code>torchtune</code>は、これらの技術を統合し、特定の目的（高速化、使いやすさ、PyTorchネイティブ）に特化した高レベルな学習体験を提供する。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>Transformer (アーキテクチャ) と <code>transformers</code> (ライブラリ)</strong>: 前者は技術概念、後者はその実装を提供するHugging FaceのPythonライブラリ。</li>
+<li><strong>LoRA と PEFT</strong>: LoRAは具体的なファインチューニング手法の一つであり、PEFTはそのような手法を実装するためのフレームワーク。</li>
+<li><strong>deepspeed と FSDP</strong>: どちらも大規模モデルのメモリ最適化技術だが、deepspeedはより多機能で、FSDPはPyTorchネイティブな実装。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第12章: 事前学習・継続事前学習・SFT (学習手法の詳細)</li>
+<li>第13章: LoRA / QLoRA / Adapter (効率的ファインチューニング手法の詳細)</li>
+<li>第15章: 推論ツール群 (学習後のモデルの利用方法)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-13.html" class="nav-prev">← 第13章 LoRA / QLoRA / Adapter</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-15.html" class="nav-next">第15章 KV cache / batching / paged attention →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

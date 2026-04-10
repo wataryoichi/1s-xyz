@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第6章. 推論ランタイムとは何か - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: llama.cpp や vLLM を「ランタイム」として理解する">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-06.html">
+  <meta property="og:title" content="第6章. 推論ランタイムとは何か - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: llama.cpp や vLLM を「ランタイム」として理解する">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-06.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第6章. 推論ランタイムとは何か - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: llama.cpp や vLLM を「ランタイム」として理解する">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">6 / 25</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第5部: どうやってモデルを動かすのか</li><li aria-current="page">第6章. 推論ランタイムとは何か</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第6章-推論ランタイムとは何か">第6章. 推論ランタイムとは何か</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）を実際に動かすために不可欠な「推論ランタイム」の概念を理解することを目的とします。特に、llama.cppやvLLMといった具体的なツールが、なぜ「ランタイム」と呼ばれるのか、その役割と重要性を学びます。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>推論ランタイムがLLMの実行においてどのような役割を果たすか</li>
+<li>推論ランタイムを構成する主要な要素（推論エンジン、バックエンド、スケジューラ、KVキャッシュ）</li>
+<li>推論ランタイムとモデルファイル、サービングとの違い</li>
+<li>llama.cppやvLLMがどのように推論ランタイムとして機能するか</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>LLMのモデルファイル（第4章、第5章で解説）は、それ自体ではただのデータであり、計算機上で動かすためには特別なソフトウェアが必要です。このソフトウェアこそが「推論ランタイム」です。推論ランタイムは、モデルファイルを読み込み、ユーザーからの入力（プロンプト）を受け取り、GPUなどのハードウェアを効率的に利用して、高速に推論結果（応答）を生成するための橋渡し役を担います。</p>
+<pre class="mermaid">graph TD
+    A["LLMモデルファイル (.gguf, .safetensors)"] --> B{推論ランタイム}
+    C["ユーザー入力 (プロンプト)"] --> B
+    B -- モデルロード, 推論実行 --> D["ハードウェア (CPU/GPU)"]
+    D -- 計算結果 --> B
+    B -- 応答生成 --> E[ユーザー応答]
+
+    subgraph "推論ランタイムの役割"
+        B
+    end</pre>
+<p>この図は、推論ランタイムがLLMモデルファイルとユーザー入力を受け取り、ハードウェア上で推論を実行し、ユーザーに応答を返すまでの基本的な流れを示しています。推論ランタイムは、この一連のプロセスを管理する中心的な役割を担います。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="推論ランタイム-inference-runtime">推論ランタイム (Inference Runtime)</h3>
+<p>ひとことで言うと: LLMのモデルファイルを読み込み、実際に推論を実行するためのソフトウェア環境全体。
+何のカテゴリか: LLM実行環境、システムソフトウェア
+何に使うのか: LLMを動かし、ユーザーからの入力に対して応答を生成する
+代表例: llama.cpp, vLLM, TensorRT-LLM
+よく混同される用語: モデルファイル (ランタイムはモデルファイルを動かすもの), 推論 (ランタイムはその手段)
+初心者向け注意点: ランタイムはモデルファイルそのものではなく、モデルファイルを「実行する」ためのプログラム群です。</p>
+<p>推論ランタイムは、モデルの重みをメモリにロードし、入力データをモデルが理解できる形式に変換し、計算グラフを実行し、最終的な出力を生成する一連のプロセスを管理します。これには、ハードウェア（GPUなど）の最適化、メモリ管理、並列処理などが含まれます。</p>
+<h3 id="推論エンジン-inference-engine">推論エンジン (Inference Engine)</h3>
+<p>ひとことで言うと: 推論ランタイムの中核をなし、モデルの計算グラフを効率的に実行する部分。
+何のカテゴリか: 推論ランタイムのコンポーネント
+何に使うのか: モデルの計算を高速化し、ハードウェアに最適化された形で実行する
+代表例: ONNX Runtime, TensorRT, OpenVINO
+よく混同される用語: 推論ランタイム (推論エンジンはランタイムの一部)
+初心者向け注意点: 推論エンジンは、モデルの「計算」を専門に行う部分であり、ランタイム全体の一部です。</p>
+<p>推論エンジンは、モデルの構造を解析し、特定のハードウェア（例: NVIDIA GPU）上で最も効率的に実行されるように最適化されたコードを生成したり、既存の最適化ライブラリ（例: cuBLAS, cuDNN）を利用したりします。これにより、同じモデルでも推論エンジンが異なると、実行速度やメモリ使用量が大きく変わることがあります。</p>
+<h3 id="バックエンド-backend">バックエンド (Backend)</h3>
+<p>ひとことで言うと: 推論エンジンが実際に計算を実行するために利用する低レベルなハードウェア抽象化層やライブラリ群。
+何のカテゴリか: 推論エンジンのコンポーネント
+何に使うのか: 特定のハードウェア（CPU, GPU）上でモデルの計算を実行するためのインターフェースを提供する
+代表例: CUDA (NVIDIA GPU), OpenCL (様々なGPU), BLAS/cuBLAS (線形代数ライブラリ)
+よく混同される用語: 推論エンジン (バックエンドはエンジンが利用する基盤技術)
+初心者向け注意点: バックエンドは、推論エンジンが「どのハードウェアで、どのように計算するか」を決定する基盤です。</p>
+<p>バックエンドは、GPUのCUDAコアやCPUのSIMD命令など、ハードウェア固有の機能を活用して計算を高速化します。推論エンジンは、このバックエンドを通じてハードウェアと対話します。</p>
+<pre class="mermaid">graph TD
+    A[推論ランタイム] --> B[推論エンジン]
+    B --> C[バックエンド]
+    C --> D["ハードウェア (CPU/GPU)"]
+
+    subgraph "推論ランタイムの内部構造"
+        B; C; D
+    end</pre>
+<p>この図は、推論ランタイムが推論エンジンを介してバックエンドと連携し、最終的にハードウェア上で計算を実行する層構造を示しています。</p>
+<h3 id="サービング-serving">サービング (Serving)</h3>
+<p>ひとことで言うと: 推論ランタイムを外部から利用できるように、APIとして公開し、リクエストを処理する仕組み。
+何のカテゴリか: システム運用、API提供
+何に使うのか: LLMをアプリケーションやサービスから利用可能にする
+代表例: vLLMのAPIサーバー, TGI (Text Generation Inference), OpenAI API
+よく混同される用語: 推論 (サービングは推論を提供する行為)
+初心者向け注意点: サービングは、推論ランタイムを「サービスとして提供する」ための層であり、推論そのものではありません。</p>
+<p>サービングは、複数のユーザーからのリクエストを同時に処理したり、ロードバランシングを行ったり、認証・認可の機能を提供したりします。これにより、開発者はLLMの推論機能を簡単に自分のアプリケーションに組み込むことができます。</p>
+<h3 id="スケジューラ-scheduler">スケジューラ (Scheduler)</h3>
+<p>ひとことで言うと: 複数の推論リクエストやトークン生成タスクを効率的に管理し、GPUなどのリソースを最大限に活用するための仕組み。
+何のカテゴリか: リソース管理、並列処理
+何に使うのか: GPUの利用効率を最大化し、スループットとレイテンシを最適化する
+代表例: vLLMのPagedAttentionスケジューラ
+よく混同される用語: オペレーティングシステムのスケジューラ (LLM推論に特化している)
+初心者向け注意点: スケジューラは、特に複数のユーザーが同時にLLMを利用する際に、待ち時間を減らし、処理能力を向上させる重要な役割を担います。</p>
+<p>LLMの推論は、特にトークン生成において、GPUリソースを効率的に使うことが難しい場合があります。スケジューラは、複数のプロンプトをバッチ処理したり、生成中のトークンを動的に管理したりすることで、GPUのアイドル時間を減らし、全体のスループットを向上させます。</p>
+<h3 id="kvキャッシュ-key-value-cache">KVキャッシュ (Key-Value Cache)</h3>
+<p>ひとことで言うと: LLMが過去に処理したトークンの「キー」と「バリュー」の情報を保存し、再計算を避けるためのメモリ領域。
+何のカテゴリか: メモリ最適化、推論高速化技術
+何に使うのか: 長いプロンプトや連続した対話において、推論速度を向上させ、メモリ使用量を削減する
+代表例: Transformerモデルの自己注意機構で利用されるキャッシュ
+よく混同される用語: CPUキャッシュ (用途が異なる)
+初心者向け注意点: KVキャッシュは、特に長いテキストを扱う際に、推論速度に劇的な影響を与える重要な技術です。</p>
+<p>Transformerモデルの自己注意機構では、各トークンが他のトークンとの関連性を計算するために「キー」と「バリュー」を生成します。一度計算されたこれらの値は、後続のトークン生成ステップで再利用できるため、KVキャッシュに保存することで計算コストを大幅に削減できます。</p>
+<p>自己注意機構におけるKVキャッシュの概念は、以下のように表現できます。
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
+ここで、$Q$はクエリ、$K$はキー、$V$はバリューを表します。KVキャッシュは、過去のトークンから計算された$K$と$V$を保存し、新しいトークンを生成する際に再利用することで、計算量とメモリ帯域幅を削減します。特に、シーケンス長$L$が増加すると、計算量は$O(L^2)$から$O(L)$に削減され、推論速度が大幅に向上します。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="llamacpp">llama.cpp</h3>
+<p>llama.cppは、LLMをCPUやGPUで効率的に実行するための推論ランタイムの代表例です。</p>
+<p><strong>ひとことで言うと:</strong> CPUやGPUでGGUF形式のLLMを高速に動かすための軽量な推論ランタイム。
+<strong>何のカテゴリか:</strong> 推論ランタイム、LLM実行ツール
+<strong>何に使うのか:</strong> ローカル環境でのLLM推論、組み込みデバイスでのLLM実行
+<strong>代表例:</strong> <code>main</code>コマンドによるチャット、<code>server</code>コマンドによるAPI提供
+<strong>よく混同される用語:</strong> GGUF (llama.cppはGGUFを動かすもの)
+<strong>初心者向け注意点:</strong> llama.cppは、特にGGUF形式のモデルに特化しており、様々なハードウェアで動作する汎用性が特徴です。</p>
+<p>llama.cppは、GGUF形式のモデルファイルを読み込み、CPUやGPU（CUDA, Metalなど）で推論を実行します。内部的には、モデルの計算を効率的に行うための推論エンジンと、ハードウェアに合わせたバックエンド（例: BLASライブラリ、Metal API）を利用しています。また、<code>server</code>コマンドを使えば、OpenAI API互換のAPIを提供し、サービングの機能も果たします。KVキャッシュも効率的に管理し、長いプロンプトでも高速な推論を可能にしています。</p>
+<h3 id="vllm">vLLM</h3>
+<p>vLLMは、特にGPU上でのLLMサービングに特化した高性能な推論ランタイムです。</p>
+<p><strong>ひとことで言うと:</strong> GPU上でLLMの推論スループットを最大化するための高性能な推論ランタイム。
+<strong>何のカテゴリか:</strong> 推論ランタイム、LLMサービングフレームワーク
+<strong>何に使うのか:</strong> 大規模なLLMを複数のユーザーに同時に提供するAPIサーバー
+<strong>代表例:</strong> PagedAttentionによるKVキャッシュ管理、動的バッチ処理
+<strong>よく混同される用語:</strong> Hugging Face Transformers (vLLMはTransformersモデルを高速に動かすためのもの)
+<strong>初心者向け注意点:</strong> vLLMは、特に「複数のリクエストを同時に、かつ高速に処理する」ことに強みがあります。</p>
+<p>vLLMの最大の特徴は、独自のスケジューリングアルゴリズムである「PagedAttention」です。これは、OSの仮想メモリ管理にヒントを得て、KVキャッシュをページ単位で管理することで、KVキャッシュの断片化を解消し、GPUメモリの利用効率を劇的に向上させます。これにより、複数のリクエストを効率的にバッチ処理し、高いスループットと低いレイテンシを実現します。vLLMは、推論エンジン、バックエンド、スケジューラ、KVキャッシュ管理の全てを統合した、強力なサービング向け推論ランタイムと言えます。</p>
+<h3 id="処理フローの例-vllmの場合">処理フローの例 (vLLMの場合)</h3>
+<pre class="mermaid">graph TD
+    A[ユーザーリクエスト] --> B{APIサーバー}
+    B --> C[リクエストキュー]
+    C --> D["スケジューラ (PagedAttention)"]
+    D -- プロンプトバッチ --> E[推論エンジン]
+    E -- KVキャッシュ更新 --> F[KVキャッシュ]
+    F -- KVキャッシュ参照 --> E
+    E -- トークン生成 --> D
+    D -- 生成トークン --> G[応答キュー]
+    G --> H[ユーザーへ応答]
+
+    subgraph "vLLM 推論ランタイム"
+        B -- API提供 --> H
+        C -- リクエスト管理 --> D
+        D -- GPUリソース管理 --> E
+        E -- モデル実行 --> F
+    end</pre>
+<p>この図は、vLLMがユーザーリクエストを受け取ってから応答を返すまでの主要な流れを示しています。APIサーバーがリクエストを受け取り、スケジューラが複数のリクエストを効率的にバッチ処理し、推論エンジンがKVキャッシュを活用しながらトークンを生成します。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>用語</th>
+<th>ひとことで言うと</th>
+<th>主な役割</th>
+<th>関連する章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>推論ランタイム</strong></td>
+<td>モデルを実行するソフトウェア環境</td>
+<td>モデルの読み込み、計算、出力生成</td>
+<td>第6章</td>
+</tr>
+<tr>
+<td><strong>モデルファイル</strong></td>
+<td>モデルの構造と重みデータ</td>
+<td>モデルの定義そのもの</td>
+<td>第4章, 第5章</td>
+</tr>
+<tr>
+<td><strong>推論</strong></td>
+<td>モデルを使って予測や生成を行う行為</td>
+<td>モデルの機能の利用</td>
+<td>第1章 (概念)</td>
+</tr>
+<tr>
+<td><strong>サービング</strong></td>
+<td>推論機能をAPIとして提供する仕組み</td>
+<td>モデルをサービスとして利用可能にする</td>
+<td>第6章</td>
+</tr>
+<tr>
+<td><strong>推論エンジン</strong></td>
+<td>ランタイム内で計算を最適化する部分</td>
+<td>計算グラフの高速実行</td>
+<td>第6章</td>
+</tr>
+<tr>
+<td><strong>バックエンド</strong></td>
+<td>推論エンジンが使う低レベルな基盤</td>
+<td>ハードウェアとのインターフェース</td>
+<td>第6章</td>
+</tr>
+<tr>
+<td><strong>KVキャッシュ</strong></td>
+<td>過去の計算結果を保存するメモリ</td>
+<td>推論の高速化、メモリ効率化</td>
+<td>第6章</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>比較軸</th>
+<th>llama.cpp</th>
+<th>vLLM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主なターゲット</strong></td>
+<td>ローカル環境、CPU/軽量GPU</td>
+<td>GPUサーバー、高スループットサービング</td>
+</tr>
+<tr>
+<td><strong>モデル形式</strong></td>
+<td>GGUF (主に)</td>
+<td>Hugging Face Transformers形式</td>
+</tr>
+<tr>
+<td><strong>最適化の焦点</strong></td>
+<td>メモリ効率、幅広いハードウェア対応</td>
+<td>GPUスループット、KVキャッシュ管理</td>
+</tr>
+<tr>
+<td><strong>スケジューリング</strong></td>
+<td>基本的なバッチ処理</td>
+<td>PagedAttentionによる高度なスケジューリング</td>
+</tr>
+<tr>
+<td><strong>API提供</strong></td>
+<td><code>server</code>コマンドでOpenAI互換API</td>
+<td>高機能なOpenAI互換APIサーバーを内蔵</td>
+</tr>
+<tr>
+<td><strong>開発言語</strong></td>
+<td>C++</td>
+<td>Python (内部はCUDA/C++)</td>
+</tr>
+</tbody></table></div>
+<p>この比較表は、llama.cppとvLLMという二つの代表的な推論ランタイムの特性と得意分野を対比しています。</p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>推論ランタイムは、LLMを実世界のアプリケーションに組み込む上で最も重要な要素の一つです。</p>
+<ul>
+<li><strong>開発段階:</strong> ローカルでモデルを動かす際にはllama.cppのような軽量なランタイムが便利です。</li>
+<li><strong>本番環境（サービング）:</strong> 複数のユーザーからのリクエストを捌く必要がある場合は、vLLMのような高スループットなランタイムが不可欠です。APIとして提供することで、WebアプリケーションやモバイルアプリからLLMを利用できるようになります。</li>
+<li><strong>ハードウェア最適化:</strong> どのランタイムを選択するかは、利用可能なハードウェア（CPUのみか、特定のGPUか）や、求められる性能（レイテンシ、スループット）によって大きく変わります。ランタイムは、ハードウェアの性能を最大限に引き出すための鍵となります。</li>
+<li><strong>コスト効率:</strong> 推論ランタイムの効率性は、クラウド利用時のGPUコストに直結します。効率的なランタイムは、より少ないGPUリソースでより多くのリクエストを処理できるため、運用コストを削減できます。</li>
+</ul>
+<p>LLMの推論におけるスループット（throughput）は、単位時間あたりに処理できるトークン数で表されます。これは、特にサービング環境において重要な指標です。
+$$ \text{Throughput (tokens/sec)} = \frac{\text{Total Tokens Generated}}{\text{Total Inference Time}} $$
+この式は、推論ランタイムの効率性を評価する基本的な指標であり、スケジューラやKVキャッシュの最適化が直接的にこの値に影響を与えます。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ol>
+<li>推論ランタイムは、LLMモデルファイルを実際に動かし、推論を実行するためのソフトウェア環境です。</li>
+<li>推論エンジン、バックエンド、スケジューラ、KVキャッシュといった要素が連携し、効率的な推論を実現します。</li>
+<li>llama.cppは軽量なローカル実行向け、vLLMは高スループットなAPIサービング向けと、用途に応じたランタイムが存在します。</li>
+</ol>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>推論ランタイム</strong> と <strong>モデルファイル</strong>: ランタイムはモデルファイルを「動かす」ソフトウェア。</li>
+<li><strong>推論ランタイム</strong> と <strong>推論</strong>: ランタイムは推論を「実行する手段」。</li>
+<li><strong>サービング</strong> と <strong>推論</strong>: サービングは推論を「サービスとして提供する」行為。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第7章: LLMのファインチューニングの基本</li>
+<li>第8章: プロンプトエンジニアリングの基礎</li>
+<li>第9章: RAG (Retrieval Augmented Generation) の仕組み</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-05.html" class="nav-prev">← 第5章 GGUFを重点的に理解する</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-07.html" class="nav-next">第7章 llama.cppとは何か →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>
