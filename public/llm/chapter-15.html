@@ -8,6 +8,7 @@
   <meta name="generator" content="bookgen">
   <meta name="theme-color" content="#0f3460">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="google-site-verification" content="cBN3pcBonjuBk4T_dz-0tePmnDWUs4mtgXYx2Ue-eSw">
   <meta name="author" content="Ryoichi Watanabe">
   <link rel="canonical" href="https://1s.xyz/llm/chapter-15.html">
   <meta property="og:title" content="第15章. KV cache / batching / paged attention - LLM周辺用語 教科書">
@@ -34,6 +35,8 @@
   <a href="#main-content" class="skip-link">本文へスキップ</a>
 
   <header class="top-bar">
+    <a href="https://1s.xyz/" class="parent-site">1s.xyz</a>
+    <span class="parent-sep">/</span>
     <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
     <span class="top-bar-spacer"></span>
     <span class="chapter-info">15 / 25</span>
@@ -41,7 +44,7 @@
     <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
   </header>
   
-  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li>第8部: 推論高速化</li><li aria-current="page">第15章. KV cache / batching / paged attention</li></ol></nav>
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="https://1s.xyz/">1s.xyz</a></li><li><a href="index.html">目次</a></li><li>第8部: 推論高速化</li><li aria-current="page">第15章. KV cache / batching / paged attention</li></ol></nav>
 
   <div class="layout">
     <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
@@ -146,22 +149,22 @@ $$
 <p><em>図15.2: Batchingの動作原理</em></p>
 <p>Batchingには、静的バッチング（固定サイズのバッチで処理）と動的バッチング（リアルタイムで到着するリクエストに応じてバッチサイズを調整）があります。特にLLMの推論では、リクエストごとにプロンプト長や生成する応答長が異なるため、動的バッチングが非常に重要になります。</p>
 <h3 id="paged-attention-ページドアテンション">Paged Attention (ページド・アテンション)</h3>
-<h4 id="ひとことで言うと-1">ひとことで言うと:</h4>
+<h4 id="ひとことで言うと-2">ひとことで言うと:</h4>
 <p>KV cacheのメモリ管理を、オペレーティングシステムの仮想メモリ管理（ページング）に似た方法で行うことで、メモリの断片化を解消し、より効率的にKV cacheを利用する技術です。</p>
-<h4 id="何のカテゴリか-1">何のカテゴリか:</h4>
+<h4 id="何のカテゴリか-2">何のカテゴリか:</h4>
 <p>推論最適化技術、メモリ管理技術、KV cache最適化技術</p>
-<h4 id="何に使うのか-1">何に使うのか:</h4>
+<h4 id="何に使うのか-2">何に使うのか:</h4>
 <p>特に動的バッチングと組み合わせることで、可変長のシーケンスを持つ複数のリクエストを効率的に処理し、GPUメモリを最大限に活用してスループットを向上させます。</p>
-<h4 id="代表例-1">代表例:</h4>
+<h4 id="代表例-2">代表例:</h4>
 <p>vLLMがこの技術を初めて導入し、その高いスループット性能の主要因となっています。</p>
-<h4 id="よく混同される用語-1">よく混同される用語:</h4>
+<h4 id="よく混同される用語-2">よく混同される用語:</h4>
 <ul>
 <li><strong>KV cache</strong>: Paged attentionはKV cacheのメモリ管理方法であり、KV cacheそのものではありません。KV cacheをより賢く使うための技術です。</li>
 <li><strong>仮想メモリ/ページング</strong>: オペレーティングシステムの概念をLLMのKV cache管理に応用したものであり、OSの仮想メモリそのものではありません。</li>
 </ul>
-<h4 id="初心者向け注意点-1">初心者向け注意点:</h4>
+<h4 id="初心者向け注意点-2">初心者向け注意点:</h4>
 <p>Paged attentionは、KV cacheのメモリ効率を劇的に改善しますが、その恩恵は主に複数のリクエストを同時に処理する（バッチ処理する）場合に顕著です。単一のリクエストを処理するだけでは、その効果は限定的です。</p>
-<h4 id="詳細説明-1">詳細説明:</h4>
+<h4 id="詳細説明-2">詳細説明:</h4>
 <p>前述の通り、KV cacheはLLMの推論を高速化しますが、メモリを大量に消費します。特に、複数のリクエストをバッチ処理する場合、各リクエストのプロンプト長や生成する応答長はバラバラです。</p>
 <p>従来のKV cache管理では、各リクエストに対してKV cache用の連続したメモリ領域を事前に確保していました。この方法にはいくつかの問題があります。</p>
 <ol>
