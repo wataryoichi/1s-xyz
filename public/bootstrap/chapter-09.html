@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第9章. 技術ツリーの正体 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</title>
-  <meta name="description" content="技術ツリーの正体">
+  <title>第9章. vLLM / TGI / TensorRT-LLM - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: サーバ向け推論基盤を整理する">
   <meta name="generator" content="bookgen">
   <meta name="theme-color" content="#0f3460">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="google-site-verification" content="cBN3pcBonjuBk4T_dz-0tePmnDWUs4mtgXYx2Ue-eSw">
   <meta name="author" content="Ryoichi Watanabe">
-  <meta property="og:title" content="第9章. 技術ツリーの正体 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
-  <meta property="og:description" content="技術ツリーの正体">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-09.html">
+  <meta property="og:title" content="第9章. vLLM / TGI / TensorRT-LLM - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: サーバ向け推論基盤を整理する">
   <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-09.html">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="第9章. 技術ツリーの正体 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
-  <meta name="twitter:description" content="技術ツリーの正体">
+  <meta name="twitter:title" content="第9章. vLLM / TGI / TensorRT-LLM - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: サーバ向け推論基盤を整理する">
   <script>
 (function(){
   var k="1s-theme",s=localStorage.getItem(k),t;
@@ -32,14 +35,16 @@
   <a href="#main-content" class="skip-link">本文へスキップ</a>
 
   <header class="top-bar">
-    <a href="index.html" class="book-title">Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</a>
+    <a href="https://1s.xyz/" class="parent-site">1s.xyz</a>
+    <span class="parent-sep">/</span>
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
     <span class="top-bar-spacer"></span>
     <span class="chapter-info">9 / 15</span>
     <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
     <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
   </header>
   
-  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">第9章. 技術ツリーの正体</li></ol></nav>
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="https://1s.xyz/">1s.xyz</a></li><li><a href="index.html">目次</a></li><li>第5部: どうやってモデルを動かすのか</li><li aria-current="page">第9章. vLLM / TGI / TensorRT-LLM</li></ol></nav>
 
   <div class="layout">
     <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
@@ -391,9 +396,9 @@
 
       </article>
       <nav class="page-nav">
-<a href="chapter-08.html" class="nav-prev">← 第8章 AIはどう判断するのか</a>
+<a href="chapter-08.html" class="nav-prev">← 第8章 Ollama / LM Studio / Open WebUI / Jan など</a>
 <a href="index.html" class="nav-toc">目次</a>
-<a href="chapter-10.html" class="nav-next">第10章 RAGと知識管理 →</a>
+<a href="chapter-10.html" class="nav-next">第10章 量子化（Quantization） →</a>
 </nav>
     </main>
   </div>
@@ -409,6 +414,7 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

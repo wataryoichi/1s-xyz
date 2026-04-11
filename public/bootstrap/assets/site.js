@@ -1,5 +1,14 @@
 /* bookgen site.js */
 
+/* --- Chart.js auto-init --- */
+(function(){
+  if(typeof Chart==="undefined")return;
+  var isDark=document.documentElement.getAttribute("data-theme")==="dark"
+    ||(!document.documentElement.hasAttribute("data-theme")&&window.matchMedia("(prefers-color-scheme:dark)").matches);
+  Chart.defaults.color=isDark?"#e2e8f0":"#1a1a2e";
+  Chart.defaults.borderColor=isDark?"#334155":"#e2e8f0";
+})();
+
 /* --- Syntax highlighting --- */
 (function(){
   if(typeof hljs==="undefined")return;

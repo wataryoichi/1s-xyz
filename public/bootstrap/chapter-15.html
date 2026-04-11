@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第15章. 現実実装ロードマップ - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</title>
-  <meta name="description" content="現実実装ロードマップ">
+  <title>第15章. KV cache / batching / paged attention - LLM周辺用語 教科書</title>
+  <meta name="description" content="目的: 速度まわりの基礎概念を整理する">
   <meta name="generator" content="bookgen">
   <meta name="theme-color" content="#0f3460">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="google-site-verification" content="cBN3pcBonjuBk4T_dz-0tePmnDWUs4mtgXYx2Ue-eSw">
   <meta name="author" content="Ryoichi Watanabe">
-  <meta property="og:title" content="第15章. 現実実装ロードマップ - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
-  <meta property="og:description" content="現実実装ロードマップ">
+  <link rel="canonical" href="https://1s.xyz/llm/chapter-15.html">
+  <meta property="og:title" content="第15章. KV cache / batching / paged attention - LLM周辺用語 教科書">
+  <meta property="og:description" content="目的: 速度まわりの基礎概念を整理する">
   <meta property="og:type" content="article">
+  <meta property="og:url" content="https://1s.xyz/llm/chapter-15.html">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="第15章. 現実実装ロードマップ - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
-  <meta name="twitter:description" content="現実実装ロードマップ">
+  <meta name="twitter:title" content="第15章. KV cache / batching / paged attention - LLM周辺用語 教科書">
+  <meta name="twitter:description" content="目的: 速度まわりの基礎概念を整理する">
   <script>
 (function(){
   var k="1s-theme",s=localStorage.getItem(k),t;
@@ -32,14 +35,16 @@
   <a href="#main-content" class="skip-link">本文へスキップ</a>
 
   <header class="top-bar">
-    <a href="index.html" class="book-title">Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</a>
+    <a href="https://1s.xyz/" class="parent-site">1s.xyz</a>
+    <span class="parent-sep">/</span>
+    <a href="index.html" class="book-title">LLM周辺用語 教科書</a>
     <span class="top-bar-spacer"></span>
     <span class="chapter-info">15 / 15</span>
     <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
     <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
   </header>
   
-  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">第15章. 現実実装ロードマップ</li></ol></nav>
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="https://1s.xyz/">1s.xyz</a></li><li><a href="index.html">目次</a></li><li>第8部: 推論高速化</li><li aria-current="page">第15章. KV cache / batching / paged attention</li></ol></nav>
 
   <div class="layout">
     <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
@@ -234,16 +239,17 @@
 <li>各フェーズでは、AIコアシステムの確立、RAGの深化、多様なロボットの展開、社会システムの再構築が計画的に進められる。</li>
 <li>このロードマップは、技術ツリーの進捗とRAGの活用を軸に、柔軟性と適応性を持ちながら、持続可能な未来文明の構築を目指す。</li>
 </ol>
-<h2 id="次に読むべき章">次に読むべき章</h2>
+<h2 id="振り返りとして読み直すべき章">振り返りとして読み直すべき章</h2>
+<p>本章は最終章です。以下の章を読み直すことで、ロードマップの各フェーズへの理解がさらに深まります。</p>
 <ul>
-<li><strong>第3章: AI設計思想の基礎</strong>: AIコアシステムの確立における倫理的基盤と意思決定システムの詳細を再確認するため。</li>
-<li><strong>第10章: 知識管理システムとしてのRAG</strong>: RAGの深化と知識創造の具体的なメカニズムを深く理解するため。</li>
-<li><strong>第12章: 人間とロボットの共存</strong>: フェーズ3における人間とロボットの役割分担と共進化の概念をさらに探求するため。</li>
+<li><strong>第3章: AI設計思想</strong>: 制約ファースト・失敗前提など、ロードマップの根幹にある設計哲学を再確認するため。</li>
+<li><strong>第5章: 技術ツリー</strong>: ロードマップの各フェーズが技術ツリーのどの段階に対応するかを照合するため。</li>
+<li><strong>第9章: 技術ツリーの正体</strong>: 計画エンジンとデータ構造の詳細を理解し、実装イメージを具体化するため。</li>
 </ul>
 
       </article>
       <nav class="page-nav">
-<a href="chapter-14.html" class="nav-prev">← 第14章 文明は再び崩壊するか</a>
+<a href="chapter-14.html" class="nav-prev">← 第14章 学習ツール群</a>
 <a href="index.html" class="nav-toc">目次</a>
 <a href="glossary.html" class="nav-next">用語集 →</a>
 </nav>
@@ -261,6 +267,7 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>
