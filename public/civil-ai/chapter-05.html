@@ -142,12 +142,26 @@
     H --> J(終端技術X)
     I --> K(終端技術Y)
 
-    subgraph "技術の段階"
+    subgraph "根源"
         A
-        B, C
-        D, E, F, G
-        H, I
-        J, K
+    end
+    subgraph "前提"
+        B
+        C
+    end
+    subgraph "派生"
+        D
+        E
+        F
+        G
+    end
+    subgraph "分岐"
+        H
+        I
+    end
+    subgraph "終端"
+        J
+        K
     end
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -207,25 +221,27 @@
     N --> R(原始的な水車)
 
     subgraph "食料生産"
-        D --> H
-        H --> K
-        H --> L
-        K --> O
-        L --> P
+        D
+        H
+        K
+        L
+        O
+        P
     end
 
     subgraph "居住・インフラ"
-        E --> I
-        I --> M
-        M --> Q
-        F --> J
-        J --> N
-        N --> R
+        E
+        I
+        M
+        Q
+        J
+        N
+        R
     end
 
     subgraph "衛生・医療"
-        C --> F
-        C --> G
+        F
+        G
     end</pre>
 <p><strong>解説</strong>:</p>
 <ul>
@@ -293,7 +309,11 @@
     D --> G[基盤技術]
     D --> H[資源効率の高い技術]
     D --> I[戦略的技術]
-    E & F & G & H & I --> J{技術ツリーへの配置とパス選択}
+    E --> J{技術ツリーへの配置とパス選択}
+    F --> J
+    G --> J
+    H --> J
+    I --> J
     J --> K[資源配分と実行計画]
     K --> L[進捗評価と見直し]
     L --> B</pre>

@@ -104,14 +104,14 @@ $$v = E(T)$$
 <pre class="mermaid">graph TD
     A[ユーザーの質問] --> B{質問の埋め込み}
     subgraph "検索フェーズ"
-        B --> C[ベクトルデータベース]
-        C --> D{類似チャンクの検索}
-        D --> E[関連チャンク]
+            B
+            C
+            D
     end
     subgraph "生成フェーズ"
-        E --> F[プロンプト構築]
-        F --> G[LLM]
-        G --> H[回答]
+            E
+            F
+            G
     end
     H --> I[ユーザーへの提示]</pre>
 <p><strong>説明:</strong></p>
