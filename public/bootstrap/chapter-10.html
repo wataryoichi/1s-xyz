@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第10章. RAGと知識管理 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</title>
+  <meta name="description" content="RAGと知識管理">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <meta property="og:title" content="第10章. RAGと知識管理 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta property="og:description" content="RAGと知識管理">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第10章. RAGと知識管理 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta name="twitter:description" content="RAGと知識管理">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">10 / 15</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">第10章. RAGと知識管理</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第10章-ragと知識管理">第10章. RAGと知識管理</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、大規模言語モデル（LLM）が持つ知識の限界を克服し、より正確で最新の情報に基づいた応答を生成するための強力な手法である「RAG (Retrieval-Augmented Generation)」について深く理解することを目的とします。RAGがどのように機能し、なぜ現代のLLMアプリケーションにおいて不可欠な技術となっているのかを学び、その実装方法と実務での活用法を習得します。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>RAGの基本概念と、それがLLMの「幻覚（Hallucination）」問題をどう解決するか</li>
+<li>RAGの主要な構成要素（検索器、生成器）とそれらの連携方法</li>
+<li>ベクトルデータベースと埋め込み（Embedding）の役割</li>
+<li>RAGを効果的に設計・実装するためのベストプラクティス</li>
+<li>RAGと従来の知識管理システムとの違い</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>あなたはLLMに質問を投げかけ、完璧な答えを期待しているかもしれません。しかし、LLMは学習データに含まれる情報に基づいて応答を生成するため、最新の情報や特定の専門知識、あるいは社内文書のようなプライベートな情報にはアクセスできません。この限界は、LLMがもっともらしく聞こえるが事実とは異なる情報を生成する「幻覚（Hallucination）」という問題を引き起こすことがあります。</p>
+<p>このような課題を解決し、LLMの能力を飛躍的に向上させる技術が「RAG (Retrieval-Augmented Generation)」です。RAGは、LLMが質問に答える前に、外部の知識源から関連情報を「検索（Retrieval）」し、その情報に基づいて応答を「生成（Generation）」するというアプローチを取ります。これにより、LLMは常に最新かつ正確な情報に基づいた、信頼性の高い回答を提供できるようになります。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="rag-retrieval-augmented-generation">RAG (Retrieval-Augmented Generation)</h3>
+<p>ひとことで言うと: LLMが外部の知識源から関連情報を検索し、それに基づいて回答を生成する技術。
+何のカテゴリか: 大規模言語モデル（LLM）の応用技術、情報検索、自然言語処理。
+何に使うのか: LLMの幻覚問題の軽減、最新情報への対応、専門知識やプライベートデータへのアクセス、回答の根拠提示。
+代表例: 企業内チャットボット、最新ニュースに基づく要約、学術論文からの情報抽出。
+よく混同される用語: ファインチューニング、プロンプトエンジニアリング。
+初心者向け注意点: RAGはLLMの学習データを更新するものではなく、LLMが参照する「外部資料」を提供する技術です。</p>
+<p>RAGは、以下の2つの主要なフェーズで構成されます。</p>
+<ol>
+<li><strong>検索 (Retrieval) フェーズ</strong>: ユーザーの質問やプロンプトに基づいて、関連性の高い情報を外部の知識ベースから探し出します。この知識ベースは、ウェブページ、データベース、ドキュメント、PDFファイルなど、あらゆる形式のデータを含み得ます。</li>
+<li><strong>生成 (Generation) フェーズ</strong>: 検索された情報をLLMへの入力（コンテキスト）として与え、その情報とユーザーの質問を組み合わせて、最終的な回答を生成させます。</li>
+</ol>
+<p>このプロセスにより、LLMは単に学習データに依存するだけでなく、リアルタイムでアクセス可能な外部情報に基づいて、より正確で信頼性の高い応答を生成できるようになります。</p>
+<h3 id="ベクトルデータベースと埋め込み-embedding">ベクトルデータベースと埋め込み (Embedding)</h3>
+<p>RAGを支える重要な技術が、ベクトルデータベースと埋め込み（Embedding）です。</p>
+<p><strong>埋め込み (Embedding)</strong>
+ひとことで言うと: テキストや画像などのデータを、意味的な特徴を捉えた数値のベクトル（多次元配列）に変換すること。
+何のカテゴリか: 自然言語処理、機械学習、データ表現。
+何に使うのか: 意味の類似性に基づく検索、クラスタリング、分類。
+代表例: Word2Vec, BERT Embedding, OpenAI Embedding。
+よく混同される用語: ハッシュ関数。
+初心者向け注意点: 埋め込みは単なる文字列の数値化ではなく、意味的な近さを数値の距離で表現します。</p>
+<p>LLMはテキストを処理する際、まずテキストを数値のベクトルに変換します。この変換により、意味的な関係性を数値として表現できるようになります。この変換プロセスが「埋め込み」です。意味的に類似したテキストは、埋め込み空間（ベクトル空間）において近い位置に配置されます。</p>
+<p>テキストデータ $T$ を埋め込みベクトル $v$ に変換する関数を $E$ とすると、以下のように表現できます。
+$$v = E(T)$$
+ここで、$v$ は多次元実数ベクトルであり、意味的に類似したテキストはユークリッド距離やコサイン類似度などの指標で近い位置に存在します。</p>
+<p><strong>ベクトルデータベース (Vector Database)</strong>
+ひとことで言うと: 埋め込みベクトルを効率的に格納し、類似度に基づいて高速に検索できるデータベース。
+何のカテゴリか: データベース、情報検索、機械学習インフラ。
+何に使うのか: RAGシステムにおける知識ベースの構築、レコメンデーションシステム、画像検索。
+代表例: Pinecone, Weaviate, Chroma, Faiss。
+よく混同される用語: リレーショナルデータベース、NoSQLデータベース。
+初心者向け注意点: ベクトルデータベースは、従来のデータベースとは異なり、主に「意味的な類似性」による検索に特化しています。</p>
+<p>RAGシステムでは、まず外部の知識ベース（ドキュメントなど）を小さなチャンク（塊）に分割し、それぞれのチャンクを埋め込みモデルを使ってベクトルに変換します。これらのベクトルは、ベクトルデータベースに格納されます。ユーザーからの質問も同様にベクトルに変換され、ベクトルデータベース内で最も類似性の高い（つまり、意味的に近い）チャンクを高速に検索します。</p>
+<h3 id="ragの処理フロー">RAGの処理フロー</h3>
+<p>Mermaid図でRAGの基本的な処理フローを示します。</p>
+<pre class="mermaid">graph TD
+    A[ユーザーの質問] --> B{質問の埋め込み}
+    subgraph "検索フェーズ"
+        B --> C[ベクトルデータベース]
+        C --> D{類似チャンクの検索}
+        D --> E[関連チャンク]
+    end
+    subgraph "生成フェーズ"
+        E --> F[プロンプト構築]
+        F --> G[LLM]
+        G --> H[回答]
+    end
+    H --> I[ユーザーへの提示]</pre>
+<p><strong>説明:</strong></p>
+<ol>
+<li><strong>ユーザーの質問</strong>: ユーザーがLLMに質問を投げかけます。</li>
+<li><strong>質問の埋め込み</strong>: 質問が埋め込みモデルによってベクトルに変換されます。</li>
+<li><strong>ベクトルデータベース</strong>: 質問ベクトルがベクトルデータベースに送られます。</li>
+<li><strong>類似チャンクの検索</strong>: ベクトルデータベースは、質問ベクトルと最も類似性の高い（意味的に近い）ドキュメントチャンクを検索します。</li>
+<li><strong>関連チャンク</strong>: 検索されたチャンクが取得されます。これらはLLMが参照すべき情報源となります。</li>
+<li><strong>プロンプト構築</strong>: ユーザーの質問と、検索された関連チャンクを組み合わせて、LLMへのプロンプトが構築されます。この際、「以下の情報に基づいて質問に答えてください：[関連チャンク] 質問：[ユーザーの質問]」のような形式が取られます。</li>
+<li><strong>LLM</strong>: 構築されたプロンプトがLLMに入力されます。</li>
+<li><strong>回答</strong>: LLMは与えられた情報に基づいて回答を生成します。</li>
+<li><strong>ユーザーへの提示</strong>: 生成された回答がユーザーに提示されます。</li>
+</ol>
+<p>RAGシステムにおける知識ベースの構築プロセスをより詳細に見てみましょう。</p>
+<pre class="mermaid">graph TD
+    A["外部知識源 (PDF, Web, DB)"] --> B["ドキュメントローダー"]
+    B --> C["テキスト分割 (Chunking)"]
+    C --> D["埋め込みモデル"]
+    D --> E["ベクトルデータベース (インデックス作成)"]
+    E -- "格納されたベクトルとチャンク" --> F["RAGシステム (検索フェーズ)"]</pre>
+<p><strong>説明:</strong></p>
+<ol>
+<li><strong>外部知識源</strong>: RAGシステムが参照する元の情報源です。PDFファイル、Webページ、リレーショナルデータベース、NoSQLデータベースなど、様々な形式のデータが含まれます。</li>
+<li><strong>ドキュメントローダー</strong>: 各種フォーマットのドキュメントを読み込み、テキストデータとして抽出します。</li>
+<li><strong>テキスト分割 (Chunking)</strong>: 抽出されたテキストを、LLMのコンテキストウィンドウに収まる適切なサイズのチャンクに分割します。チャンクサイズは、情報の粒度とLLMの処理能力を考慮して決定されます。</li>
+<li><strong>埋め込みモデル</strong>: 各チャンクを意味的なベクトル表現に変換します。</li>
+<li><strong>ベクトルデータベース (インデックス作成)</strong>: 変換されたベクトルと、それに対応する元のテキストチャンクをベクトルデータベースに格納し、高速な類似度検索のためのインデックスを作成します。</li>
+<li><strong>RAGシステム (検索フェーズ)</strong>: ユーザーからの質問が来た際に、このベクトルデータベースから関連チャンクを検索します。</li>
+</ol>
+<h2 id="具体例">具体例</h2>
+<p>RAGがどのように機能するか、具体的なシナリオで見てみましょう。</p>
+<p><strong>シナリオ</strong>: ある企業の顧客サポートチャットボットが、製品マニュアルやFAQ、過去のサポート履歴などの社内文書に基づいて顧客の質問に答える。</p>
+<ol>
+<li><p><strong>知識ベースの準備</strong>:</p>
+<ul>
+<li>企業の製品マニュアル、FAQ、サポート履歴などのドキュメントを収集します。</li>
+<li>これらのドキュメントを意味のある小さなチャンク（例: 数段落、1ページ）に分割します。</li>
+<li>各チャンクを埋め込みモデル（例: OpenAIの<code>text-embedding-ada-002</code>）でベクトルに変換します。</li>
+<li>変換されたベクトルと元のチャンクテキストをベクトルデータベース（例: ChromaDB）に格納します。</li>
+</ul>
+</li>
+<li><p><strong>顧客の質問</strong>:</p>
+<ul>
+<li>顧客がチャットボットに「製品Xの保証期間はどれくらいですか？」と質問します。</li>
+</ul>
+</li>
+<li><p><strong>検索フェーズ</strong>:</p>
+<ul>
+<li>顧客の質問「製品Xの保証期間はどれくらいですか？」が埋め込みモデルでベクトルに変換されます。</li>
+<li>この質問ベクトルがベクトルデータベースに送られ、最も類似性の高いチャンクが検索されます。</li>
+<li>例えば、「製品Xの保証期間は購入日から1年間です。延長保証オプションもあります。」という記述を含むマニュアルのチャンクが検索されます。</li>
+</ul>
+</li>
+<li><p><strong>生成フェーズ</strong>:</p>
+<ul>
+<li>LLMへのプロンプトが以下のように構築されます。<pre><code class="language-">以下の情報に基づいて、顧客の質問に簡潔に答えてください。
+---
+情報:
+製品Xの保証期間は購入日から1年間です。延長保証オプションもあります。
+---
+質問:
+製品Xの保証期間はどれくらいですか？</code></pre>
+</li>
+<li>LLM（例: GPT-4）はこのプロンプトを受け取り、提供された情報に基づいて回答を生成します。</li>
+<li>LLMの回答: 「製品Xの保証期間は購入日から1年間です。延長保証オプションもございます。」</li>
+</ul>
+</li>
+</ol>
+<p>この例では、LLMは自身の学習データに「製品Xの保証期間」という情報がなくても、外部の知識ベースから関連情報を取得し、正確な回答を生成することができました。これにより、LLMの幻覚を防ぎ、信頼性の高い情報を提供できます。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<p>RAGはLLMの能力を拡張する強力な技術ですが、他の関連技術と混同されることがあります。ここでは、RAGとよく比較される用語について説明します。</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴/技術</th>
+<th align="left">RAG (Retrieval-Augmented Generation)</th>
+<th align="left">ファインチューニング (Fine-tuning)</th>
+<th align="left">プロンプトエンジニアリング (Prompt Engineering)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">最新・専門知識の参照、幻覚の軽減、根拠提示</td>
+<td align="left">特定タスクへの適応、モデルの振る舞い変更</td>
+<td align="left">LLMの能力を最大限引き出す、特定の出力形式</td>
+</tr>
+<tr>
+<td align="left"><strong>知識源</strong></td>
+<td align="left">外部の知識ベース（ドキュメント、DBなど）</td>
+<td align="left">モデルの追加学習データ</td>
+<td align="left">プロンプト内の指示、例示</td>
+</tr>
+<tr>
+<td align="left"><strong>モデル変更</strong></td>
+<td align="left">なし（既存LLMを利用）</td>
+<td align="left">あり（モデルの重みを更新）</td>
+<td align="left">なし（既存LLMを利用）</td>
+</tr>
+<tr>
+<td align="left"><strong>更新頻度</strong></td>
+<td align="left">知識ベースを更新すれば即座に反映</td>
+<td align="left">モデルを再学習する必要がある</td>
+<td align="left">プロンプトを変更すれば即座に反映</td>
+</tr>
+<tr>
+<td align="left"><strong>コスト</strong></td>
+<td align="left">検索インフラ、埋め込み生成コスト</td>
+<td align="left">モデル学習コスト、データ準備コスト</td>
+<td align="left">プロンプト設計の試行錯誤コスト</td>
+</tr>
+<tr>
+<td align="left"><strong>適用例</strong></td>
+<td align="left">企業内Q&amp;A、最新ニュースに基づく要約</td>
+<td align="left">特定業界の専門用語対応、感情分析</td>
+<td align="left">特定のフォーマットでの回答、思考プロセス誘導</td>
+</tr>
+<tr>
+<td align="left"><strong>幻覚対策</strong></td>
+<td align="left">参照元情報に基づくことで大幅に軽減</td>
+<td align="left">学習データにない情報は幻覚のリスクあり</td>
+<td align="left">プロンプトで指示しても限界がある</td>
+</tr>
+</tbody></table></div>
+<p><strong>RAG vs. ファインチューニング</strong>:</p>
+<ul>
+<li><strong>RAG</strong>は、LLMの知識を「外部から参照」することで拡張します。LLM自体の重み（学習済みパラメータ）は変更しません。これにより、最新情報の追加やプライベートデータの利用が容易になります。</li>
+<li><strong>ファインチューニング</strong>は、特定のタスクやドメインに合わせてLLMの重みを「再学習」させることで、モデルの振る舞いや知識を内部的に変更します。特定の専門用語への対応や、特定のスタイルでの応答生成には有効ですが、新しい情報が頻繁に追加されるようなケースには不向きです。</li>
+</ul>
+<p><strong>RAG vs. プロンプトエンジニアリング</strong>:</p>
+<ul>
+<li><strong>RAG</strong>は、LLMに与える「コンテキスト情報」を外部から動的に取得します。</li>
+<li><strong>プロンプトエンジニアリング</strong>は、LLMへの「指示文」を工夫することで、LLMの性能を引き出します。RAGとプロンプトエンジニアリングは排他的な関係ではなく、RAGで取得した情報を効果的にプロンプトに組み込むために、プロンプトエンジニアリングの技術が活用されます。</li>
+</ul>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>RAGは、現代のLLMアプリケーションにおいて、その信頼性と実用性を高めるための「必須コンポーネント」として位置づけられています。特に、以下のような実務上の課題を解決するために不可欠です。</p>
+<ol>
+<li><strong>情報の鮮度と正確性</strong>: LLMの学習データは常に過去のものであり、最新の出来事や情報には対応できません。RAGは、リアルタイムで更新される外部データベースやウェブ情報源と連携することで、この問題を解決します。</li>
+<li><strong>幻覚（Hallucination）の軽減</strong>: LLMが事実に基づかない情報を生成するリスクを大幅に低減します。RAGは、LLMに「根拠」となる情報を提供することで、より信頼性の高い回答を促します。</li>
+<li><strong>専門知識やプライベートデータへの対応</strong>: 企業内の機密文書、特定の業界の専門知識、個人の医療記録など、公開されていない情報に基づいてLLMに回答させたい場合にRAGが活躍します。これらの情報はLLMの学習データには含まれないため、RAGを通じて外部から提供する必要があります。</li>
+<li><strong>回答の根拠提示</strong>: RAGは、LLMが回答を生成する際に参照した元のドキュメントや情報源を提示できるため、ユーザーは回答の信頼性を検証できます。これは、特に医療、法律、金融といった分野で重要です。</li>
+<li><strong>コスト効率</strong>: ファインチューニングに比べて、RAGはモデルの再学習が不要なため、新しい情報を追加する際のコストと手間を削減できます。知識ベースの更新は、ドキュメントの追加と埋め込みの再生成だけで済む場合が多いです。</li>
+</ol>
+<p>RAGは、単なる技術的な手法に留まらず、LLMをビジネスや社会の様々な場面で安全かつ効果的に活用するための「基盤技術」として、その重要性を増しています。</p>
+<p>RAGシステムを構築する際の主要な考慮事項を以下に示します。</p>
+<pre class="mermaid">graph TD
+    A["RAGシステム設計"] --> B["知識源の選定"]
+    A --> C["チャンキング戦略"]
+    A --> D["埋め込みモデルの選択"]
+    A --> E["ベクトルデータベースの選定"]
+    A --> F["検索アルゴリズム"]
+    A --> G["プロンプトエンジニアリング"]
+    A --> H["評価と改善"]
+
+    B --> B1["ドキュメントの種類 (PDF, Web, DB)"]
+    B --> B2["更新頻度"]
+    C --> C1["チャンクサイズ"]
+    C --> C2["オーバーラップ"]
+    D --> D1["性能 (精度, 速度)"]
+    D --> D2["コスト"]
+    E --> E1["スケーラビリティ"]
+    E --> E2["機能 (フィルタリング, メタデータ)"]
+    F --> F1["類似度指標 (コサイン, ドット積)"]
+    F --> F2["検索数 (k)"]
+    G --> G1["命令文の明確化"]
+    G --> G2["参照情報の組み込み方"]
+    H --> H1["関連性評価"]
+    H --> H2["回答の正確性"]</pre>
+<p><strong>説明:</strong>
+この図は、RAGシステムを効果的に設計・運用するために考慮すべき主要な要素とその関連性を示しています。</p>
+<ul>
+<li><strong>知識源の選定</strong>: どのような情報をRAGシステムに含めるか、その情報の種類や更新頻度を考慮します。</li>
+<li><strong>チャンキング戦略</strong>: ドキュメントをどのように分割するか。チャンクサイズやオーバーラップの有無が検索精度に影響します。</li>
+<li><strong>埋め込みモデルの選択</strong>: テキストをベクトルに変換するモデルの性能、速度、コストを比較検討します。</li>
+<li><strong>ベクトルデータベースの選定</strong>: 大量のベクトルデータを効率的に管理し、高速に検索できるデータベースを選びます。スケーラビリティや提供される機能が重要です。</li>
+<li><strong>検索アルゴリズム</strong>: ベクトル間の類似度をどのように計算するか（コサイン類似度、ドット積など）、またいくつのチャンクを検索結果として取得するか（k値）を決定します。</li>
+<li><strong>プロンプトエンジニアリング</strong>: 検索された情報をLLMにどのように提示するか、効果的なプロンプトの設計が回答の質を左右します。</li>
+<li><strong>評価と改善</strong>: 構築したRAGシステムの検索精度や回答の正確性を定期的に評価し、継続的に改善していくプロセスです。</li>
+</ul>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>RAGは、LLMが外部の知識源から情報を検索し、それに基づいて回答を生成する技術です。</li>
+<li>LLMの幻覚問題を軽減し、最新情報や専門知識への対応、回答の根拠提示を可能にします。</li>
+<li>ベクトルデータベースと埋め込みがRAGの基盤技術であり、実務でLLMを信頼性高く活用するための必須コンポーネントです。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>ファインチューニング</strong>: モデル自体を再学習させることで知識や振る舞いを変更する。RAGはモデルは変更せず外部情報を参照する。</li>
+<li><strong>プロンプトエンジニアリング</strong>: LLMへの指示文を工夫する技術。RAGはプロンプトに与える「情報」を動的に生成する。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第11章. エージェントとツール利用 (RAGで得た情報を元に、LLMがさらに複雑なタスクをこなす方法について学びます。)</li>
+<li>第12章. LLMアプリケーションの評価とデバッグ (RAGシステムを含むLLMアプリケーションの性能をどのように測定し、改善するかを学びます。)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-09.html" class="nav-prev">← 第9章 技術ツリーの正体</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-11.html" class="nav-next">第11章 教育と継承 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

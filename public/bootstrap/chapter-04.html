@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第4章. 最初の72時間 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</title>
+  <meta name="description" content="最初の72時間">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <meta property="og:title" content="第4章. 最初の72時間 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta property="og:description" content="最初の72時間">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第4章. 最初の72時間 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta name="twitter:description" content="最初の72時間">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">4 / 15</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">第4章. 最初の72時間</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h2 id="第4章-llmプロジェクトの最初の72時間">第4章. LLMプロジェクトの「最初の72時間」</h2>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、LLM（大規模言語モデル）プロジェクトの立ち上げ直後、特にPoC（概念実証）や初期開発フェーズにおける「最初の72時間」に焦点を当てます。この期間に何が起こり、開発チームがどのように行動すべきか、そしてその行動がプロジェクトの成否にどう影響するかを理解することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>LLMプロジェクト開始直後の「最初の72時間」が成功において極めて重要であること。</li>
+<li>初期段階におけるプロジェクトの目標設定、技術選定、環境構築の優先順位。</li>
+<li>迅速なプロトタイピングとフィードバックループの確立。</li>
+<li>短期的な成果創出と長期的なプロジェクト戦略の基礎。</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>「LLMプロジェクトを始める日」から、私たちは新たな技術の可能性と課題に直面します。第2章ではLLMの基本的なアーキテクチャを、第3章ではプロンプトエンジニアリングの設計思想を学びましたが、それらはあくまでプロジェクトを成功させるための知識です。しかし、その知識を活かすためには、まずプロジェクトを軌道に乗せなければなりません。</p>
+<p>LLMプロジェクトの立ち上げ直後の72時間は、その後の成否を分ける最も重要な期間と言われています。この期間は、技術選定、環境構築、初期プロンプト設計、そして期待値調整など、多岐にわたるタスクが集中し、情報が混乱しやすい状況です。この章では、この極めて重要な期間に開発チームがどのように行動し、どのようにプロジェクト成功のための基盤を築くべきかを探ります。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="1-llmプロジェクトにおける最初の72時間の重要性">1. LLMプロジェクトにおける「最初の72時間」の重要性</h3>
+<p>一言で言うと: LLMプロジェクト開始直後の3日間は、方向性を定め、初期の成果を出す上で極めて重要な期間。
+何のカテゴリか: プロジェクトマネジメント、アジャイル開発、技術選定。
+何に使うのか: 初期目標設定、技術スタック選定、PoC計画立案、チーム体制構築。
+代表例: スタートアップの初期開発、新規事業のPoC、ハッカソン。
+よく混同される用語: 「開発スプリント」（より長期的なイテレーションを含む）
+初心者向け注意点: この期間は、完璧を目指すよりも、迅速な意思決定と実行、そして学習サイクルを回すことが重要です。</p>
+<p>この72時間という期間は、主に以下の理由から極めて重要です。</p>
+<ul>
+<li><strong>方向性の確立</strong>: プロジェクトの目的、スコープ、主要なユースケースを明確にし、チーム全体で共通認識を持つ必要があります。</li>
+<li><strong>技術選定の初期決定</strong>: 使用するLLM（API、OSS）、フレームワーク、開発環境などを迅速に決定し、初期セットアップを行います。</li>
+<li><strong>迅速なプロトタイピング</strong>: 最初の72時間で、何らかの動くプロトタイプ（例：簡単なチャットボット、テキスト生成スクリプト）を作成し、実現可能性を検証します。</li>
+<li><strong>期待値調整</strong>: ステークホルダーとの間で、LLMの現状の能力と限界について初期の期待値を調整し、現実的な目標を設定します。</li>
+<li><strong>学習と適応</strong>: LLMの特性や挙動を実際に触って理解し、今後の開発方針に活かすための初期学習を行います。</li>
+</ul>
+<p>この期間に適切な行動を取れるかどうかが、その後のプロジェクトの進捗と成功確率を大きく左右します。</p>
+<h3 id="2-マズローの欲求段階説とllmプロジェクトの初期フェーズ">2. マズローの欲求段階説とLLMプロジェクトの初期フェーズ</h3>
+<p>LLMプロジェクトの初期フェーズでは、マズローの欲求段階説をプロジェクトの優先順位付けに応用できます。</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">段階</th>
+<th align="left">欲求の種類</th>
+<th align="left">LLMプロジェクトの状況</th>
+<th align="left">最初の72時間での優先度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">生理的欲求</td>
+<td align="left">開発環境の構築、APIキーの取得、基本的な動作確認</td>
+<td align="left">最優先</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">安全の欲求</td>
+<td align="left">データセキュリティ、コスト管理、安定した動作</td>
+<td align="left">高い</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">所属と愛の欲求</td>
+<td align="left">チーム内の連携、ステークホルダーとのコミュニケーション</td>
+<td align="left">中程度（プロジェクト推進に寄与する場合）</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">承認の欲求</td>
+<td align="left">初期プロトタイプの成功、PoCの達成</td>
+<td align="left">低い</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">自己実現の欲求</td>
+<td align="left">革新的な機能開発、ビジネス価値の最大化</td>
+<td align="left">非常に低い</td>
+</tr>
+</tbody></table></div>
+<p>最初の72時間では、特に「生理的欲求」（開発環境の整備と基本的な動作確認）と「安全の欲求」（セキュリティとコストの初期設定）の充足が最優先課題となります。これらが満たされなければ、次の段階に進むことはできません。</p>
+<h3 id="3-llmプロジェクトにおけるrule-of-threes">3. LLMプロジェクトにおける「Rule of Threes」</h3>
+<p>サバイバルにおける「Rule of Threes」（3分間呼吸なし、3日間水なし、3週間食料なしで生存限界とする経験則）があるように、LLMプロジェクトの初期フェーズにも同様の経験則を適用できます。これは、プロジェクトが特定の要素なしでどれくらいの期間停滞できるかを示す目安です。</p>
+<ul>
+<li><strong>明確な目的</strong>: 3時間 (目的が不明確だとすぐに迷走する)</li>
+<li><strong>動作する環境</strong>: 3日間 (環境が整わないと開発が始まらない)</li>
+<li><strong>初期プロトタイプ</strong>: 3週間 (初期プロトタイプがないとフィードバックが得られない)</li>
+<li><strong>ビジネス価値</strong>: 3ヶ月 (ビジネス価値が見えないとプロジェクトが継続できない)</li>
+</ul>
+<p>この原則は、最初の72時間で特に「明確な目的」と「動作する環境」の確保が極めて重要であることを示唆しています。初期プロトタイプは3日以内には難しいかもしれませんが、そのための準備と方向性は72時間で固める必要があります。</p>
+<h2 id="具体例">具体例</h2>
+<h3 id="シナリオ-新規llmプロジェクト立ち上げ直後の行動計画">シナリオ: 新規LLMプロジェクト立ち上げ直後の行動計画</h3>
+<p>あなたは新規LLMプロジェクトのリード開発者として、プロジェクト開始の連絡を受けました。まだ具体的な要件は固まっていませんが、PoCを迅速に進める必要があります。</p>
+<h4 id="1-状況把握と目標設定-最初の1時間">1. 状況把握と目標設定 (最初の1時間)</h4>
+<ul>
+<li><strong>結論</strong>: まずは落ち着き、現状を把握し、プロジェクトの初期目標を明確にする。</li>
+<li><strong>詳細</strong>:<ul>
+<li><strong>パニックの抑制</strong>: 深呼吸し、冷静さを保つ。感情的な判断は避ける。</li>
+<li><strong>プロジェクトの目的確認</strong>: どのような課題をLLMで解決したいのか、大まかなビジネス目標を確認する。</li>
+<li><strong>スコープの定義</strong>: 最初のPoCでどこまでを目指すのか、具体的なユースケースを絞り込む（例：特定の質問応答、要約など）。</li>
+<li><strong>ステークホルダーの特定</strong>: 主要な関係者（ビジネスオーナー、ユーザー代表など）を把握し、初期の期待値を調整する準備をする。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-技術選定と環境構築-最初の36時間">2. 技術選定と環境構築 (最初の3〜6時間)</h4>
+<ul>
+<li><strong>結論</strong>: 迅速に技術スタックを選定し、開発環境をセットアップする。</li>
+<li><strong>詳細</strong>:<ul>
+<li><strong>LLMの選定</strong>:<ul>
+<li>OpenAI API, Claude API, Gemini APIなどの商用APIか、Llama 2, MistralなどのOSSモデルか。</li>
+<li>コスト、性能、データプライバシー要件を考慮して初期選定を行う。</li>
+</ul>
+</li>
+<li><strong>開発言語・フレームワーク</strong>:<ul>
+<li>Python (LangChain, LlamaIndexなど) が一般的。</li>
+<li>必要なライブラリのインストール。</li>
+</ul>
+</li>
+<li><strong>開発環境のセットアップ</strong>:<ul>
+<li>ローカル環境 (Docker, Condaなど) またはクラウド環境 (AWS SageMaker, Google Colab, Azure MLなど) の準備。</li>
+<li>APIキーの取得と安全な管理。</li>
+</ul>
+</li>
+<li><strong>バージョン管理</strong>: Gitリポジトリの作成と初期コミット。</li>
+<li><em>初心者向け注意点</em>: 完璧な環境を目指すのではなく、まずは動く最小限の環境を構築する。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-初期プロンプト設計と動作確認-最初の1224時間">3. 初期プロンプト設計と動作確認 (最初の12〜24時間)</h4>
+<ul>
+<li><strong>結論</strong>: 選定したLLMと環境で、簡単なプロンプトを試行し、基本的な動作を確認する。</li>
+<li><strong>詳細</strong>:<ul>
+<li><strong>「Hello, World!」プロンプト</strong>: LLMに簡単な質問を投げかけ、応答を確認する。</li>
+<li><strong>基本的なユースケースのプロンプト</strong>: 定義したPoCのユースケースに基づき、シンプルなプロンプトを作成し、期待通りの応答が得られるか検証する。</li>
+<li><strong>出力形式の確認</strong>: JSON、テキストなど、期待する出力形式で応答が得られるか確認。</li>
+<li><strong>エラーハンドリング</strong>: API呼び出しの失敗や、不適切な応答に対する基本的なエラー処理を検討。</li>
+<li><em>初心者向け注意点</em>: この段階では、プロンプトの最適化よりも、LLMの挙動を理解し、技術的な実現可能性を確認することが目的。</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-内部フィードバックと計画調整-最初の2472時間">4. 内部フィードバックと計画調整 (最初の24〜72時間)</h4>
+<ul>
+<li><strong>結論</strong>: チーム内で初期プロトタイプを共有し、フィードバックを得て、今後の開発計画を調整する。</li>
+<li><strong>詳細</strong>:<ul>
+<li><strong>デモンストレーション</strong>: チームメンバーに初期プロトタイプをデモンストレーションし、動作や課題を共有する。</li>
+<li><strong>課題の洗い出し</strong>: 技術的な課題（APIのレイテンシ、コスト、モデルの精度など）や、ビジネス要件とのギャップを特定する。</li>
+<li><strong>プロンプトの改善</strong>: 初期フィードバックに基づき、プロンプトの表現や構造を微調整する。</li>
+<li><strong>次のステップの計画</strong>: 72時間で得られた知見を元に、次のスプリントやPoCの具体的なタスクと目標を設定する。</li>
+<li><em>初心者向け注意点</em>: 完璧な成果を求めるのではなく、早期にフィードバックを得て、学習サイクルを回すことを重視する。</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-長期的なプロジェクト戦略の検討-最初の72時間以降">5. 長期的なプロジェクト戦略の検討 (最初の72時間以降)</h4>
+<ul>
+<li><strong>結論</strong>: 最初の72時間を乗り越えたら、次の段階として長期的なプロジェクト戦略を検討し始める。</li>
+<li><strong>詳細</strong>:<ul>
+<li><strong>スケーラビリティの検討</strong>: ユーザー数やデータ量の増加に対応できるアーキテクチャを検討。</li>
+<li><strong>評価指標の定義</strong>: LLMの性能を客観的に評価するための指標（精度、応答速度、コストなど）を具体的に定義。</li>
+<li><strong>継続的な改善計画</strong>: プロンプトエンジニアリング、ファインチューニング、RAG（Retrieval Augmented Generation）などの導入を検討。</li>
+<li><strong>運用体制の構築</strong>: 監視、ログ管理、モデルの更新プロセスなどを計画。</li>
+</ul>
+</li>
+</ul>
+<h3 id="mermaid図による行動フロー">Mermaid図による行動フロー</h3>
+<pre class="mermaid">graph TD
+    A[LLMプロジェクト開始] --> B{最初の72時間}
+
+    subgraph "最初の1時間: 状況把握と目標設定"
+        B --> C[落ち着く、パニック抑制]
+        C --> D[プロジェクト目的確認]
+        D --> E[PoCスコープ定義]
+        E --> F[主要ステークホルダー特定]
+    end
+
+    subgraph "最初の3-6時間: 技術選定と環境構築"
+        F --> G["LLMの選定 (API/OSS)"]
+        G --> H["開発言語・フレームワーク選定"]
+        H --> I["開発環境セットアップ (APIキー取得)"]
+        I --> J["Gitリポジトリ作成"]
+    end
+
+    subgraph "最初の12-24時間: 初期プロンプト設計と動作確認"
+        J --> K["「Hello, World!」プロンプト試行"]
+        K --> L["PoCユースケースプロンプト作成"]
+        L --> M["出力形式・エラーハンドリング確認"]
+    end
+
+    subgraph "最初の24-72時間: 内部フィードバックと計画調整"
+        M --> N[チーム内デモンストレーション]
+        N --> O[技術的課題・ビジネス要件ギャップ洗い出し]
+        O --> P[プロンプトの初期改善]
+        P --> Q[次のステップの計画]
+    end
+
+    Q --> R[72時間経過]
+    R --> S[長期的なプロジェクト戦略の検討]</pre>
+<h3 id="llm選定の比較表">LLM選定の比較表</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">比較軸</th>
+<th align="left">商用API (例: OpenAI GPT-4)</th>
+<th align="left">OSSモデル (例: Llama 2, Mistral)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>初期セットアップ</strong></td>
+<td align="left">容易 (APIキー取得とSDKインストール)</td>
+<td align="left">複雑 (モデルダウンロード、環境構築、GPUリソース確保)</td>
+</tr>
+<tr>
+<td align="left"><strong>性能</strong></td>
+<td align="left">一般的に高性能、最新モデルへのアクセスが早い</td>
+<td align="left">モデルによるが、商用APIに劣る場合も。カスタマイズで向上可能。</td>
+</tr>
+<tr>
+<td align="left"><strong>コスト</strong></td>
+<td align="left">利用量に応じた従量課金。大規模利用で高額になる可能性。</td>
+<td align="left">モデル自体は無料。GPUインフラ費用、運用コストがかかる。</td>
+</tr>
+<tr>
+<td align="left"><strong>データプライバシー</strong></td>
+<td align="left">プロバイダーのポリシーに依存。機密データ利用時は注意。</td>
+<td align="left">自社環境で運用するため、データプライバシーを完全に制御可能。</td>
+</tr>
+<tr>
+<td align="left"><strong>カスタマイズ性</strong></td>
+<td align="left">ファインチューニングなど限定的。プロンプトエンジニアリングが主。</td>
+<td align="left">モデルのファインチューニング、アーキテクチャ変更など自由度が高い。</td>
+</tr>
+<tr>
+<td align="left"><strong>運用・保守</strong></td>
+<td align="left">プロバイダーが実施。安定性・可用性が高い。</td>
+<td align="left">自社で実施。専門知識とリソースが必要。</td>
+</tr>
+<tr>
+<td align="left"><strong>推奨されるケース</strong></td>
+<td align="left">迅速なPoC、小規模なアプリケーション、最新モデルの利用。</td>
+<td align="left">機密データの利用、大規模なカスタマイズ、コスト最適化、研究開発。</td>
+</tr>
+</tbody></table></div>
+<h3 id="llmプロジェクトのフェーズと優先度">LLMプロジェクトのフェーズと優先度</h3>
+<pre class="mermaid">graph TD
+    A["フェーズ1: 最初の72時間 (PoC準備)"] --> B["フェーズ2: PoC実施 (初期プロトタイプ)"]
+    B --> C["フェーズ3: MVP開発 (機能拡張)"]
+    C --> D["フェーズ4: 本番運用 (改善・スケール)"]
+
+    subgraph "フェーズ1: 最初の72時間"
+        A1[環境構築]
+        A2[基本動作確認]
+        A3[初期プロンプト設計]
+        A4[目標設定]
+    end
+
+    subgraph "フェーズ2: PoC実施"
+        B1[機能検証]
+        B2[ユーザーフィードバック]
+        B3[評価指標定義]
+    end
+
+    subgraph "フェーズ3: MVP開発"
+        C1[機能追加]
+        C2[UX改善]
+        C3[スケーラビリティ考慮]
+    end
+
+    subgraph "フェーズ4: 本番運用"
+        D1[監視・保守]
+        D2[継続的改善]
+        D3[コスト最適化]
+    end</pre>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">用語</th>
+<th align="left">ひとことで言うと</th>
+<th align="left">最初の72時間との関係</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>開発スプリント</strong></td>
+<td align="left">アジャイル開発における反復的な開発期間。</td>
+<td align="left">最初の72時間は開発スプリントの「初期準備段階」であり、最も緊急性が高い。</td>
+</tr>
+<tr>
+<td align="left"><strong>PoC (概念実証)</strong></td>
+<td align="left">新しいアイデアや技術が実現可能か検証するプロセス。</td>
+<td align="left">最初の72時間はPoCの「開始フェーズ」であり、その後のPoCの成否を左右する。</td>
+</tr>
+<tr>
+<td align="left"><strong>MVP (実用最小限の製品)</strong></td>
+<td align="left">最小限の機能でユーザーに価値を提供する製品。</td>
+<td align="left">最初の72時間はMVP開発の「前段階」であり、MVPの方向性を定める。</td>
+</tr>
+<tr>
+<td align="left"><strong>プロンプトエンジニアリング</strong></td>
+<td align="left">LLMから望ましい出力を得るためのプロンプト設計技術。</td>
+<td align="left">最初の72時間で基本的なプロンプト設計の試行と学習を開始する。</td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>LLMプロジェクトにおける「実務」とは、具体的な開発行動や意思決定のプロセスを指します。</p>
+<ul>
+<li><strong>意思決定のフレームワーク</strong>: 最初の72時間は、限られた情報と時間の中で迅速かつ正確な技術選定や方向性決定が求められます。この期間の経験は、その後の長期的なプロジェクト戦略を立てる上での重要なデータとなります。</li>
+<li><strong>リソース管理</strong>: LLMのAPI利用料、GPUリソース、開発者の時間など、リソースの効率的な配分と管理は、この期間に最も重要な「実務」の一つです。無駄な消費はプロジェクトの継続性を脅かします。</li>
+<li><strong>リスク評価と軽減</strong>: 技術的な実現可能性、データプライバシー、倫理的課題など、初期段階で潜在的なリスクを評価し、それに対する対策を講じることも重要な実務です。</li>
+<li><strong>チーム連携の基礎</strong>: 信頼できるチームメンバーとの協力関係を築くことは、その後の開発を円滑に進めるための第一歩となります。この初期段階でのコミュニケーションと役割分担は、長期的なプロジェクト成功に不可欠です。</li>
+</ul>
+<p>この章で学んだことは、単なる知識ではなく、実際にLLMプロジェクトを成功させるための「行動指針」として位置づけられます。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>LLMプロジェクト開始直後の72時間は、成功を左右する最も重要な期間である。</li>
+<li>この期間は、開発環境の整備、初期プロンプトの試行、そして迅速なフィードバックループの確立が最優先される。</li>
+<li>冷静な目標設定、迅速な技術選定、そしてチーム内の密な連携がプロジェクトを軌道に乗せる鍵となる。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>開発スプリント</strong>: 最初の72時間は開発スプリントの初期準備段階であり、最も緊急性が高い。</li>
+<li><strong>PoC (概念実証)</strong>: 最初の72時間はPoCの開始フェーズであり、その後のPoCの成否を左右する。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li>第5章: LLMの評価指標とテスト戦略 (最初の72時間で作成したプロトタイプをどのように評価し、品質を担保していくかについて詳しく学びます。)</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-03.html" class="nav-prev">← 第3章 AI設計思想</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-05.html" class="nav-next">第5章 技術ツリー →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

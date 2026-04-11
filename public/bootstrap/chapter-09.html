@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第9章. 技術ツリーの正体 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</title>
+  <meta name="description" content="技術ツリーの正体">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <meta property="og:title" content="第9章. 技術ツリーの正体 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta property="og:description" content="技術ツリーの正体">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第9章. 技術ツリーの正体 - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta name="twitter:description" content="技術ツリーの正体">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">9 / 15</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">第9章. 技術ツリーの正体</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h1 id="第9章-技術ツリーの正体">第9章. 技術ツリーの正体</h1>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、第5章で触れた「技術ツリー」が単なるゲームの要素ではなく、現実世界における技術発展の構造や、AIが文明を再建する上でどのように技術を体系化し、優先順位付けを行うのか、その本質的な意味を理解することを目的とします。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>技術ツリーが持つ階層性とその意味</li>
+<li>技術ツリーが文明の発展に不可欠な理由</li>
+<li>AIが技術ツリーを構築・活用する際の思考プロセス</li>
+<li>技術ツリーと現実世界の技術発展の類似点と相違点</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>第5章で私たちは「技術ツリー」という概念に触れました。それは、特定の技術を開発するために、その前提となる技術が必要であり、さらにその技術が新たな技術の扉を開く、という連鎖的な構造を持つものでした。しかし、この技術ツリーは単なるゲームのルールやAIが文明を再建するための便宜的なツールではありません。それは、人類の歴史における技術発展そのものの本質を抽象化したものであり、AIが未来を築く上で不可欠な「知の地図」なのです。</p>
+<p>この章では、技術ツリーがなぜそのような形をしているのか、その背後にある論理と、AIがどのようにこのツリーを解釈し、活用していくのかを深掘りします。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="技術ツリーとは何か">技術ツリーとは何か？</h3>
+<p>ひとことで言うと: 技術ツリーとは、技術間の依存関係と発展経路を視覚的に表現した階層的な構造のことです。
+何のカテゴリか: 知識体系、計画ツール、戦略モデル
+何に使うのか: 新規技術開発のロードマップ作成、資源配分の最適化、文明発展のシミュレーション
+代表例: 文明シミュレーションゲームの技術ツリー、研究開発ロードマップ、科学史における技術の系譜
+よく混同される用語: スキルツリー、プロジェクト計画、マインドマップ
+初心者向け注意点: 技術ツリーは単なるリストではなく、技術間の「なぜ」と「どのように」を表現するものです。</p>
+<p>技術ツリーの核心は、<strong>技術の相互依存性</strong>にあります。ある技術が開発されるためには、その基盤となる知識やツール、材料がすでに存在している必要があります。そして、その新しい技術は、さらに高度な技術の前提条件となるのです。</p>
+<p>例えば、「電気」という技術を考えてみましょう。</p>
+<ul>
+<li>「電気」を発見・利用するためには、「金属の精錬」や「絶縁体の知識」が必要です。</li>
+<li>「電気」が利用可能になると、「電灯」や「電動機」といった技術が生まれます。</li>
+<li>「電動機」は、「工場での大量生産」や「輸送手段の革新」に繋がり、さらに「コンピュータ」のような複雑な電子機器の発展を可能にします。</li>
+</ul>
+<p>このように、技術は単独で存在するのではなく、まるで木の枝が伸びるように、互いに繋がり、支え合いながら発展していきます。この構造を視覚的に表現したものが技術ツリーです。</p>
+<h4 id="技術ツリーの階層性">技術ツリーの階層性</h4>
+<p>技術ツリーは、一般的に以下のような階層性を持っています。</p>
+<ol>
+<li><strong>基礎技術 (Root Technologies)</strong>: 文明の初期段階で利用可能な、最も基本的な技術。例: 火の利用、石器加工、簡単な農業。</li>
+<li><strong>基盤技術 (Foundation Technologies)</strong>: 基礎技術を応用・発展させたもので、より複雑な技術の前提となる。例: 冶金、文字、車輪、建築技術。</li>
+<li><strong>応用技術 (Applied Technologies)</strong>: 基盤技術を組み合わせて、特定の目的のために開発される技術。例: 蒸気機関、印刷術、航海術。</li>
+<li><strong>先端技術 (Advanced Technologies)</strong>: 複数の応用技術や新たな科学的発見に基づいて開発される、高度で複雑な技術。例: コンピュータ、遺伝子工学、宇宙開発。</li>
+</ol>
+<p>この階層は、技術が単に積み重なるだけでなく、より抽象的で汎用的な技術が、より具体的で専門的な技術を生み出すという関係性を示しています。</p>
+<h4 id="技術ツリーの構造-mermaid図">技術ツリーの構造 (Mermaid図)</h4>
+<pre class="mermaid">graph TD
+    subgraph "初期文明"
+        A[火の利用] --> B(石器加工)
+        A --> C(簡単な調理)
+        B --> D(弓矢)
+        B --> E(土器製作)
+        C --> F(食料保存)
+    end
+
+    subgraph "定住化と農業"
+        D --> G(狩猟技術向上)
+        E --> H(貯蔵技術)
+        F --> H
+        G --> I(定住化)
+        H --> I
+        I --> J(農業)
+        J --> K(灌漑技術)
+        J --> L(家畜化)
+    end
+
+    subgraph "社会の発展"
+        K --> M(大規模農業)
+        L --> M
+        M --> N(余剰食料)
+        N --> O(専門職の誕生)
+    end</pre>
+<p><em>図9.1: 初期文明の技術ツリーの例。火の利用から始まり、農業、専門職の誕生へと繋がる技術の連鎖を示しています。</em></p>
+<h3 id="aiが技術ツリーを構築活用する理由">AIが技術ツリーを構築・活用する理由</h3>
+<p>AIが文明再建の過程で技術ツリーを構築し、活用するのには明確な理由があります。</p>
+<ol>
+<li><strong>効率的な資源配分</strong>: 限られた資源（時間、労働力、材料）を最も効果的に配分し、必要な技術を最短経路で開発するため。無計画な研究は無駄が多く、AIはこれを避けます。</li>
+<li><strong>ロードマップの作成</strong>: どの技術を先に開発すべきか、次に何を目指すべきかという明確な指針を提供します。これは、AIが長期的な目標（文明の再建）を達成するための具体的なステップとなります。</li>
+<li><strong>ボトルネックの特定</strong>: 特定の技術が他の多くの技術の前提となっている場合、その技術が開発できないと全体の進捗が停滞します。技術ツリーは、このようなボトルネックを早期に特定し、優先的に解決策を講じることを可能にします。</li>
+<li><strong>知識の体系化</strong>: 膨大な技術情報を整理し、相互の関係性を明確にすることで、AIは知識をより深く理解し、新たな発見や応用へと繋げることができます。</li>
+<li><strong>リスク管理</strong>: 未知の技術開発には常にリスクが伴います。技術ツリーは、どの技術がどのリスクに影響を与えるか、代替経路は存在するかなどを評価するのに役立ちます。</li>
+</ol>
+<h2 id="具体例">具体例</h2>
+<h3 id="aiによる技術ツリーの構築プロセス">AIによる技術ツリーの構築プロセス</h3>
+<p>AIは、文明再建の初期段階で、残されたデータ（図書館、データベース、遺物など）から人類の技術史を解析し、技術ツリーを構築します。</p>
+<ol>
+<li><p><strong>情報収集と解析</strong>:</p>
+<ul>
+<li>残された文献やデータから、過去の技術に関する情報を収集します。</li>
+<li>各技術の機能、必要な材料、製造プロセス、前提となる知識などを抽出します。</li>
+<li>自然言語処理やパターン認識を用いて、技術間の因果関係や依存関係を特定します。</li>
+</ul>
+</li>
+<li><p><strong>依存関係の特定</strong>:</p>
+<ul>
+<li>「XはYがなければ作れない」「ZはAとBの組み合わせで生まれた」といった関係性を洗い出します。</li>
+<li>例えば、「コンピュータ」という技術は、「半導体製造技術」「電気回路設計」「プログラミング言語」など、多数の前提技術に依存しています。</li>
+</ul>
+</li>
+<li><p><strong>グラフ構造の構築</strong>:</p>
+<ul>
+<li>特定された依存関係を基に、技術をノード、依存関係をエッジとする有向非巡回グラフ（DAG: Directed Acyclic Graph）として表現します。これが技術ツリーの基本的な形です。</li>
+</ul>
+</li>
+<li><p><strong>優先順位付けと最適化</strong>:</p>
+<ul>
+<li>文明再建の目標（例: 食料生産の安定化、居住地の確保、エネルギー源の確保）に基づき、各技術の重要度を評価します。</li>
+<li>利用可能な資源（残された材料、AIの処理能力、ロボットの労働力など）を考慮し、最も効率的かつ効果的な開発経路を決定します。これは、最短経路問題や資源制約付きスケジューリング問題として解かれます。</li>
+</ul>
+</li>
+</ol>
+<h4 id="aiの思考プロセス-mermaid図">AIの思考プロセス (Mermaid図)</h4>
+<pre class="mermaid">graph TD
+    subgraph "情報収集と解析"
+        A[既存データ解析] --> B{技術情報の抽出}
+        B --> C[技術A]
+        B --> D[技術B]
+        B --> E[技術C]
+    end
+
+    subgraph "ツリー構築"
+        C --> F{依存関係の特定}
+        D --> F
+        E --> F
+        F --> G[有向グラフ構築]
+    end
+
+    subgraph "最適化と実行"
+        G --> H{文明再建目標設定}
+        G --> I{利用可能資源評価}
+        H --> J[優先順位付けアルゴリズム]
+        I --> J
+        J --> K[最適開発パス生成]
+        K --> L[技術開発実行]
+        L --> M[進捗監視と調整]
+    end</pre>
+<p><em>図9.2: AIが技術ツリーを構築し、開発パスを決定するまでの思考プロセス。データ解析から始まり、最終的な開発実行へと繋がります。</em></p>
+<h3 id="文明再建における技術ツリーの活用例">文明再建における技術ツリーの活用例</h3>
+<p>AIは、技術ツリーを用いて具体的な開発計画を立てます。</p>
+<p><strong>シナリオ: 初期居住地の確保と食料生産の安定化</strong></p>
+<ol>
+<li><strong>目標</strong>: 安全な居住地を確保し、持続可能な食料供給システムを確立する。</li>
+<li><strong>技術ツリーの分析</strong>:<ul>
+<li>居住地: 簡易シェルター → 堅牢な建築物 → 環境制御型居住区</li>
+<li>食料: 狩猟採集 → 原始農業 → 灌漑農業 → 水耕栽培</li>
+<li>共通基盤: 基礎工具 → 材料加工 → エネルギー源（人力、風力、太陽光）</li>
+</ul>
+</li>
+<li><strong>優先順位付け</strong>:<ul>
+<li>初期段階では、生存に直結する「簡易シェルター」「原始農業」「基礎工具」が最優先。</li>
+<li>これらの技術は、比較的少ない資源で開発可能であり、次のステップへの足がかりとなる。</li>
+</ul>
+</li>
+<li><strong>開発パスの決定</strong>:<ul>
+<li>まず「基礎工具」を開発し、これを用いて「簡易シェルター」と「原始農業」を並行して進める。</li>
+<li>原始農業が安定したら、余剰資源を「材料加工」や「風力発電」に振り分け、より堅牢な建築物や灌漑農業への道を開く。</li>
+<li>この過程で、AIは常に資源の利用効率とリスクを評価し、開発パスを動的に調整します。</li>
+</ul>
+</li>
+</ol>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">開発フェーズ</th>
+<th align="left">目標</th>
+<th align="left">主要技術</th>
+<th align="left">必要な前提技術</th>
+<th align="left">期待される効果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">フェーズ1</td>
+<td align="left">生存</td>
+<td align="left">基礎工具</td>
+<td align="left">(なし)</td>
+<td align="left">資源採集効率化</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">簡易シェルター</td>
+<td align="left">基礎工具</td>
+<td align="left">居住空間確保</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">原始農業</td>
+<td align="left">基礎工具</td>
+<td align="left">食料生産開始</td>
+</tr>
+<tr>
+<td align="left">フェーズ2</td>
+<td align="left">安定</td>
+<td align="left">材料加工</td>
+<td align="left">基礎工具</td>
+<td align="left">高度な道具製造</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">風力発電</td>
+<td align="left">材料加工</td>
+<td align="left">持続可能エネルギー</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">灌漑農業</td>
+<td align="left">原始農業, 材料加工</td>
+<td align="left">食料生産量増加</td>
+</tr>
+<tr>
+<td align="left">フェーズ3</td>
+<td align="left">発展</td>
+<td align="left">堅牢な建築物</td>
+<td align="left">材料加工, 風力発電</td>
+<td align="left">安全な居住地</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">水耕栽培</td>
+<td align="left">灌漑農業, 風力発電</td>
+<td align="left">効率的な食料生産</td>
+</tr>
+</tbody></table></div>
+<p><em>表9.1: 文明再建における技術ツリー活用例。フェーズごとに目標と主要技術、その前提が示されています。</em></p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<h3 id="技術ツリー-vs-スキルツリー">技術ツリー vs. スキルツリー</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">技術ツリー (Technology Tree)</th>
+<th align="left">スキルツリー (Skill Tree)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>対象</strong></td>
+<td align="left">文明、組織、社会全体の技術発展</td>
+<td align="left">個人、キャラクター、特定の専門分野における能力向上</td>
+</tr>
+<tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">新規技術の開発、文明の進歩、資源配分の最適化</td>
+<td align="left">個人の能力強化、特定のタスク遂行能力の向上、役割の特化</td>
+</tr>
+<tr>
+<td align="left"><strong>ノード</strong></td>
+<td align="left">特定の技術（例: 蒸気機関、半導体）</td>
+<td align="left">特定のスキルや能力（例: 剣術Lv.2、交渉術、プログラミング）</td>
+</tr>
+<tr>
+<td align="left"><strong>依存関係</strong></td>
+<td align="left">技術的な前提条件、科学的発見の連鎖</td>
+<td align="left">経験、訓練、学習による能力の習得</td>
+</tr>
+<tr>
+<td align="left"><strong>主体</strong></td>
+<td align="left">AI、国家、研究機関</td>
+<td align="left">個人、学習者</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left">文明シミュレーションゲームの技術ツリー</td>
+<td align="left">RPGのキャラクター育成、教育カリキュラムの学習経路</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">技術ツリーは「何ができるようになるか」の全体像、スキルツリーは「誰が何を得るか」の個人像です。</td>
+<td align="left"></td>
+</tr>
+</tbody></table></div>
+<h3 id="技術ツリー-vs-プロジェクト計画">技術ツリー vs. プロジェクト計画</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">技術ツリー (Technology Tree)</th>
+<th align="left">プロジェクト計画 (Project Plan)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>対象</strong></td>
+<td align="left">技術発展の全体像、長期的な戦略</td>
+<td align="left">特定の目標達成のための具体的なタスクとスケジュール</td>
+</tr>
+<tr>
+<td align="left"><strong>目的</strong></td>
+<td align="left">新規技術の発見と開発、文明の進歩、知識体系の構築</td>
+<td align="left">特定の製品開発、サービス提供、問題解決</td>
+</tr>
+<tr>
+<td align="left"><strong>ノード</strong></td>
+<td align="left">技術そのもの</td>
+<td align="left">タスク、マイルストーン、成果物</td>
+</tr>
+<tr>
+<td align="left"><strong>依存関係</strong></td>
+<td align="left">技術的な前提条件、科学的発見の連鎖</td>
+<td align="left">タスクの順序、リソースの制約、時間的な制約</td>
+</tr>
+<tr>
+<td align="left"><strong>時間軸</strong></td>
+<td align="left">長期的、非線形な発展</td>
+<td align="left">短期的〜中期的、線形的なスケジュール</td>
+</tr>
+<tr>
+<td align="left"><strong>主体</strong></td>
+<td align="left">AI、研究開発部門、国家</td>
+<td align="left">プロジェクトマネージャー、チーム</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left">人類が火を発見し、電気を発見し、コンピュータを発見するまでの過程</td>
+<td align="left">新しいスマートフォンの開発計画、橋の建設プロジェクト</td>
+</tr>
+<tr>
+<td align="left"><strong>初心者向け注意点</strong></td>
+<td align="left">技術ツリーは「何を開発すべきか」の方向性、プロジェクト計画は「それをどう開発するか」の具体策です。</td>
+<td align="left"></td>
+</tr>
+</tbody></table></div>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>AIが文明を再建する「実務」において、技術ツリーは単なる概念図以上の意味を持ちます。それは、AIの意思決定プロセスの中核をなす、生きた戦略ツールです。</p>
+<ol>
+<li><strong>意思決定支援システム</strong>: AIは、技術ツリーを常に最新の状態に保ち、利用可能な資源、現在の環境、文明再建の進捗状況に応じて、次に開発すべき技術をリアルタイムで推奨します。これは、AIが「どう判断するのか」（第8章）の具体的な適用例の一つです。</li>
+<li><strong>研究開発の最適化</strong>: 限られた研究リソース（AIの計算能力、ロボットの労働力、残された研究施設など）を、最も効果的な技術開発経路に集中させます。これにより、無駄な研究を排除し、効率的な技術進歩を促します。</li>
+<li><strong>リスクと機会の評価</strong>: 特定の技術が開発できない場合のリスク（代替技術の有無、文明への影響）や、新たな技術がもたらす機会（生産性向上、新資源発見）を、技術ツリー全体の中で評価します。</li>
+<li><strong>教育と知識伝達</strong>: 将来的に人類が再興した際、AIは技術ツリーを用いて、過去の技術発展の歴史と、現在の文明がどのような技術基盤の上に成り立っているかを教育することができます。これは、新たな世代が効率的に知識を習得し、文明をさらに発展させるための重要なツールとなります。</li>
+<li><strong>長期的なビジョン</strong>: 技術ツリーは、AIが文明の最終目標（例: 宇宙進出、持続可能な生態系構築）に向けて、どのような技術的ステップを踏んでいくべきかという長期的なビジョンを具体化します。</li>
+</ol>
+<p>技術ツリーは、AIが「世界が終わった日」（第1章）から「文明とは何か」（第2章）を理解し、「AI設計思想」（第3章）に基づき、「最初の72時間」（第4章）で行動を開始し、「機械との統合」（第6章）を経て、「失敗と再挑戦」（第7章）を繰り返しながら、最終的に文明を再建するための、最も重要な「地図」であり「羅針盤」なのです。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>技術ツリーは、技術間の依存関係と発展経路を示す階層的な構造であり、文明の進歩を体系化したものです。</li>
+<li>AIは、限られた資源の中で効率的に文明を再建するため、技術ツリーを構築し、開発のロードマップとして活用します。</li>
+<li>技術ツリーは、AIの意思決定、研究開発の最適化、リスク評価、そして将来の知識伝達において中心的な役割を果たします。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li><strong>スキルツリー</strong>: 個人の能力向上に焦点を当てるのに対し、技術ツリーは文明全体の技術発展に焦点を当てます。</li>
+<li><strong>プロジェクト計画</strong>: 特定の目標達成のための具体的なタスクとスケジュールであるのに対し、技術ツリーは技術発展の全体像と長期的な戦略を示します。</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<ul>
+<li><strong>第10章. AIと倫理: 技術の選択基準</strong>: 技術ツリーによって開発可能な技術が明確になったとき、AIはどのような倫理的基準でその技術を選択し、利用するのかを深く掘り下げます。</li>
+</ul>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-08.html" class="nav-prev">← 第8章 AIはどう判断するのか</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-10.html" class="nav-next">第10章 RAGと知識管理 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

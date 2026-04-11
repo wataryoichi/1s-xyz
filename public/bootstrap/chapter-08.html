@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第8章. AIはどう判断するのか - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</title>
+  <meta name="description" content="AIはどう判断するのか">
+  <meta name="generator" content="bookgen">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="author" content="Ryoichi Watanabe">
+  <meta property="og:title" content="第8章. AIはどう判断するのか - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta property="og:description" content="AIはどう判断するのか">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="第8章. AIはどう判断するのか - Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀">
+  <meta name="twitter:description" content="AIはどう判断するのか">
+  <script>
+(function(){
+  var k="1s-theme",s=localStorage.getItem(k),t;
+  if(s==="light"||s==="dark")t=s;
+  else if("auto"==="light")t="light";
+  else if("auto"==="dark")t="dark";
+  else t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">本文へスキップ</a>
+
+  <header class="top-bar">
+    <a href="index.html" class="book-title">Bootstrap Civilization AI — 文明を最短距離で再構築するAI技術参謀</a>
+    <span class="top-bar-spacer"></span>
+    <span class="chapter-info">8 / 15</span>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替" data-storage-key="1s-theme"></button>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="目次を開閉">☰</button>
+  </header>
+  
+  <nav class="breadcrumb" aria-label="パンくず"><ol><li><a href="index.html">目次</a></li><li aria-current="page">第8章. AIはどう判断するのか</li></ol></nav>
+
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav id="page-toc"></nav></aside>
+    <main id="main-content" class="content">
+      <article>
+        <h2 id="第8章-aiはどう判断するのか">第8章. AIはどう判断するのか</h2>
+<h2 id="この章の目的">この章の目的</h2>
+<p>この章では、AIがどのように意思決定を行い、行動を選択するのか、その基本的なメカニズムを理解することを目的とします。単に「AIが賢い」という漠然としたイメージではなく、その判断の裏にある具体的な技術とプロセスを学びます。</p>
+<h2 id="この章で覚えるべきこと">この章で覚えるべきこと</h2>
+<ul>
+<li>AIの判断が「推論」と「学習」に基づいていること</li>
+<li>ルールベースAIと機械学習AIの判断プロセスの違い</li>
+<li>意思決定における「目的関数」と「最適化」の役割</li>
+<li>AIの判断が常に完璧ではない理由</li>
+</ul>
+<h2 id="導入">導入</h2>
+<p>私たちは日々、様々な判断を下しています。朝食に何を選ぶか、どの道を通って職場に行くか、あるいはもっと複雑な、人生の岐路に立つような決断まで。AIもまた、私たち人間と同じように、あるいはそれ以上に多くの判断を下しています。しかし、AIの判断は人間のそれとは根本的に異なります。感情や直感に頼るのではなく、データとアルゴリズムに基づいて論理的に、そして高速に判断を下します。</p>
+<p>AIが私たちの生活に深く浸透し、重要な意思決定を任されるようになった今、「AIがどう判断するのか」を理解することは、その能力を最大限に活用し、潜在的なリスクを管理するために不可欠です。この章では、AIがどのように情報を処理し、選択肢を評価し、最終的な行動を決定するのか、その核心に迫ります。</p>
+<h2 id="基本概念">基本概念</h2>
+<h3 id="ひとことで言うと">ひとことで言うと</h3>
+<p>AIの判断とは、与えられた情報と学習した知識に基づき、特定の目的を達成するために最適な行動を選択するプロセスです。</p>
+<h3 id="何のカテゴリか">何のカテゴリか</h3>
+<p>AIの「知能」を構成する中核的な機能の一つであり、認知、学習、推論、行動選択といった複数のサブカテゴリにまたがります。</p>
+<h3 id="何に使うのか">何に使うのか</h3>
+<ul>
+<li><strong>自動運転</strong>: どのタイミングでブレーキを踏むか、どの車線に変更するか</li>
+<li><strong>医療診断</strong>: 患者の症状から病名を推測し、最適な治療法を提案する</li>
+<li><strong>金融取引</strong>: 市場の動向を予測し、株式の売買を決定する</li>
+<li><strong>ゲームAI</strong>: プレイヤーの行動を予測し、最適な戦略を立てる</li>
+<li><strong>災害対応</strong>: 状況を分析し、最も効果的な避難経路や資源配分を決定する</li>
+</ul>
+<h3 id="代表例">代表例</h3>
+<ul>
+<li><strong>ディープラーニングによる画像認識</strong>: 画像内の物体を識別し、「これは猫である」と判断する。</li>
+<li><strong>強化学習によるゲームプレイ</strong>: 報酬を最大化するように行動を選択し、ゲームを攻略する。</li>
+<li><strong>ルールベースの専門家システム</strong>: 定義されたルールに基づき、特定の質問に答える。</li>
+</ul>
+<h3 id="よく混同される用語">よく混同される用語</h3>
+<ul>
+<li><strong>直感</strong>: 人間が経験に基づいて無意識に行う判断。AIは直感を持たず、全てが論理的なプロセスに基づきます。</li>
+<li><strong>感情</strong>: 人間の判断に大きな影響を与える要素。AIは感情を持たず、客観的なデータに基づいて判断します。</li>
+</ul>
+<h3 id="初心者向け注意点">初心者向け注意点</h3>
+<p>AIの判断は常に「正しい」とは限りません。学習データに偏りがあったり、予測できない状況に遭遇したりすると、誤った判断を下すことがあります。AIの判断はあくまで「与えられた情報と目的関数に基づいた最適解」であることを理解することが重要です。</p>
+<hr>
+<p>AIの判断プロセスは、大きく分けて「推論」と「学習」の2つの柱で成り立っています。</p>
+<h4 id="推論-inference">推論 (Inference)</h4>
+<p>推論とは、既知の事実やルール、あるいは学習済みのモデルに基づいて、新しい情報から結論を導き出すプロセスです。人間が「もしAならばBである」という論理を使って考えるのと似ています。</p>
+<h4 id="学習-learning">学習 (Learning)</h4>
+<p>学習とは、データからパターンや規則性を抽出し、知識を獲得するプロセスです。この知識は、将来の推論や意思決定に利用されます。機械学習がその代表例です。</p>
+<p>これらの概念は、AIの種類によってその比重が異なります。</p>
+<h3 id="aiの判断メカニズムの種類">AIの判断メカニズムの種類</h3>
+<p>AIの判断メカニズムは、大きく分けて以下の2つのタイプに分類できます。</p>
+<ol>
+<li><p><strong>ルールベースAI (Rule-Based AI)</strong>:</p>
+<ul>
+<li><strong>概要</strong>: 人間があらかじめ定義した「もしXならばYせよ」という形式のルール（規則）に基づいて判断を下します。</li>
+<li><strong>判断プロセス</strong>: 入力された情報がどのルールに合致するかを照合し、合致したルールの指示に従って行動します。</li>
+<li><strong>特徴</strong>:<ul>
+<li>判断の根拠が明確で、説明しやすい。</li>
+<li>ルールが複雑になると管理が困難になる。</li>
+<li>未知の状況やルール外の事態には対応できない。</li>
+</ul>
+</li>
+<li><strong>例</strong>: 医療診断の専門家システム、チャットボットのFAQ応答、ゲームのNPCの行動パターン。</li>
+</ul>
+</li>
+<li><p><strong>機械学習AI (Machine Learning AI)</strong>:</p>
+<ul>
+<li><strong>概要</strong>: 大量のデータからパターンや規則性を自動的に学習し、その学習結果（モデル）に基づいて判断を下します。</li>
+<li><strong>判断プロセス</strong>: 入力された情報を学習済みのモデルに入力し、モデルが出力する予測や分類、推奨に基づいて行動します。</li>
+<li><strong>特徴</strong>:<ul>
+<li>データがあれば人間がルールを定義する必要がない。</li>
+<li>未知の状況にもある程度対応できる汎用性がある。</li>
+<li>判断の根拠が複雑で、説明が難しい場合がある（ブラックボックス問題）。</li>
+<li>学習データの質や量に大きく依存する。</li>
+</ul>
+</li>
+<li><strong>例</strong>: 画像認識、音声認識、自然言語処理、レコメンデーションシステム、自動運転。</li>
+</ul>
+</li>
+</ol>
+<p>現代のAIの多くは、機械学習、特にディープラーニングを基盤としていますが、特定の分野ではルールベースAIも依然として有効な手段です。また、両者を組み合わせたハイブリッド型AIも存在します。</p>
+<h3 id="意思決定における目的関数と最適化">意思決定における「目的関数」と「最適化」</h3>
+<p>AIが判断を下す際、その行動が「良い」か「悪い」かを評価する基準が必要です。これが**目的関数（Objective Function）<strong>です。目的関数は、AIが達成すべき目標を数値で表現したもので、AIはこの目的関数の値を最大化（または最小化）するように行動を選択します。このプロセスを</strong>最適化（Optimization）**と呼びます。</p>
+<ul>
+<li><strong>目的関数</strong>: AIが達成したい目標を数値化したもの。例えば、自動運転車なら「目的地までの最短時間で安全に走行する」、株取引AIなら「利益を最大化する」、ゲームAIなら「敵を倒す確率を最大化する」など。</li>
+<li><strong>最適化</strong>: 目的関数の値を最も良くする（最大化または最小化する）ような行動やパラメータの組み合わせを見つけ出すプロセス。</li>
+</ul>
+<p>AIは、与えられた選択肢の中から、目的関数を最も改善する行動を選びます。これは、人間が「最も有利な選択肢はどれか」と考えるのと似ています。</p>
+<hr>
+<p><strong>AIの判断メカニズムの比較</strong></p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">特徴</th>
+<th align="left">ルールベースAI</th>
+<th align="left">機械学習AI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>判断の根拠</strong></td>
+<td align="left">人間が定義した明示的なルール</td>
+<td align="left">データから学習したパターンや統計的モデル</td>
+</tr>
+<tr>
+<td align="left"><strong>判断プロセス</strong></td>
+<td align="left">ルールとの照合、論理的な推論</td>
+<td align="left">モデルへの入力、予測/分類の出力</td>
+</tr>
+<tr>
+<td align="left"><strong>柔軟性</strong></td>
+<td align="left">ルール外の状況には対応困難</td>
+<td align="left">未知の状況にもある程度対応可能</td>
+</tr>
+<tr>
+<td align="left"><strong>説明性</strong></td>
+<td align="left">高い（ルールを追跡できる）</td>
+<td align="left">低い場合がある（ブラックボックス問題）</td>
+</tr>
+<tr>
+<td align="left"><strong>開発コスト</strong></td>
+<td align="left">ルール定義に手間がかかる</td>
+<td align="left">データ収集とモデル学習に手間がかかる</td>
+</tr>
+<tr>
+<td align="left"><strong>適用分野</strong></td>
+<td align="left">定型的な業務、明確な規則がある分野</td>
+<td align="left">複雑なパターン認識、予測、レコメンデーション</td>
+</tr>
+<tr>
+<td align="left"><strong>例</strong></td>
+<td align="left">チャットボットのFAQ、専門家システム</td>
+<td align="left">画像認識、音声認識、自動運転</td>
+</tr>
+</tbody></table></div>
+<p><em>表8.1: ルールベースAIと機械学習AIの比較</em></p>
+<hr>
+<h2 id="具体例">具体例</h2>
+<p>ここでは、AIがどのように判断を下すのかを、具体的なシナリオを通して見ていきましょう。</p>
+<h3 id="シナリオ1-自動運転車の交差点での判断">シナリオ1: 自動運転車の交差点での判断</h3>
+<p>自動運転車が信号のない交差点に差し掛かったとします。右から車が接近しており、歩行者が横断しようとしています。AIはどのように判断するでしょうか？</p>
+<ol>
+<li><p><strong>情報収集</strong>:</p>
+<ul>
+<li>センサー（カメラ、LiDAR、レーダーなど）から周囲の環境情報を収集します。</li>
+<li>右からの車の速度、距離、進行方向。</li>
+<li>歩行者の位置、速度、進行方向。</li>
+<li>自車の速度、位置。</li>
+<li>道路標識、交通規制情報。</li>
+</ul>
+</li>
+<li><p><strong>状況認識（推論）</strong>:</p>
+<ul>
+<li>収集したデータから、右からの車が「衝突の危険がある」と判断します。</li>
+<li>歩行者が「横断中である」と認識します。</li>
+<li>自車が「交差点に進入しようとしている」と認識します。</li>
+<li>これらの情報から、「衝突回避」と「歩行者保護」が最優先事項であると推論します。</li>
+</ul>
+</li>
+<li><p><strong>選択肢の生成</strong>:</p>
+<ul>
+<li>停止する。</li>
+<li>減速して通過する。</li>
+<li>加速して通過する。</li>
+<li>右に回避する。</li>
+<li>左に回避する。</li>
+</ul>
+</li>
+<li><p><strong>目的関数と最適化</strong>:</p>
+<ul>
+<li><strong>目的関数</strong>: 「安全性（衝突リスクの最小化）」、「交通ルールの遵守」、「目的地への到達時間」など。これらに重み付けがされています。</li>
+<li>AIは各選択肢について、目的関数がどの程度達成されるかを予測します。<ul>
+<li>「停止する」：衝突リスクは最小化されるが、到達時間は遅れる。</li>
+<li>「加速して通過する」：衝突リスクが非常に高まる。</li>
+</ul>
+</li>
+<li>最も安全性が高く、かつ交通ルールを遵守し、目的地への到達時間も考慮した「最適な」行動を特定します。この場合、「停止する」が最適な選択肢となるでしょう。</li>
+</ul>
+</li>
+<li><p><strong>行動実行</strong>:</p>
+<ul>
+<li>ブレーキをかけ、車を停止させます。</li>
+</ul>
+</li>
+</ol>
+<pre class="mermaid">graph TD
+    A[情報収集: センサーデータ] --> B{状況認識: 推論}
+    B --> C[衝突リスクの評価]
+    B --> D[歩行者の行動予測]
+    B --> E[自車の状態把握]
+    C & D & E --> F[目的関数設定: 安全性, 交通ルール, 効率]
+    F --> G[選択肢生成: 停止, 減速, 加速, 回避]
+    G --> H{最適化: 各選択肢の目的関数評価}
+    H --> I[最適な行動選択: 停止]
+    I --> J[行動実行: ブレーキ]</pre>
+<p><em>図8.1: 自動運転車の交差点での判断フロー</em></p>
+<h3 id="シナリオ2-医療診断aiの判断">シナリオ2: 医療診断AIの判断</h3>
+<p>患者が発熱、咳、倦怠感を訴えて病院を訪れたとします。医療診断AIはどのように判断するでしょうか？</p>
+<ol>
+<li><p><strong>情報収集</strong>:</p>
+<ul>
+<li>患者の症状（発熱、咳、倦怠感）。</li>
+<li>既往歴、アレルギー情報。</li>
+<li>検査データ（血液検査、レントゲンなど）。</li>
+<li>問診票の情報（渡航歴、接触歴など）。</li>
+</ul>
+</li>
+<li><p><strong>パターン認識と推論（機械学習モデル）</strong>:</p>
+<ul>
+<li>AIは、過去の膨大な患者データ（症状、検査結果、診断名、治療結果）を学習しています。</li>
+<li>入力された患者の症状と検査データを、学習済みのモデルに入力します。</li>
+<li>モデルは、これらの情報から最も可能性の高い病気を推測します。例えば、「インフルエンザの確率80%、風邪の確率15%、肺炎の確率5%」といった形で確率を出力します。</li>
+</ul>
+</li>
+<li><p><strong>目的関数と最適化</strong>:</p>
+<ul>
+<li><strong>目的関数</strong>: 「診断の正確性」、「患者の健康状態の改善」、「治療コストの最小化」など。</li>
+<li>AIは、最も確率の高い診断名を提示し、それに基づいた最適な治療法や追加検査を推奨します。この際、誤診のリスクや治療の副作用なども考慮に入れます。</li>
+</ul>
+</li>
+<li><p><strong>行動実行</strong>:</p>
+<ul>
+<li>医師に対して、「インフルエンザの可能性が高いです。タミフル処方とPCR検査を推奨します」といった形で診断結果と推奨事項を提示します。最終的な判断は医師が行います。</li>
+</ul>
+</li>
+</ol>
+<pre class="mermaid">graph TD
+    A[患者情報収集: 症状, 既往歴, 検査データ] --> B{機械学習モデル: パターン認識}
+    B --> C[診断候補の確率出力: 例. インフルエンザ80%]
+    C --> D[目的関数設定: 診断精度, 治療効果, リスク]
+    D --> E{最適化: 最も確度の高い診断と治療法を推奨}
+    E --> F[推奨事項提示: 診断名, 治療法, 追加検査]
+    F --> G[医師による最終判断と治療]</pre>
+<p><em>図8.2: 医療診断AIの判断フロー</em></p>
+<h3 id="シナリオ3-aiの判断プロセス階層">シナリオ3: AIの判断プロセス階層</h3>
+<p>AIの判断は、複数の層にわたる処理によって行われます。</p>
+<pre class="mermaid">graph TD
+    subgraph "高レベル判断"
+        A[目標設定] --> B[戦略立案]
+    end
+
+    subgraph "中レベル判断"
+        B --> C[行動計画生成]
+        C --> D[状況評価]
+    end
+
+    subgraph "低レベル判断"
+        D --> E[具体的な行動選択]
+        E --> F[行動実行]
+    end
+
+    F --> G[結果フィードバック]
+    G --> D
+    G --> A</pre>
+<p><em>図8.3: AIの判断プロセス階層</em></p>
+<p>この図は、AIの判断が単一のステップではなく、高レベルの目標設定から低レベルの具体的な行動選択まで、階層的に行われることを示しています。結果のフィードバックは、次の判断に活かされ、学習と改善を促します。</p>
+<h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
+<p>AIの判断に関連して、よく混同されがちな用語を比較します。</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">用語</th>
+<th align="left">ひとことで言うと</th>
+<th align="left">AIとの関連性</th>
+<th align="left">人間との比較</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>判断 (Judgment)</strong></td>
+<td align="left">複数の選択肢から最適なものを選ぶこと。</td>
+<td align="left">AIの核心機能。データとアルゴリズムに基づき、目的関数を最大化（または最小化）する選択を行う。</td>
+<td align="left">経験、直感、感情、倫理観など多様な要素が絡み合う。</td>
+</tr>
+<tr>
+<td align="left"><strong>推論 (Inference)</strong></td>
+<td align="left">既知の情報から未知の結論を導き出すこと。</td>
+<td align="left">ルールベースAIでは明確な論理規則、機械学習AIでは学習済みモデルのパターン認識によって行われる。</td>
+<td align="left">論理的思考、演繹法、帰納法など。</td>
+</tr>
+<tr>
+<td align="left"><strong>予測 (Prediction)</strong></td>
+<td align="left">将来の出来事や未知の値を推定すること。</td>
+<td align="left">機械学習モデルが過去のデータから学習したパターンに基づき、未来のデータや未観測のデータを推定する。</td>
+<td align="left">経験や知識、直感に基づいて未来を想像する。</td>
+</tr>
+<tr>
+<td align="left"><strong>意思決定 (Decision Making)</strong></td>
+<td align="left">目標達成のために、具体的な行動を選択すること。</td>
+<td align="left">判断とほぼ同義だが、より行動選択に焦点を当てる。AIは目的関数と最適化を通じて意思決定を行う。</td>
+<td align="left">判断を下し、それに基づいて行動を決定する。感情や倫理が強く影響する。</td>
+</tr>
+<tr>
+<td align="left"><strong>直感 (Intuition)</strong></td>
+<td align="left">経験に基づいて無意識に行われる、説明しにくい判断。</td>
+<td align="left">AIは直感を持たない。全ての判断はデータとアルゴリズムに基づいた論理的なプロセスである。</td>
+<td align="left">人間特有の能力の一つ。高速だが、誤ることもある。</td>
+</tr>
+<tr>
+<td align="left"><strong>感情 (Emotion)</strong></td>
+<td align="left">喜び、怒り、悲しみなどの心理状態。</td>
+<td align="left">AIは感情を持たない。感情を認識したり、感情を模倣した反応を示すことはできるが、それはプログラムされた処理である。</td>
+<td align="left">人間の判断に大きな影響を与え、時には非合理的な選択をさせることもある。</td>
+</tr>
+</tbody></table></div>
+<p><em>表8.2: AIの判断と関連用語の比較</em></p>
+<h2 id="実務での位置づけ">実務での位置づけ</h2>
+<p>AIの判断能力は、現代社会の様々な分野で中心的な役割を担っています。</p>
+<ul>
+<li><strong>効率化と自動化</strong>: 繰り返し発生する判断業務（例: クレジットカードの不正利用検知、工場での品質検査）をAIが代替することで、人間の負担を減らし、効率を大幅に向上させます。</li>
+<li><strong>高度な分析と予測</strong>: 人間では処理しきれない膨大なデータから、複雑なパターンや傾向を発見し、より正確な予測や洞察を提供します（例: 気象予測、株価予測、疾病リスク予測）。</li>
+<li><strong>パーソナライゼーション</strong>: 個々のユーザーの行動や好みに合わせて、最適な情報やサービスを提案します（例: ECサイトの商品レコメンデーション、ニュースフィードのカスタマイズ）。</li>
+<li><strong>リスク管理と安全性向上</strong>: 潜在的なリスクを早期に検知し、事故や災害を未然に防ぐための判断を支援します（例: 自動運転の衝突回避、インフラの異常検知）。</li>
+<li><strong>新たな価値創造</strong>: AIの判断能力を基盤として、これまで不可能だったサービスや製品が生まれています（例: AIによる新薬開発、クリエイティブコンテンツ生成）。</li>
+</ul>
+<p>しかし、AIの判断は万能ではありません。学習データの偏り（バイアス）や、予測不可能な「エッジケース」への対応、そして判断の根拠が不明瞭な「ブラックボックス問題」など、課題も多く存在します。そのため、AIの判断を実務に適用する際には、人間の監視や介入、そしてAIの判断結果を適切に評価・改善する仕組みが不可欠となります。</p>
+<p>特に、倫理的に重要な判断や、人命に関わる判断においては、AIの判断を最終決定とするのではなく、人間の専門家が最終的な責任を持つ「人間中心のAI」の考え方が重要視されています。</p>
+<h2 id="まとめ">まとめ</h2>
+<h3 id="3行まとめ">3行まとめ</h3>
+<ul>
+<li>AIの判断は、情報収集、推論、学習、目的関数に基づく最適化のプロセスで行われる。</li>
+<li>ルールベースAIは明確な規則、機械学習AIはデータからのパターン学習で判断する。</li>
+<li>AIの判断は効率化と高度な分析に貢献するが、常に完璧ではなく、人間の監視と倫理的配慮が不可欠である。</li>
+</ul>
+<h3 id="混同しやすい用語">混同しやすい用語</h3>
+<ul>
+<li>直感とAIの判断</li>
+<li>感情とAIの判断</li>
+<li>予測と推論</li>
+</ul>
+<h3 id="次に読むべき章">次に読むべき章</h3>
+<p>第9章. AIはなぜ間違えるのか</p>
+
+      </article>
+      <nav class="page-nav">
+<a href="chapter-07.html" class="nav-prev">← 第7章 失敗と再挑戦</a>
+<a href="index.html" class="nav-toc">目次</a>
+<a href="chapter-09.html" class="nav-next">第9章 技術ツリーの正体 →</a>
+</nav>
+    </main>
+  </div>
+
+  <footer class="bookgen-rights-footer">
+  <p>&copy; 2026 Ryoichi Watanabe. All rights reserved.</p>
+  <p class="bookgen-rights-note">Third-party names, trademarks, and referenced materials remain the property of their respective owners.</p>
+</footer>
+
+  <button id="scroll-top" class="scroll-top" aria-label="トップへ戻る">↑</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>
