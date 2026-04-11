@@ -229,18 +229,18 @@ $$ C_{ij} = \sum_{k=1}^{N} A_{ik} B_{kj} $$
     G --> L["LLM推論 (CPU)"]
 
     subgraph "Apple Silicon Optimization"
-        C --> C1[GPU/NPU活用]
-        C1 --> H
+            C
+            C1
     end
 
     subgraph "NVIDIA Optimization"
-        D --> D1[cuBLAS/cuDNN活用]
-        D1 --> I
+            D
+            D1
     end
 
     subgraph "AMD Optimization"
-        E --> E1[rocBLAS/MIOpen活用]
-        E1 --> J
+            E
+            E1
     end</pre>
 <p>この図は、<code>llama.cpp</code>がどのようにして多様なハードウェア環境でLLM推論を実行するかを示しています。ハードウェアを検出し、それに応じた最適なバックエンドを選択することで、各プラットフォームの性能を最大限に引き出そうとします。</p>
 <h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
@@ -364,15 +364,21 @@ $$ C_{ij} = \sum_{k=1}^{N} A_{ik} B_{kj} $$
     A --> E["統合メモリ"]
 
     subgraph "ソフトウェアスタック"
-        F["Metal API"] --> B
-        F --> C
-        F --> D
-        F --> E
+            F
+            Metal
+            API
+            F
+            F
+            F
     end
 
     subgraph "LLMアプリケーション"
-        G["llama.cpp"] --> F
-        H["Core ML"] --> F
+            G
+            llama
+            cpp
+            H
+            Core
+            ML
     end
 
     G --> I["高速LLM推論"]
@@ -426,6 +432,7 @@ $$ C_{ij} = \sum_{k=1}^{N} A_{ik} B_{kj} $$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

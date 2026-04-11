@@ -102,8 +102,8 @@ $$</p>
     F --> G["モデルデプロイ"]
     E --> D
     subgraph "Checkpointの内容"
-        F -- "含む" --> F1["Architecture情報"]
-        F -- "含む" --> F2["Weights/Parameters"]
+            F
+            F
     end</pre>
 <p>この図は、LLM開発プロセスにおける<code>checkpoint</code>の位置づけと、その内容を示しています。<code>checkpoint</code>は、<code>architecture</code>と<code>weights</code>をセットで保存することで、モデルの状態を完全に再現可能にします。</p>
 <h3 id="4-tokenizer-トークナイザ">4. tokenizer (トークナイザ)</h3>
@@ -376,6 +376,7 @@ $$</p>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

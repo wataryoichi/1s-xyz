@@ -206,8 +206,11 @@ $$
     R2_B2 --> P_B4
 
     subgraph "ブロックテーブル (マッピング)"
-        T1[リクエスト1: [A, C, E]]
-        T2[リクエスト2: [B, D]]
+        T1[リクエスト1: [A
+        C
+        E]]
+        T2[リクエスト2: [B
+        D]]
     end
 
     R1_B1 -- 論理 --> T1
@@ -336,9 +339,14 @@ $$
 <p><em>表15.1: KV cache, Batching, Paged Attentionの比較</em></p>
 <pre class="mermaid">graph TD
     subgraph "推論最適化技術"
-        A[KV Cache] --> B{計算量削減}
-        C[Batching] --> D{スループット向上}
-        E[Paged Attention] --> F{メモリ効率向上}
+            A
+            KV
+            Cache
+            C
+            Batching
+            E
+            Paged
+            Attention
     end
 
     A -- 依存 --> G[Transformer推論]
@@ -394,6 +402,7 @@ $$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

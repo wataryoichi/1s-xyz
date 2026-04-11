@@ -204,7 +204,8 @@ $y = \sum_{i=1}^{n} w_i x_i + b$
 </ul>
 <h4 id="llmエコシステムの主要要素間の関係">LLMエコシステムの主要要素間の関係</h4>
 <pre class="mermaid">graph TD
-    A["データ収集 & 前処理"] --> B["Training (学習)"]
+    A["データ収集 --> B["Training (学習)"]
+    前処理"] --> B["Training (学習)"]
     B --> C["Pre-trained Model (基盤モデル)"]
     C --> D["Fine-tuning (微調整)"]
     D --> E["Fine-tuned Model (特化モデル)"]
@@ -263,11 +264,11 @@ $y = \sum_{i=1}^{n} w_i x_i + b$
     end
 
     subgraph "開発フェーズ"
-        O[大量テキストデータ] --> P(Training)
-        P --> Q["Pre-trained LLM (Model + Weights)"]
-        Q --> R(Fine-tuning)
-        R --> S["Fine-tuned LLM (Model + Weights)"]
-        S --> D
+            O
+            P
+            Q
+            R
+            S
     end
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -309,6 +310,7 @@ $y = \sum_{i=1}^{n} w_i x_i + b$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

@@ -166,10 +166,12 @@ $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right
     G --> H[ユーザーへ応答]
 
     subgraph "vLLM 推論ランタイム"
-        B -- API提供 --> H
-        C -- リクエスト管理 --> D
-        D -- GPUリソース管理 --> E
-        E -- モデル実行 --> F
+            B
+            API提供
+            C
+            D
+            GPUリソース管理
+            E
     end</pre>
 <p>この図は、vLLMがユーザーリクエストを受け取ってから応答を返すまでの主要な流れを示しています。APIサーバーがリクエストを受け取り、スケジューラが複数のリクエストを効率的にバッチ処理し、推論エンジンがKVキャッシュを活用しながらトークンを生成します。</p>
 <h2 id="よく混同される用語との比較">よく混同される用語との比較</h2>
@@ -316,6 +318,7 @@ $$ \text{Throughput (tokens/sec)} = \frac{\text{Total Tokens Generated}}{\text{T
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

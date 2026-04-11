@@ -227,6 +227,37 @@ pre:hover .copy-btn { opacity: 1; }
   html[data-theme="dark"] .theme-toggle::after { content: "☀️"; }
 }
 
+/* ---- Callout boxes ---- */
+.callout {
+  padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 8px;
+  border-left: 4px solid var(--accent); background: var(--code-bg);
+  font-size: 0.9rem;
+}
+.callout-warning { border-left-color: #f59e0b; }
+.callout-danger { border-left-color: #ef4444; }
+.callout-success { border-left-color: #22c55e; }
+.callout-title { font-weight: 700; margin-bottom: 0.3rem; }
+
+/* ---- Chart container ---- */
+.chart-container { position: relative; margin: 1.5rem 0; max-width: 600px; }
+.chart-container canvas { width: 100% !important; }
+
+/* ---- Key term highlight ---- */
+.key-term { font-weight: 600; color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+/* ---- Timeline ---- */
+.timeline { position: relative; padding-left: 2rem; margin: 1rem 0; }
+.timeline::before {
+  content: ""; position: absolute; left: 0.5rem; top: 0; bottom: 0;
+  width: 2px; background: var(--border);
+}
+.timeline-item { position: relative; margin-bottom: 1rem; }
+.timeline-item::before {
+  content: ""; position: absolute; left: -1.7rem; top: 0.4rem;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+}
+
 /* ---- Print ---- */
 @media print {
   .top-bar, .sidebar, .sidebar-toggle, .theme-toggle,

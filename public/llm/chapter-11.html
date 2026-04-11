@@ -172,16 +172,16 @@ $$ W_{b} = \text{sign}(W) \cdot \text{scale} $$
 <p>例えば、通常のFP16の行列乗算では多くの浮動小数点演算ユニットが必要ですが、BitNetの行列乗算はビット単位のAND/OR/XORや加算/減算といった単純な命令で処理できるため、CPUのSIMD命令などを活用して高速化が図られます。</p>
 <pre class="mermaid">graph TD
     subgraph "BitNet 推論フロー"
-        A[入力データ] --> B{活性化関数量子化}
-        B --> C[低ビット重みロード]
-        C --> D[低ビット行列乗算]
-        D --> E{出力活性化関数}
-        E --> F[出力]
+            A
+            B
+            C
+            D
+            E
     end
     subgraph "従来のFP16推論フロー"
-        G[入力データ] --> H[FP16重みロード]
-        H --> I[FP16行列乗算]
-        I --> J[出力]
+            G
+            H
+            I
     end
     D -- "ビット演算/整数演算" --> F
     I -- "浮動小数点演算" --> J</pre>
@@ -314,18 +314,25 @@ $$ Y = \text{PopCount}(\text{XNOR}(W, A)) - \text{PopCount}(\text{XOR}(W, A)) $$
 <p>しかし、これらの技術はまだ発展途上であり、従来のFP16/FP32モデルと同等の性能を安定して出すには、さらなる研究が必要です。特に、モデルの汎用性や、特定のタスクにおける性能劣化の抑制が課題となります。</p>
 <pre class="mermaid">graph TD
     subgraph "LLM軽量化技術の全体像"
-        A[LLM軽量化] --> B(量子化)
-        A --> C(プルーニング)
-        A --> D(蒸留)
-        B --> B1(従来の量子化)
-        B --> B2(極端な低ビット量子化)
-        B1 --> B1_1(PTQ)
-        B1 --> B1_2(QAT)
-        B2 --> B2_1(1-bit)
-        B2 --> B2_2(Ternary)
-        B2 --> B2_3(BitNet)
-        B2_3 -- "native low-bit training" --> B2_3_1(高性能化)
-        B2_3 -- "bitnet.cpp" --> B2_3_2(高速推論)
+            A
+            LLM軽量化
+            A
+            A
+            B
+            B
+            B1
+            B1
+            B2
+            B2
+            B2
+            B2_3
+            native
+            low
+            bit
+            training
+            B2_3
+            bitnet
+            cpp
     end
     B2_3_1 --> E[エッジデバイス展開]
     B2_3_2 --> F[低コスト運用]
@@ -371,6 +378,7 @@ $$ Y = \text{PopCount}(\text{XNOR}(W, A)) - \text{PopCount}(\text{XOR}(W, A)) $$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

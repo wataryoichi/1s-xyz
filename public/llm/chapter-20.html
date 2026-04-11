@@ -83,15 +83,15 @@
 <p>エージェントの構成要素とフロー:</p>
 <pre class="mermaid">graph TD
     subgraph "Agent System"
-        A[ユーザープロンプト/目標] --> B(LLM: 脳)
-        B -- "思考/計画" --> C{プランニング}
-        C -- 行動決定 --> D[ツール選択]
-        D -- ツール呼び出し --> E[ツール実行]
-        E -- 実行結果 --> F[記憶]
-        F -- 過去の経験 --> B
-        E -- 実行結果 --> B
-        B -- 応答生成 --> G[最終応答]
-        G --> A
+            A
+            B
+            C
+            D
+            E
+            F
+            E
+            B
+            G
     end</pre>
 <p>この図は、エージェントがユーザーからのプロンプト（目標）を受け取り、LLMを「脳」として思考・計画し、ツールを利用して行動し、その結果を記憶に保存しつつ、最終的な応答を生成する一連のプロセスを示しています。</p>
 <h3 id="ツール利用-tool-calling-function-calling">ツール利用 (Tool Calling / Function Calling)</h3>
@@ -144,19 +144,19 @@ $$
 <p>MCPのアーキテクチャ概要:</p>
 <pre class="mermaid">graph TD
     subgraph "User Interaction"
-        A[テキスト入力] --> B(MCP Core)
-        C[画像入力] --> B
-        D[音声入力] --> B
+            A
+            C
+            D
     end
 
     subgraph "MCP Core"
-        B -- 統合理解 --> E(マルチモーダルLLM)
-        E -- "意思決定/計画" --> F(ツール/API)
-        F -- "外部情報/アクション" --> G(外部システム)
-        G -- 結果 --> E
-        E -- 応答生成 --> H(テキスト出力)
-        E -- 応答生成 --> I(画像生成)
-        E -- 応答生成 --> J(音声出力)
+            B
+            E
+            F
+            G
+            E
+            E
+            E
     end</pre>
 <p>この図は、MCPがテキスト、画像、音声などの複数のモダリティからの入力を受け取り、マルチモーダルLLMを中核として統合的に理解し、必要に応じて外部ツールやAPIと連携して情報を取得・処理し、最終的に複数のモダリティで応答を生成するプロセスを示しています。</p>
 <h3 id="ワークフロー-workflow">ワークフロー (Workflow)</h3>
@@ -363,6 +363,7 @@ $$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

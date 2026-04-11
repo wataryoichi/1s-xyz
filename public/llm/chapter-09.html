@@ -166,17 +166,25 @@ $$ \text{Latency} = \text{Time To First Token} + (\text{Number of Output Tokens}
     G -- 結果を個別に返す --> K[応答4]
 
     subgraph "バッチ処理なし"
-        L[リクエスト1] --> M["LLM推論 (GPU)"]
-        M["LLM推論 (GPU)"] --> N[応答1]
-        O[リクエスト2] --> P["LLM推論 (GPU)"]
-        P["LLM推論 (GPU)"] --> Q[応答2]
-        R[リクエスト3] --> S["LLM推論 (GPU)"]
-        S["LLM推論 (GPU)"] --> T[応答3]
+            L
+            M
+            LLM推論
+            GPU
+            O
+            P
+            LLM推論
+            GPU
+            R
+            S
+            LLM推論
+            GPU
     end
 
     subgraph "バッチ処理あり"
-        U[リクエスト1,2,3] --> V["LLM推論 (GPU)"]
-        V["LLM推論 (GPU)"] --> W[応答1,2,3]
+            U
+            V
+            LLM推論
+            GPU
     end
 
     L -- 効率悪い --> M
@@ -478,20 +486,32 @@ curl 127.0.0.1:8080/generate -X POST \
 <h4 id="llm推論基盤のアーキテクチャ概要">LLM推論基盤のアーキテクチャ概要</h4>
 <pre class="mermaid">graph TD
     subgraph "クライアント層"
-        A[Web/モバイルアプリ] --> B(API Gateway/ロードバランサー)
-        C[CLIツール/スクリプト] --> B
+            A
+            Web
+            C
+            CLIツール
     end
 
     subgraph "推論サービス層"
-        B --> D{"vLLM/TGI/TensorRT-LLM サービス"}
-        D -- 動的バッチ処理 --> E[GPUクラスタ]
-        E -- "Paged Attention (vLLM)" --> F[KVキャッシュ管理]
-        E -- "TensorRT最適化 (TensorRT-LLM)" --> G[モデルコンパイル]
+            B
+            D
+            E
+            Paged
+            Attention
+            vLLM
+            E
+            TensorRT最適化
+            TensorRT
+            LLM
     end
 
     subgraph "データ層"
-        H["モデルストレージ (Hugging Face Hub/S3)"] --> D
-        D --> I[ログ/モニタリング]
+            H
+            Hugging
+            Face
+            Hub
+            S3
+            D
     end
 
     D -- 結果を返す --> B</pre>
@@ -535,6 +555,7 @@ curl 127.0.0.1:8080/generate -X POST \
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

@@ -96,9 +96,15 @@
     A --> D(メタデータ)
 
     subgraph "ファイル形式の例"
-        B -- safetensors --> E[safetensorsファイル]
-        B & C & D -- GGUF --> F[GGUFファイル]
-        B & C -- ONNX --> G[ONNXファイル]
+            B
+            safetensors
+            B
+            C
+            D
+            GGUF
+            B
+            C
+            ONNX
     end</pre>
 <h3 id="safetensors">safetensors</h3>
 <p>ひとことで言うと: 安全かつ高速にモデルの重みを読み込むためのファイル形式。
@@ -258,6 +264,7 @@ $$</p>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

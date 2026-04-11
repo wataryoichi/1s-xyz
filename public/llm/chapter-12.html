@@ -226,7 +226,8 @@
     A[SFTモデル] --> B{プロンプト}
     B --> C1[応答1]
     B --> C2[応答2]
-    C1 & C2 --> D[人間による評価]
+    C1 --> D[人間による評価]
+    C2 --> D[人間による評価]
     D --> E(報酬モデル学習)
     E --> F{報酬モデル}
     F --> G[SFTモデルの強化学習]
@@ -257,7 +258,8 @@
     A[プロンプト x] --> B{SFTモデル}
     B --> C1["応答 y_w (良い)"]
     B --> C2["応答 y_l (悪い)"]
-    C1 & C2 --> D["人間による選好データ (y_w > y_l)"]
+    C1 --> D["人間による選好データ (y_w > y_l)"]
+    C2 --> D["人間による選好データ (y_w > y_l)"]
     D --> E(DPO損失計算)
     E --> F[モデルパラメータ更新]
     F --> G{DPO最適化モデル}
@@ -314,6 +316,7 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

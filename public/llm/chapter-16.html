@@ -108,14 +108,18 @@
 <h4 id="eagleのアーキテクチャ概要-mermaid">EAGLEのアーキテクチャ概要 (Mermaid)</h4>
 <pre class="mermaid">graph TD
     subgraph "Verifier Model (Large LLM)"
-        V_Input[Input Tokens] --> V_Transformer[Transformer Layers]
-        V_Transformer --> V_Output[Output Logits]
+            V_Input
+            Input
+            Tokens
+            V_Transformer
     end
 
     subgraph "EAGLE Draft Model (Small LLM)"
-        D_Input[Input Tokens] --> D_Base[Base Transformer Layers]
-        D_Base --> D_GEL[Gated Expert Layer]
-        D_GEL --> D_Output[Draft Logits]
+            D_Input
+            Input
+            Tokens
+            D_Base
+            D_GEL
     end
 
     V_Input -- Context --> D_Input
@@ -349,6 +353,7 @@ $$ \text{Complexity} \propto O(L^2 \cdot d) $$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

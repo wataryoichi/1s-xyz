@@ -197,7 +197,8 @@ Webブラウザを開き、以下のURLにアクセスします。</p>
     end
 
     subgraph "インターネット"
-        G[Ollamaモデルライブラリ] --> D
+            G
+            Ollamaモデルライブラリ
     end</pre>
 <p><strong>図23.2: OllamaとOpen WebUIの連携構成</strong>
 この図は、ユーザーがWebブラウザを通じてOpen WebUIにアクセスし、Open WebUIがOllamaと連携してローカルのモデルファイル（GGUF形式）を<code>llama.cpp</code>などの推論エンジンで実行する流れを示しています。モデルのダウンロードはOllamaがインターネット上のライブラリから行います。</p>
@@ -347,6 +348,7 @@ $$ \text{Memory Usage} \propto S \times Q_b $$</p>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

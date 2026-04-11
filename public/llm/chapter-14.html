@@ -197,10 +197,10 @@ $$ W_{new} = W_0 + BA $$
 <p>ここでは、これらのツールがLLMのファインチューニングにおいてどのように連携し、あるいは独立して使われるかを図で示します。</p>
 <pre class="mermaid">graph TD
     subgraph "LLM学習プロセス"
-        A[データ準備] --> B(モデルロード)
-        B --> C(トークナイザ)
-        C --> D{学習ループ}
-        D --> E[評価]
+            A
+            B
+            C
+            D
     end
 
     subgraph "主要ツール群"
@@ -325,12 +325,12 @@ $$ W_{new} = W_0 + BA $$
 <p>実務では、これらのツールを単独で使うだけでなく、目的に応じて組み合わせて使うことが一般的です。例えば、<code>transformers</code>でモデルを定義し、<code>PEFT</code>でLoRAを適用し、<code>accelerate</code>と<code>deepspeed</code>を使って分散学習を行う、といった流れです。高レベルフレームワークは、これらの組み合わせをあらかじめ最適化された形で提供してくれるため、開発の手間を省くことができます。</p>
 <pre class="mermaid">graph TD
     subgraph "LLM学習ワークフロー"
-        A[学習目標設定] --> B(モデル選択)
-        B --> C(データ準備)
-        C --> D{学習環境構築}
-        D --> E(ファインチューニング)
-        E --> F(評価)
-        F --> G{"デプロイ/利用"}
+            A
+            B
+            C
+            D
+            E
+            F
     end
 
     subgraph "ツール選択の考慮事項"
@@ -394,6 +394,7 @@ $$ W_{new} = W_0 + BA $$
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

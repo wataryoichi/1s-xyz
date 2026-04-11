@@ -358,30 +358,31 @@
     E --> F[推論ランタイムでデプロイ]
 
     subgraph "ユーザーとの対話"
-        G[ユーザーのプロンプト] --> H[トークナイザでトークン化]
-        H --> I[LLMに入力]
-        I --> J{LLMの推論}
-        J -- KVキャッシュ利用 --> J
-        J -- コンテキストウィンドウ考慮 --> J
-        J --> K[回答生成]
+            G
+            H
+            I
+            J
+            KVキャッシュ利用
+            J
+            J
     end
 
     subgraph "RAGシステム"
-        L[医療文献] --> M[エンベディング]
-        M --> N[ベクトルデータベース]
-        N -- 関連情報検索 --> O[LLMへの追加情報]
-        O --> I
+            L
+            M
+            N
+            O
     end
 
     subgraph "制御と最適化"
-        P[プロンプトエンジニアリング] --> G
-        Q[温度/トップP設定] --> K
-        R[ハルシネーション対策] --> K
+            P
+            Q
+            R
     end
 
     subgraph "将来の拡張"
-        K --> S["ツール利用 (API呼び出し)"]
-        K --> T[エージェント機能]
+            K
+            K
     end
 
     F --> I</pre>
@@ -389,21 +390,22 @@
 <p>LLMの学習と推論は、異なるフェーズで行われます。</p>
 <pre class="mermaid">graph TD
     subgraph "学習フェーズ (Training Phase)"
-        A[大量のテキストデータ] --> B(事前学習 Pre-training)
-        B --> C{事前学習済みモデル}
-        C --> D[特定タスクデータ]
-        D --> E(ファインチューニング Fine-tuning)
-        E --> F{学習済みモデル}
+            A
+            B
+            C
+            D
+            E
     end
 
     subgraph "推論フェーズ (Inference Phase)"
-        G["ユーザー入力 (プロンプト)"] --> H(トークナイザ)
-        H --> I[トークン列]
-        I --> J{学習済みモデル}
-        J -- KVキャッシュ利用 --> J
-        J --> K[出力トークン列]
-        K --> L(デトークナイザ)
-        L --> M[LLMの回答]
+            G
+            H
+            I
+            J
+            KVキャッシュ利用
+            J
+            K
+            L
     end
 
     F --> J</pre>
@@ -420,8 +422,9 @@
     G --> H[ファインチューニング済みモデル]
 
     subgraph "QLoRAの追加要素"
-        I[4-bit 量子化] --> J(量子化された $W_0$)
-        J --> C
+            I
+            bit
+            J
     end</pre>
 <h3 id="loraにおける重み更新の数式">LoRAにおける重み更新の数式</h3>
 <p>LoRAでは、事前学習済みモデルの重み行列 $W_0 \in \mathbb{R}^{d \times k}$ に対して、低ランク行列 $A \in \mathbb{R}^{d \times r}$ と $B \in \mathbb{R}^{r \times k}$ を導入し、その積 $BA$ を追加します。ここで $r \ll \min(d, k)$ です。
@@ -617,6 +620,7 @@ $$ P(w_i | \text{context}) = \frac{\exp(logit_i / T)}{\sum_j \exp(logit_j / T)} 
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>

@@ -180,20 +180,21 @@ $$
 <p>K-quantsは、GGML/GGUFの開発者によって考案された、より洗練された量子化技術群です。例えば、<code>Q4_K_M</code>は「4ビットK-quant、Mediumサイズ」を意味し、<code>Q5_K_S</code>は「5ビットK-quant、Smallサイズ」を意味します。これらのバリエーションは、モデルの異なる部分に最適な量子化戦略を適用することで、全体としての精度と効率のバランスを最適化しています。</p>
 <pre class="mermaid">graph TD
     subgraph "量子化手法の進化"
-        A["FP32 (元の精度)"] --> B["標準量子化 (例: Q8_0)"]
-        B --> C["K-quants (より高度な量子化)"]
+            A
+            FP32
+            B
     end
 
     subgraph "K-quantsの戦略"
-        C --> D{ブロック単位量子化}
-        C --> E{レイヤー別最適化}
-        C --> F{混合精度}
+            C
+            C
+            C
     end
 
     subgraph "K-quantsのバリエーション"
-        D --> G[Q4_K_M]
-        D --> H[Q5_K_S]
-        E --> I[Q6_K]
+            D
+            D
+            E
     end
 
     G --> J[高効率 & 高精度]
@@ -247,9 +248,9 @@ $$
     G --> H[長いコンテキスト対応]
 
     subgraph "RoPE Scaling手法"
-        G --> I[Linear RoPE Scaling]
-        G --> J[NTK-aware RoPE Scaling]
-        G --> K[YaRN]
+            G
+            G
+            G
     end
 
     H --> L[GGUFメタデータ]
@@ -428,6 +429,7 @@ make
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/site.js"></script>
 </body>
 </html>
